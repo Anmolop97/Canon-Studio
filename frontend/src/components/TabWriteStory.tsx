@@ -18,7 +18,7 @@ import {
 
 interface TabWriteStoryProps {
   onPlayBranching: (premise: { idea: string; genre: string; realism: string; language: string }) => void;
-  onSaveToWriter: (story: { title: string; genre: string; content: string }) => void;
+  onSaveToWriter: (story: { title: string; genre: string; content: string; imageUrl?: string; imagePrompt?: string }) => void;
 }
 
 const GENRES = [
@@ -90,6 +90,8 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
   } | null>(null);
   const [streamedContent, setStreamedContent] = useState('');
   const [copied, setCopied] = useState(false);
+  const [storyArt, setStoryArt] = useState<{ imageUrl: string; imagePrompt: string } | null>(null);
+  const [isIllustrating, setIsIllustrating] = useState(false);
 
   // Abort controller / stop ref
   const abortRef = useRef<boolean>(false);
@@ -228,6 +230,9 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
 
       setGeneratedStory(result);
 
+      // Auto-trigger Gemini Visual Art Director in background
+      handleIllustrateStory(result.content, result.title);
+
       // Smooth streaming effect
       const fullText = result.content;
       const chunks = fullText.split(/(?<=\s+)/);
@@ -254,6 +259,22 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
     abortRef.current = true;
     setIsGenerating(false);
     setIsThinking(false);
+  };
+
+  const handleIllustrateStory = async (content?: string, title?: string) => {
+    const textToUse = content || streamedContent || generatedStory?.content;
+    const titleToUse = title || generatedStory?.title || keywords;
+    if (!textToUse) return;
+
+    setIsIllustrating(true);
+    try {
+      const art = await api.illustrateBranchScene(textToUse, titleToUse, selectedGenre);
+      setStoryArt(art);
+    } catch (err) {
+      console.error('Failed to illustrate story:', err);
+    } finally {
+      setIsIllustrating(false);
+    }
   };
 
   const handleCopy = () => {
@@ -289,6 +310,7 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
     setSelectedLength('800');
     setGeneratedStory(null);
     setStreamedContent('');
+    setStoryArt(null);
     setQuestionError(null);
   };
 
@@ -634,6 +656,19 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
               ) : (
                 <>
                   <button
+                    onClick={() => handleIllustrateStory()}
+                    disabled={isIllustrating}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-studio-raised hover:bg-studio-accent/20 border border-studio-border rounded text-xs font-semibold text-studio-accent min-h-[44px] transition-colors"
+                    title="Generate 16:9 Concept Art with Gemini + FLUX"
+                  >
+                    {isIllustrating ? (
+                      <div className="w-3.5 h-3.5 border-2 border-studio-accent border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <span>🎨</span>
+                    )}
+                    <span>{isIllustrating ? 'Illustrating...' : storyArt ? 'Re-Illustrate' : 'Illustrate Scene'}</span>
+                  </button>
+                  <button
                     onClick={handleCopy}
                     className="flex items-center gap-1.5 px-3 py-2 bg-studio-raised hover:bg-studio-raised/80 border border-studio-border rounded text-xs text-studio-text min-h-[44px]"
                     title="Copy full story to clipboard"
@@ -653,6 +688,32 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
               )}
             </div>
           </div>
+
+          {/* 16:9 Cinematic Concept Art Banner */}
+          {storyArt && (
+            <div className="relative mb-6 rounded-lg overflow-hidden border border-studio-border bg-black/40 shadow-xl group">
+              <img
+                src={storyArt.imageUrl}
+                alt={storyArt.imagePrompt || generatedStory?.title}
+                className="w-full h-56 sm:h-72 object-cover transition-transform duration-300 group-hover:scale-101"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex flex-col justify-end p-4">
+                <div className="flex items-center justify-between text-xs text-white/90">
+                  <span className="font-semibold flex items-center gap-1.5 text-xs text-studio-accent">
+                    <span>🎬 Gemini Art Director</span>
+                    <span className="text-white/60">&bull; 16:9 Cinematic Visual Concept Art</span>
+                  </span>
+                  <span className="text-[10px] uppercase font-bold text-studio-accent px-1.5 py-0.5 rounded bg-studio-bg shrink-0">FLUX HD</span>
+                </div>
+                {storyArt.imagePrompt && (
+                  <p className="text-xs text-white/80 italic mt-1 line-clamp-2">
+                    &ldquo;{storyArt.imagePrompt}&rdquo;
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Thinking State */}
           {isThinking && (
@@ -712,7 +773,9 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
                   onClick={() => onSaveToWriter({
                     title: generatedStory.title,
                     genre: selectedGenre,
-                    content: streamedContent || generatedStory.content
+                    content: streamedContent || generatedStory.content,
+                    imageUrl: storyArt?.imageUrl,
+                    imagePrompt: storyArt?.imagePrompt
                   })}
                   className="flex items-center justify-center gap-2 p-3 bg-studio-accent hover:bg-studio-accent/90 text-studio-bg text-xs font-bold rounded min-h-[44px]"
                 >

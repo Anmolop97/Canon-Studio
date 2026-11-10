@@ -25,6 +25,8 @@ export function App() {
     title: string;
     genre: string;
     content: string;
+    imageUrl?: string;
+    imagePrompt?: string;
   } | null>(null);
 
   // Theme state: dark-first, follows system preference, manual override in localStorage
@@ -86,7 +88,7 @@ export function App() {
   };
 
   // Cross-tab flow: "Save to Writer mode"
-  const handleSaveToWriter = (story: { title: string; genre: string; content: string }) => {
+  const handleSaveToWriter = (story: { title: string; genre: string; content: string; imageUrl?: string; imagePrompt?: string }) => {
     setPreloadedDraft(story);
     if (!currentUser) {
       setIsAuthModalOpen(true);

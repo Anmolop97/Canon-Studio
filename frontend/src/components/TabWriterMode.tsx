@@ -22,7 +22,7 @@ import {
 interface TabWriterModeProps {
   currentUser: User | null;
   onOpenAuth: () => void;
-  preloadedDraft?: { title: string; genre: string; content: string } | null;
+  preloadedDraft?: { title: string; genre: string; content: string; imageUrl?: string; imagePrompt?: string } | null;
 }
 
 export function TabWriterMode({ currentUser, onOpenAuth, preloadedDraft }: TabWriterModeProps) {
@@ -102,7 +102,7 @@ export function TabWriterMode({ currentUser, onOpenAuth, preloadedDraft }: TabWr
     setConfirmDeleteEpisode(false);
   };
 
-  const handleCreatePreloadedDraft = async (preload: { title: string; genre: string; content: string }) => {
+  const handleCreatePreloadedDraft = async (preload: { title: string; genre: string; content: string; imageUrl?: string; imagePrompt?: string }) => {
     try {
       const newDraft = await api.createDraft({
         title: preload.title,
@@ -114,6 +114,8 @@ export function TabWriterMode({ currentUser, onOpenAuth, preloadedDraft }: TabWr
             order: 1,
             title: 'Episode 1: The Inciting Incident',
             content: preload.content,
+            imageUrl: preload.imageUrl,
+            imagePrompt: preload.imagePrompt,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           }
