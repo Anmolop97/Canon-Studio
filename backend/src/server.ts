@@ -11,7 +11,7 @@ import { branchingRouter } from './routes/branching.js';
 import { draftsRouter } from './routes/drafts.js';
 import { booksRouter } from './routes/books.js';
 import { cyberpunkUniverse } from './data/defaultStoryBible.js';
-import { geminiService } from './services/geminiService.js';
+import { aiService } from './services/aiService.js';
 
 dotenv.config();
 
@@ -27,8 +27,9 @@ app.get('/api/health', (req: Request, res: Response) => {
   res.json({
     status: 'ONLINE',
     service: 'Canon Story Studio API & Continuity Engine',
-    geminiConfigured: geminiService.isConfigured(),
-    model: geminiService.getModelName(),
+    aiProvider: aiService.activeProvider(),
+    groqConfigured: aiService.isGroqConfigured(),
+    geminiConfigured: aiService.isGeminiConfigured(),
     timestamp: new Date().toISOString()
   });
 });
@@ -83,8 +84,8 @@ if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
     console.log(`=================================================`);
     console.log(`📖 Canon Story Studio Backend running on http://localhost:${PORT}`);
-    console.log(`📡 Gemini Model: ${geminiService.getModelName()}`);
-    console.log(`🔑 Key Configured: ${geminiService.isConfigured() ? 'YES (Live Gemini Active)' : 'NO (Intelligent Heuristic Active)'}`);
+    console.log(`🤖 AI Provider: ${aiService.activeProvider()}`);
+    console.log(`🔑 Groq: ${aiService.isGroqConfigured() ? 'ACTIVE' : 'not set'} | Gemini: ${aiService.isGeminiConfigured() ? 'ACTIVE (fallback)' : 'not set'}`);
     console.log(`=================================================`);
   });
 }

@@ -1,5 +1,5 @@
 import { WizardQuestionResponse } from '../types/canonStudio.js';
-import { geminiService } from './geminiService.js';
+import { aiService } from './aiService.js';
 
 export interface WizardAnswers {
   keywords?: string;
@@ -58,9 +58,9 @@ Create Question Step ${stepNumber}: Focus specifically on ${questionCategory}.
 Make all 6 options feel high-stakes, surprising, and distinct.
 Return ONLY valid JSON.`;
 
-    if (geminiService.isConfigured()) {
+    if (aiService.isConfigured()) {
       try {
-        const result = await geminiService.generateStructuredJSON<WizardQuestionResponse>({
+        const result = await aiService.generateStructuredJSON<WizardQuestionResponse>({
           prompt,
           systemInstruction,
           temperature: 0.7
@@ -73,7 +73,7 @@ Return ONLY valid JSON.`;
           };
         }
       } catch (err) {
-        console.warn('[WizardService] Gemini API question generation fallback:', err);
+        console.warn('[WizardService] AI question generation fallback:', err);
       }
     }
 
@@ -202,14 +202,14 @@ Do NOT include preamble, commentary, or meta text.`;
 
 Generate the full story now with its Title header.`;
 
-    if (geminiService.isConfigured()) {
+    if (aiService.isConfigured()) {
       try {
-        const text = await geminiService.generateText(prompt, systemInstruction);
+        const text = await aiService.generateText(prompt, systemInstruction);
         if (text && text.trim().length > 100) {
           return this.parseStoryOutput(text);
         }
       } catch (err) {
-        console.warn('[WizardService] Gemini story generation failed, using rich narrative fallback:', err);
+        console.warn('[WizardService] AI story generation failed, using rich narrative fallback:', err);
       }
     }
 

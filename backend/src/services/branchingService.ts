@@ -1,6 +1,6 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import { BranchScene, BranchOption } from '../types/canonStudio.js';
-import { geminiService } from './geminiService.js';
+import { aiService } from './aiService.js';
 
 export interface BranchingSetup {
   idea?: string;
@@ -64,9 +64,9 @@ Return strictly valid JSON matching this schema:
 
 Craft Scene 1 now with its 3 choices. Return ONLY the JSON.`;
 
-    if (geminiService.isConfigured()) {
+    if (aiService.isConfigured()) {
       try {
-        const result = await geminiService.generateStructuredJSON<{
+        const result = await aiService.generateStructuredJSON<{
           content: string;
           options: Array<{ text: string; type: 'bold' | 'careful' | 'unexpected' }>;
         }>({
@@ -137,9 +137,9 @@ PLAYER'S FINAL DECISIVE ACTION:
 
 Write the final scene now. Return ONLY the JSON.`;
 
-      if (geminiService.isConfigured()) {
+      if (aiService.isConfigured()) {
         try {
-          const result = await geminiService.generateStructuredJSON<{ content: string }>({
+          const result = await aiService.generateStructuredJSON<{ content: string }>({
             prompt,
             systemInstruction,
             temperature: 0.6
@@ -192,9 +192,9 @@ PLAYER'S CHOSEN ACTION:
 Current Decision: ${req.decisionIndex} of ${req.maxDecisions}.
 Write the consequences and next scene now with 3 new choices. Return ONLY the JSON.`;
 
-    if (geminiService.isConfigured()) {
+    if (aiService.isConfigured()) {
       try {
-        const result = await geminiService.generateStructuredJSON<{
+        const result = await aiService.generateStructuredJSON<{
           content: string;
           options: Array<{ text: string; type: 'bold' | 'careful' | 'unexpected' }>;
         }>({
@@ -245,12 +245,12 @@ Write the consequences and next scene now with 3 new choices. Return ONLY the JS
       return {
         id: 'scene-1',
         sceneNumber: 1,
-        content: `सब-लेवल 3 की संकरी गलियों में तेजाबी बारिश की बूंदें प्लास्टिक की छतों पर अंगारों की तरह टपक रही थीं। जैक ने अपने बाएं कृत्रिम हाथ को कोट के भीतर समेट लिया, जिसकी हाइड्रोलिक सील ठंड में धीमी सीटी बजा रही थी। सामने धातु की मेज पर एक सील बंद सिलेंडर रखा था, जिस पर सिंडिकेट का लाल प्रतीक चिन्ह चमक रहा था। उस बक्से से नीली रोशनी की एक धीमी धड़कन निकल रही थी, जैसे कोई जीव सांस ले रहा हो। दूर से सायरन की आवाजें तेज होने लगीं। निर्णय लेने के लिए केवल दो मिनट बचे थे।`,
+        content: `à¤¸à¤¬-à¤²à¥‡à¤µà¤² 3 à¤•à¥€ à¤¸à¤‚à¤•à¤°à¥€ à¤—à¤²à¤¿à¤¯à¥‹à¤‚ à¤®à¥‡à¤‚ à¤¤à¥‡à¤œà¤¾à¤¬à¥€ à¤¬à¤¾à¤°à¤¿à¤¶ à¤•à¥€ à¤¬à¥‚à¤‚à¤¦à¥‡à¤‚ à¤ªà¥à¤²à¤¾à¤¸à¥à¤Ÿà¤¿à¤• à¤•à¥€ à¤›à¤¤à¥‹à¤‚ à¤ªà¤° à¤…à¤‚à¤—à¤¾à¤°à¥‹à¤‚ à¤•à¥€ à¤¤à¤°à¤¹ à¤Ÿà¤ªà¤• à¤°à¤¹à¥€ à¤¥à¥€à¤‚à¥¤ à¤œà¥ˆà¤• à¤¨à¥‡ à¤…à¤ªà¤¨à¥‡ à¤¬à¤¾à¤à¤‚ à¤•à¥ƒà¤¤à¥à¤°à¤¿à¤® à¤¹à¤¾à¤¥ à¤•à¥‹ à¤•à¥‹à¤Ÿ à¤•à¥‡ à¤­à¥€à¤¤à¤° à¤¸à¤®à¥‡à¤Ÿ à¤²à¤¿à¤¯à¤¾, à¤œà¤¿à¤¸à¤•à¥€ à¤¹à¤¾à¤‡à¤¡à¥à¤°à¥‹à¤²à¤¿à¤• à¤¸à¥€à¤² à¤ à¤‚à¤¡ à¤®à¥‡à¤‚ à¤§à¥€à¤®à¥€ à¤¸à¥€à¤Ÿà¥€ à¤¬à¤œà¤¾ à¤°à¤¹à¥€ à¤¥à¥€à¥¤ à¤¸à¤¾à¤®à¤¨à¥‡ à¤§à¤¾à¤¤à¥ à¤•à¥€ à¤®à¥‡à¤œ à¤ªà¤° à¤à¤• à¤¸à¥€à¤² à¤¬à¤‚à¤¦ à¤¸à¤¿à¤²à¥‡à¤‚à¤¡à¤° à¤°à¤–à¤¾ à¤¥à¤¾, à¤œà¤¿à¤¸ à¤ªà¤° à¤¸à¤¿à¤‚à¤¡à¤¿à¤•à¥‡à¤Ÿ à¤•à¤¾ à¤²à¤¾à¤² à¤ªà¥à¤°à¤¤à¥€à¤• à¤šà¤¿à¤¨à¥à¤¹ à¤šà¤®à¤• à¤°à¤¹à¤¾ à¤¥à¤¾à¥¤ à¤‰à¤¸ à¤¬à¤•à¥à¤¸à¥‡ à¤¸à¥‡ à¤¨à¥€à¤²à¥€ à¤°à¥‹à¤¶à¤¨à¥€ à¤•à¥€ à¤à¤• à¤§à¥€à¤®à¥€ à¤§à¤¡à¤¼à¤•à¤¨ à¤¨à¤¿à¤•à¤² à¤°à¤¹à¥€ à¤¥à¥€, à¤œà¥ˆà¤¸à¥‡ à¤•à¥‹à¤ˆ à¤œà¥€à¤µ à¤¸à¤¾à¤‚à¤¸ à¤²à¥‡ à¤°à¤¹à¤¾ à¤¹à¥‹à¥¤ à¤¦à¥‚à¤° à¤¸à¥‡ à¤¸à¤¾à¤¯à¤°à¤¨ à¤•à¥€ à¤†à¤µà¤¾à¤œà¥‡à¤‚ à¤¤à¥‡à¤œ à¤¹à¥‹à¤¨à¥‡ à¤²à¤—à¥€à¤‚à¥¤ à¤¨à¤¿à¤°à¥à¤£à¤¯ à¤²à¥‡à¤¨à¥‡ à¤•à¥‡ à¤²à¤¿à¤ à¤•à¥‡à¤µà¤² à¤¦à¥‹ à¤®à¤¿à¤¨à¤Ÿ à¤¬à¤šà¥‡ à¤¥à¥‡à¥¤`,
         isEnding: false,
         options: [
-          { id: 'opt-1-1', text: 'सिलेंडर को तुरंत बलपूर्वक खोलकर सच्चाई का पता लगाएं।', type: 'bold', explored: false },
-          { id: 'opt-1-2', text: 'सिलेंडर को छिपाकर गुप्त नाले के रास्ते सुरक्षित निकल जाएं।', type: 'careful', explored: false },
-          { id: 'opt-1-3', text: 'सिलेंडर के ट्रांसमीटर से सीधे पुलिस गश्ती दल को संकेत भेजें।', type: 'unexpected', explored: false }
+          { id: 'opt-1-1', text: 'à¤¸à¤¿à¤²à¥‡à¤‚à¤¡à¤° à¤•à¥‹ à¤¤à¥à¤°à¤‚à¤¤ à¤¬à¤²à¤ªà¥‚à¤°à¥à¤µà¤• à¤–à¥‹à¤²à¤•à¤° à¤¸à¤šà¥à¤šà¤¾à¤ˆ à¤•à¤¾ à¤ªà¤¤à¤¾ à¤²à¤—à¤¾à¤à¤‚à¥¤', type: 'bold', explored: false },
+          { id: 'opt-1-2', text: 'à¤¸à¤¿à¤²à¥‡à¤‚à¤¡à¤° à¤•à¥‹ à¤›à¤¿à¤ªà¤¾à¤•à¤° à¤—à¥à¤ªà¥à¤¤ à¤¨à¤¾à¤²à¥‡ à¤•à¥‡ à¤°à¤¾à¤¸à¥à¤¤à¥‡ à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤ à¤¨à¤¿à¤•à¤² à¤œà¤¾à¤à¤‚à¥¤', type: 'careful', explored: false },
+          { id: 'opt-1-3', text: 'à¤¸à¤¿à¤²à¥‡à¤‚à¤¡à¤° à¤•à¥‡ à¤Ÿà¥à¤°à¤¾à¤‚à¤¸à¤®à¥€à¤Ÿà¤° à¤¸à¥‡ à¤¸à¥€à¤§à¥‡ à¤ªà¥à¤²à¤¿à¤¸ à¤—à¤¶à¥à¤¤à¥€ à¤¦à¤² à¤•à¥‹ à¤¸à¤‚à¤•à¥‡à¤¤ à¤­à¥‡à¤œà¥‡à¤‚à¥¤', type: 'unexpected', explored: false }
         ]
       };
     }
@@ -263,7 +263,7 @@ Write the consequences and next scene now with 3 new choices. Return ONLY the JS
       options: [
         { id: 'opt-1-1', text: 'Force the pressurized seal open with your combat knife immediately.', type: 'bold', explored: false },
         { id: 'opt-1-2', text: 'Conceal the cylinder beneath your coat and slip into the drainage conduits.', type: 'careful', explored: false },
-        { id: 'opt-1-3', text: 'Broadcast the cylinder’s harmonic pulse across the open police channel.', type: 'unexpected', explored: false }
+        { id: 'opt-1-3', text: 'Broadcast the cylinderâ€™s harmonic pulse across the open police channel.', type: 'unexpected', explored: false }
       ]
     };
   }
@@ -288,12 +288,12 @@ Write the consequences and next scene now with 3 new choices. Return ONLY the JS
     return {
       id: `scene-${sceneNum}-${crypto.randomUUID().slice(0, 4)}`,
       sceneNumber: sceneNum,
-      content: `Responding to your action—"${req.chosenOptionText}"—the immediate environment fractured into heightened tension. A surveillance drone dropped through the rain clouds, its targeting laser sweeping across your chest before abruptly cutting to amber diagnostic mode. A synthesized voice crackled through the interference: "The beacon is active. Aria is trapped inside Sub-station 4, but the lockdown protocol initiates in three minutes." The Ion Storm surged overhead, crackling against the rusted girders and leaving only seconds to maneuver.`,
+      content: `Responding to your actionâ€”"${req.chosenOptionText}"â€”the immediate environment fractured into heightened tension. A surveillance drone dropped through the rain clouds, its targeting laser sweeping across your chest before abruptly cutting to amber diagnostic mode. A synthesized voice crackled through the interference: "The beacon is active. Aria is trapped inside Sub-station 4, but the lockdown protocol initiates in three minutes." The Ion Storm surged overhead, crackling against the rusted girders and leaving only seconds to maneuver.`,
       isEnding: false,
       options: [
         { id: `opt-${sceneNum}-1`, text: 'Breach the fortified security gates using an overloaded thermal charge.', type: 'bold', explored: false },
         { id: `opt-${sceneNum}-2`, text: 'Infiltrate the drainage vent system to bypass automated turrets silently.', type: 'careful', explored: false },
-        { id: `opt-${sceneNum}-3`, text: 'Redirect the substation’s power transformer to trigger a sector-wide blackout.', type: 'unexpected', explored: false }
+        { id: `opt-${sceneNum}-3`, text: 'Redirect the substationâ€™s power transformer to trigger a sector-wide blackout.', type: 'unexpected', explored: false }
       ],
       choiceTaken: req.chosenOptionText
     };
@@ -315,7 +315,7 @@ Write the consequences and next scene now with 3 new choices. Return ONLY the JS
     return {
       id: `scene-ending`,
       sceneNumber: sceneNum,
-      content: `With the decisive resolution of "${req.chosenOptionText}", the cascading chain of consequences reached its final equilibrium. As the Ion Storm broke above Lower Veridia, the prototype’s atmospheric scrubbers ignited, bathing the drowned alleys in crystalline dawn light for the first time in three decades. Aria secured the verified broadcast records while Jack holstered his weapon, the threat of syndicate retaliation broken. Through bold tactics and unyielding resolve, the city had been granted a second chance. Your journey ends here.`,
+      content: `With the decisive resolution of "${req.chosenOptionText}", the cascading chain of consequences reached its final equilibrium. As the Ion Storm broke above Lower Veridia, the prototypeâ€™s atmospheric scrubbers ignited, bathing the drowned alleys in crystalline dawn light for the first time in three decades. Aria secured the verified broadcast records while Jack holstered his weapon, the threat of syndicate retaliation broken. Through bold tactics and unyielding resolve, the city had been granted a second chance. Your journey ends here.`,
       isEnding: true,
       options: [],
       choiceTaken: req.chosenOptionText
@@ -324,3 +324,4 @@ Write the consequences and next scene now with 3 new choices. Return ONLY the JS
 }
 
 export const branchingService = new BranchingService();
+

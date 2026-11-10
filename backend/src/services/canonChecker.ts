@@ -6,7 +6,7 @@ import {
   VoiceNote,
   CanonCheckResult
 } from '../types/canonStudio.js';
-import { geminiService } from './geminiService.js';
+import { aiService } from './aiService.js';
 
 export interface CheckCanonInput {
   episodeNumber: number;
@@ -102,9 +102,9 @@ ${safeContent}
 
 Execute continuity audit and voice analysis now. Return ONLY valid JSON.`;
 
-    if (geminiService.isConfigured()) {
+    if (aiService.isConfigured()) {
       try {
-        const result = await geminiService.generateStructuredJSON<any>({
+        const result = await aiService.generateStructuredJSON<any>({
           prompt,
           systemInstruction,
           temperature: 0.1
@@ -163,7 +163,7 @@ Execute continuity audit and voice analysis now. Return ONLY valid JSON.`;
           };
         }
       } catch (err) {
-        console.warn('[CanonChecker] Gemini call failed, engaging deterministic audit engine:', err);
+        console.warn('[CanonChecker] AI call failed, engaging deterministic audit engine:', err);
       }
     }
 
@@ -341,14 +341,14 @@ WRITER'S OUTLINE / INSTRUCTION FOR THIS EPISODE:
 
 Write Episode ${episodeNumber} now.`;
 
-    if (geminiService.isConfigured()) {
+    if (aiService.isConfigured()) {
       try {
-        const text = await geminiService.generateText(prompt, systemInstruction);
+        const text = await aiService.generateText(prompt, systemInstruction);
         if (text && text.trim().length > 100) {
           return text.trim();
         }
       } catch (err) {
-        console.warn('[CanonChecker] Gemini drafting fallback:', err);
+        console.warn('[CanonChecker] AI drafting fallback:', err);
       }
     }
 
