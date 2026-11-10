@@ -55,6 +55,8 @@ export function TabChoosePath({ initialPremise }: TabChoosePathProps) {
   const [loadingNext, setLoadingNext] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [isIllustratingClimax, setIsIllustratingClimax] = useState(false);
+  const [climaxArt, setClimaxArt] = useState<{ imageUrl: string; imagePrompt: string } | null>(null);
 
   useEffect(() => {
     if (initialPremise) {
@@ -230,6 +232,19 @@ export function TabChoosePath({ initialPremise }: TabChoosePathProps) {
     link.download = `branching_story_path_${Date.now()}.txt`;
     link.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleIllustrateClimax = async () => {
+    if (!currentNode) return;
+    setIsIllustratingClimax(true);
+    try {
+      const art = await api.illustrateBranchScene(currentNode.content, idea, genre);
+      setClimaxArt(art);
+    } catch (err) {
+      console.error('Climax art error:', err);
+    } finally {
+      setIsIllustratingClimax(false);
+    }
   };
 
   // Icon mapping for option types
@@ -454,7 +469,37 @@ export function TabChoosePath({ initialPremise }: TabChoosePathProps) {
                   <p className="text-xs text-studio-muted max-w-md mx-auto">
                     You have reached a final resolution reflecting the {activePathNodes.length - 1} critical decisions you made along this path. You can jump back to any scene in the tree to explore alternative futures.
                   </p>
+
+                  {/* Climax Scene Concept Art Banner */}
+                  {climaxArt && (
+                    <div className="relative rounded-lg overflow-hidden border border-studio-border my-4 bg-black/40 shadow-xl max-w-xl mx-auto">
+                      <img
+                        src={climaxArt.imageUrl}
+                        alt={climaxArt.imagePrompt}
+                        className="w-full h-52 sm:h-64 object-cover"
+                        loading="lazy"
+                      />
+                      <div className="p-2.5 bg-studio-card/95 border-t border-studio-border text-[11px] text-studio-muted italic text-left">
+                        🎬 Climax Art: &ldquo;{climaxArt.imagePrompt}&rdquo;
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex flex-wrap justify-center gap-3 pt-2">
+                    {!climaxArt && (
+                      <button
+                        onClick={handleIllustrateClimax}
+                        disabled={isIllustratingClimax}
+                        className="px-4 py-2 bg-studio-raised hover:bg-studio-accent/20 border border-studio-border text-studio-accent font-bold text-xs rounded min-h-[44px] flex items-center gap-1.5"
+                      >
+                        {isIllustratingClimax ? (
+                          <div className="w-3.5 h-3.5 border-2 border-studio-accent border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <span>🎨</span>
+                        )}
+                        <span>{isIllustratingClimax ? 'Generating Concept Art...' : 'Illustrate Climax Scene'}</span>
+                      </button>
+                    )}
                     <button
                       onClick={handleExportJourney}
                       className="px-4 py-2 bg-studio-accent text-studio-bg font-bold text-xs rounded min-h-[44px] flex items-center gap-1.5"

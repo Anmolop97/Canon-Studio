@@ -166,6 +166,13 @@ class ApiClient {
     });
   }
 
+  public async illustrateBranchScene(sceneText: string, title?: string, genre?: string): Promise<{ imageUrl: string; imagePrompt: string }> {
+    return this.request('/branching/illustrate-scene', {
+      method: 'POST',
+      body: JSON.stringify({ sceneText, title, genre })
+    });
+  }
+
   // Writer Mode Drafts
   public async getDrafts(): Promise<Draft[]> {
     return this.request<Draft[]>('/drafts');
@@ -213,6 +220,17 @@ class ApiClient {
     return this.request<CanonCheckResult>(`/drafts/${draftId}/check-canon`, {
       method: 'POST',
       body: JSON.stringify({ episodeIndex, episodeTitle, episodeContent })
+    });
+  }
+
+  public async illustrateEpisode(draftId: string, episodeIndex: number): Promise<{
+    success: boolean;
+    imageUrl: string;
+    imagePrompt: string;
+    episode: any;
+  }> {
+    return this.request(`/drafts/${draftId}/episodes/${episodeIndex}/illustrate`, {
+      method: 'POST'
     });
   }
 

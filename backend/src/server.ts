@@ -12,14 +12,69 @@ import { draftsRouter } from './routes/drafts.js';
 import { booksRouter } from './routes/books.js';
 import { cyberpunkUniverse } from './data/defaultStoryBible.js';
 import { aiService } from './services/aiService.js';
+import { securityHeaders } from './middleware/security.js';
+import { aiRateLimiter } from './middleware/rateLimit.js';
+import { optionalAuth } from './routes/auth.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// CORS Allowlist Configuration (R5)
+export function getAllowedOrigins(): string[] {
+  const defaultOrigins = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:5000'
+  ];
+
+  const configured: string[] = [];
+
+  if (process.env.FRONTEND_URL) {
+    process.env.FRONTEND_URL.split(',').forEach(item => {
+      const trimmed = item.trim().replace(/\/$/, '');
+      if (trimmed) configured.push(trimmed);
+    });
+  }
+
+  if (process.env.ALLOWED_ORIGINS) {
+    process.env.ALLOWED_ORIGINS.split(',').forEach(item => {
+      const trimmed = item.trim().replace(/\/$/, '');
+      if (trimmed) configured.push(trimmed);
+    });
+  }
+
+  return Array.from(new Set([...defaultOrigins, ...configured]));
+}
+
 // Middleware
-app.use(cors({ origin: '*' }));
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow non-browser requests with no Origin header (e.g. curl, mobile apps, server-to-server, scripts)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    const allowedOrigins = getAllowedOrigins();
+    const normalizedOrigin = origin.replace(/\/$/, '');
+
+    if (allowedOrigins.includes(origin) || allowedOrigins.includes(normalizedOrigin)) {
+      return callback(null, true);
+    }
+
+    // Disallow origin: do not set Access-Control-Allow-Origin header
+    return callback(null, false);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+}));
+
+// Defensive Security Headers Middleware (R5)
+app.use(securityHeaders);
 app.use(express.json({ limit: '20mb' }));
 
 // Health Check
@@ -30,6 +85,7 @@ app.get('/api/health', (req: Request, res: Response) => {
     aiProvider: aiService.activeProvider(),
     groqConfigured: aiService.isGroqConfigured(),
     geminiConfigured: aiService.isGeminiConfigured(),
+    openrouterConfigured: aiService.isOpenRouterConfigured(),
     timestamp: new Date().toISOString()
   });
 });
@@ -65,6 +121,11 @@ app.get('/api/context-cache-stats', (req: Request, res: Response) => {
     }
   });
 });
+
+// Targeted Sliding Window Rate Limiting on AI Generation Endpoints (R4)
+app.post('/api/wizard/generate-story', optionalAuth, aiRateLimiter);
+app.post('/api/drafts/:id/ai-draft', optionalAuth, aiRateLimiter);
+app.post('/api/branching/next', optionalAuth, aiRateLimiter);
 
 // Mount Canon Story Studio Core Routes
 app.use('/api/auth', authRouter);
