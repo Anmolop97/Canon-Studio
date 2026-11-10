@@ -1,0 +1,238 @@
+import type {
+  User,
+  Draft,
+  Book,
+  WizardQuestion,
+  BranchScene,
+  CanonCheckResult
+} from './types';
+
+const API_BASE = 'http://localhost:5000/api';
+
+class ApiClient {
+  private token: string | null = null;
+
+  constructor() {
+    this.token = localStorage.getItem('canon_auth_token');
+  }
+
+  public setToken(token: string | null) {
+    this.token = token;
+    if (token) {
+      localStorage.setItem('canon_auth_token', token);
+    } else {
+      localStorage.removeItem('canon_auth_token');
+    }
+  }
+
+  public getToken(): string | null {
+    return this.token;
+  }
+
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...((options.headers as Record<string, string>) || {})
+    };
+
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      const message = errorData.error || errorData.message || `Request failed (${res.status})`;
+      throw new Error(message);
+    }
+
+    return res.json() as Promise<T>;
+  }
+
+  // Auth
+  public async getDemoAccounts(): Promise<Array<{ id: string; email: string; displayName: string; demoPassword: string }>> {
+    return this.request('/auth/demo-accounts');
+  }
+
+  public async login(email: string, password: string): Promise<{ token: string; user: User }> {
+    const data = await this.request<{ token: string; user: User }>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password })
+    });
+    this.setToken(data.token);
+    return data;
+  }
+
+  public async register(email: string, password: string, displayName: string): Promise<{ token: string; user: User }> {
+    const data = await this.request<{ token: string; user: User }>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ email, password, displayName })
+    });
+    this.setToken(data.token);
+    return data;
+  }
+
+  public async getMe(): Promise<{ user: User }> {
+    return this.request<{ user: User }>('/auth/me');
+  }
+
+  public logout() {
+    this.setToken(null);
+  }
+
+  // Wizard
+  public async getNextWizardQuestion(step: number, answers: any): Promise<WizardQuestion> {
+    return this.request<WizardQuestion>('/wizard/next-question', {
+      method: 'POST',
+      body: JSON.stringify({ step, answers })
+    });
+  }
+
+  public async generateWizardStory(answers: any): Promise<{
+    title: string;
+    content: string;
+    wordCount: number;
+    readingTimeMinutes: number;
+  }> {
+    return this.request('/wizard/generate-story', {
+      method: 'POST',
+      body: JSON.stringify(answers)
+    });
+  }
+
+  // Branching Stories
+  public async startBranching(setup: {
+    idea?: string;
+    genre?: string;
+    realism?: string;
+    language?: string;
+    maxDecisions: number;
+  }): Promise<BranchScene> {
+    return this.request<BranchScene>('/branching/start', {
+      method: 'POST',
+      body: JSON.stringify(setup)
+    });
+  }
+
+  public async nextBranchScene(data: {
+    storySoFar: string[];
+    chosenOptionText: string;
+    decisionIndex: number;
+    maxDecisions: number;
+    genre?: string;
+    language?: string;
+  }): Promise<BranchScene> {
+    return this.request<BranchScene>('/branching/next', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  // Writer Mode Drafts
+  public async getDrafts(): Promise<Draft[]> {
+    return this.request<Draft[]>('/drafts');
+  }
+
+  public async getDraft(id: string): Promise<Draft> {
+    return this.request<Draft>(`/drafts/${id}`);
+  }
+
+  public async createDraft(data: Partial<Draft>): Promise<Draft> {
+    return this.request<Draft>('/drafts', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  public async updateDraft(id: string, data: Partial<Draft>): Promise<Draft> {
+    return this.request<Draft>(`/drafts/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  }
+
+  public async deleteDraft(id: string): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/drafts/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  public async draftEpisodeWithAI(draftId: string, episodeIndex: number, userPrompt: string): Promise<{
+    content: string;
+    episodeNumber: number;
+  }> {
+    return this.request(`/drafts/${draftId}/ai-draft`, {
+      method: 'POST',
+      body: JSON.stringify({ episodeIndex, userPrompt })
+    });
+  }
+
+  public async checkCanon(draftId: string, episodeIndex: number, episodeTitle: string, episodeContent: string): Promise<CanonCheckResult> {
+    return this.request<CanonCheckResult>(`/drafts/${draftId}/check-canon`, {
+      method: 'POST',
+      body: JSON.stringify({ episodeIndex, episodeTitle, episodeContent })
+    });
+  }
+
+  public async publishDraft(draftId: string): Promise<{ success: boolean; message: string; book: Book }> {
+    return this.request(`/drafts/${draftId}/publish`, {
+      method: 'POST'
+    });
+  }
+
+  public async unpublishDraft(draftId: string): Promise<{ success: boolean; message: string }> {
+    return this.request(`/drafts/${draftId}/unpublish`, {
+      method: 'POST'
+    });
+  }
+
+  // Books
+  public async getBooks(params: {
+    search?: string;
+    genre?: string;
+    minRating?: string;
+    sort?: string;
+  } = {}): Promise<Book[]> {
+    const q = new URLSearchParams();
+    if (params.search) q.set('search', params.search);
+    if (params.genre) q.set('genre', params.genre);
+    if (params.minRating) q.set('minRating', params.minRating);
+    if (params.sort) q.set('sort', params.sort);
+
+    const queryStr = q.toString() ? `?${q.toString()}` : '';
+    return this.request<Book[]>(`/books${queryStr}`);
+  }
+
+  public async getBestBooks(): Promise<{
+    formula: string;
+    weightedFormula: string;
+    explanation: string;
+    count: number;
+    books: Book[];
+  }> {
+    return this.request('/books/best');
+  }
+
+  public async getBook(id: string): Promise<Book> {
+    return this.request<Book>(`/books/${id}`);
+  }
+
+  public async toggleLike(bookId: string): Promise<{ liked: boolean; totalLikes: number }> {
+    return this.request(`/books/${bookId}/like`, {
+      method: 'POST'
+    });
+  }
+
+  public async rateBook(bookId: string, score: number): Promise<{ avgRating: number; totalRatings: number; userRating: number }> {
+    return this.request(`/books/${bookId}/rate`, {
+      method: 'POST',
+      body: JSON.stringify({ score })
+    });
+  }
+}
+
+export const api = new ApiClient();

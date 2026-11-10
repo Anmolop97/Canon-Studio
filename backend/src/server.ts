@@ -5,6 +5,11 @@ import { auditRouter } from './routes/audit.js';
 import { voiceRouter } from './routes/voice.js';
 import { storyRouter } from './routes/story.js';
 import { treeRouter } from './routes/tree.js';
+import { authRouter } from './routes/auth.js';
+import { wizardRouter } from './routes/wizard.js';
+import { branchingRouter } from './routes/branching.js';
+import { draftsRouter } from './routes/drafts.js';
+import { booksRouter } from './routes/books.js';
 import { cyberpunkUniverse } from './data/defaultStoryBible.js';
 import { geminiService } from './services/geminiService.js';
 
@@ -15,13 +20,13 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({ origin: '*' }));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '20mb' }));
 
 // Health Check
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({
     status: 'ONLINE',
-    service: 'SagaForge AI Narrative Engine',
+    service: 'Canon Story Studio API & Continuity Engine',
     geminiConfigured: geminiService.isConfigured(),
     model: geminiService.getModelName(),
     timestamp: new Date().toISOString()
@@ -33,9 +38,8 @@ app.get('/api/story-bible', (req: Request, res: Response) => {
   res.json(cyberpunkUniverse);
 });
 
-// Context Caching & Token Economics Monitor (Pillar of the Challenge)
+// Context Caching & Token Economics Monitor
 app.get('/api/context-cache-stats', (req: Request, res: Response) => {
-  // Estimated metrics representing cached Story Bible + Episodic history
   const cachedBibleTokens = 148500;
   const standardCostPer1k = 0.000125;
   const cachedCostPer1k = 0.000031;
@@ -61,19 +65,28 @@ app.get('/api/context-cache-stats', (req: Request, res: Response) => {
   });
 });
 
-// Mount Routes
+// Mount Canon Story Studio Core Routes
+app.use('/api/auth', authRouter);
+app.use('/api/wizard', wizardRouter);
+app.use('/api/branching', branchingRouter);
+app.use('/api/drafts', draftsRouter);
+app.use('/api/books', booksRouter);
+
+// Mount Legacy / Compatibility Routes
 app.use('/api/audit-lore', auditRouter);
 app.use('/api/analyze-voice', voiceRouter);
 app.use('/api/story', storyRouter);
 app.use('/api/story-tree', treeRouter);
 
 // Start Server
-app.listen(PORT, () => {
-  console.log(`=================================================`);
-  console.log(`🚀 SagaForge AI Backend running on http://localhost:${PORT}`);
-  console.log(`📡 Gemini Model: ${geminiService.getModelName()}`);
-  console.log(`🔑 Key Configured: ${geminiService.isConfigured() ? 'YES (Live AI Active)' : 'NO (Heuristic Demo Active)'}`);
-  console.log(`=================================================`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`=================================================`);
+    console.log(`📖 Canon Story Studio Backend running on http://localhost:${PORT}`);
+    console.log(`📡 Gemini Model: ${geminiService.getModelName()}`);
+    console.log(`🔑 Key Configured: ${geminiService.isConfigured() ? 'YES (Live Gemini Active)' : 'NO (Intelligent Heuristic Active)'}`);
+    console.log(`=================================================`);
+  });
+}
 
 export default app;

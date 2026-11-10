@@ -1,8 +1,8 @@
 {
   "name": "sagaforge-backend",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
-  "description": "SagaForge AI Engine - Lore Consistency, Voice Fidelity & Vector Memory Trees",
+  "description": "Canon Story Studio — AI Narrative Engine: Story Wizard, Branching Stories, Writer Mode, Canon Continuity & Books Library",
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",

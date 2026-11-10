@@ -25,3 +25,7 @@ yarn-error.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# Generated runtime data (do not commit)
+backend/data/
+enhanced_photos/

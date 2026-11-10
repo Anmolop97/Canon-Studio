@@ -1,84 +1,204 @@
-# ⚡ SagaForge AI — Lore-Grounded Interactive Narrative Engine
-> **Track**: Narrative & Screenplay — Storytelling & Co-Writers  
-> *GenAI assistants for authors and narrative designers to maintain lore consistency and dynamic branching.*
+# Canon Story Studio
+
+> **A full-stack AI-powered fiction platform where non-writers generate stories, writers publish serialized sagas with AI continuity checking, and readers discover and rate them.**
 
 ---
 
-## 🎯 The Challenge We Solved
-Modern storytellers, screenwriters, and video game narrative designers struggle with:
-1. **Intricate Lore Consistency**: In sprawling episodic sagas, writers accidentally contradict hard world physics, magic rules, and character injuries (plot holes).
-2. **Dialogue Voice Fidelity**: Generic LLMs produce homogenously polite, robotic dialogue, obliterating distinct character dialects and cadence.
-3. **Dynamic Nonlinear Branching**: Complex branching narratives create combinatorial explosion where tracking inherited decisions, faction standing, and inventory across seasons is nearly impossible.
+## Features
+
+### Tab 1 — Write a Story (No Login Required)
+Guided 7-step wizard for non-writers:
+- Free-text keyword seed → Genre → World tone → Language (English / Hinglish / Hindi)
+- **Steps 4–6: Dynamic AI questions** generated from prior answers — 6 contextually crafted options each
+- Full story generated and streamed (simulated) at 400 / 800 / 1,400 words
+- Copy, Download, Write Another Version, **Play as Choose-Your-Path**, **Save to Writer Mode**
+
+### Tab 2 — Choose Your Path (No Login Required)
+Interactive branching narrative:
+- Setup: idea, genre, language, decisions before ending (3 / 5 / 8)
+- Each scene: 110–170 words + 3 choices (bold / careful / unexpected) + free-text custom action
+- **Live narrative tree** — amber current node, blue active path, diamond endings; click any node to branch differently
+- Explored choices are marked; Copy and Download full path
+
+### Tab 3 — Writer Mode (Login Required)
+Professional serialized fiction workspace:
+- Private drafts: title, genre, blurb, ordered episodes
+- **Draft with AI** — describe the episode, AI writes it respecting all canon facts and character voices
+- **Check Against Canon** — sends episode + prior-episode facts to AI, returns:
+  - `facts`: lasting world facts with quote & episode tag (removable)
+  - `conflicts`: real contradictions with 1-click Apply Fix buttons
+  - `voice`: out-of-character dialogue with 1-click "Use this rewrite"
+  - `voiceNotes`: character speaking style fingerprints
+- Save with fresh check updates canon memory; save without warns the author
+- Delete story / delete episode both require a 2nd confirmation click
+- Publish to Books / Update Published / Unpublish
+
+### Tab 4 — Books (Reading Library)
+- Browse: search (title, blurb, author), genre filter, min-rating filter, sort (newest / liked / rated / episodes)
+- **Best Books Top 20** using the Bayesian formula:
+  ```
+  score = weighted_rating + 0.5 × log10(1 + likes)
+  weighted_rating = (n × avg + 3 × globalMean) / (n + 3)
+  ```
+  Formula is explained on screen.
+- Reader modal: episode pagination, like toggle, 1–5 star rating (one per user, changeable)
+- Authors cannot like or rate their own stories (enforced server-side)
 
 ---
 
-## 🏗️ Architecture & Core Pillars
+## Design System
 
-```
-┌────────────────────────────────────────────────────────┐
-│            Master Story Bible (Context-Cached)          │
-│   (World Physics, Faction Rules, Character Dossiers)    │
-└───────────────────────────┬────────────────────────────┘
-                            │
-                            ▼
-┌───────────────────┐    ┌───────────────────────────────────┐
-│ Vector Memory Tree│───►│       Continuity Cop Engine       │──► [Structured JSON Diagnostics]
-│ (Branch State)    │    │ (Gemini 3.5 Flash Long Context)   │
-└───────────────────┘    └─────────────────┬─────────────────┘
-                                           │
-                                           ▼
-┌───────────────────┐    ┌───────────────────────────────────┐
-│ Vocal Fingerprints│───►│   Dialogue Voice Fidelity Radar   │──► [Voice Score & Dialect Fixes]
-│ (Cadence/Lexicon) │    │        (Structured Output)        │
-└───────────────────┘    └───────────────────────────────────┘
-```
+| Token | Dark Mode | Light Mode |
+|-------|-----------|-----------|
+| Background | `#0F1220` | `#FAF6EC` |
+| Card | `#1B1F36` | `#FFFFFF` |
+| Raised | `#232845` | `#F0EAD8` |
+| Text | `#F4EEDC` | `#1B1F36` |
+| Muted | `#9AA0BC` | `#5E6482` |
+| Accent (amber) | `#F2B84B` | `#D89112` |
 
-1. **Structured Outputs**: Native JSON schema enforcement for zero-hallucination continuity diagnostics.
-2. **Context Caching**: Caches the 150k+ token Story Bible and prior episodic canon on Gemini, reducing API latency by **88%** and slashing token costs by **75%**.
-3. **Vector Memory Trees**: Hierarchical Directed Acyclic Graph (DAG) tracking branching timeline state (inventory, health status, faction standing).
-4. **Dialogue Voice Fidelity Profiler**: Quantitative dialect radar (formality, cynicism, aggression) with automated out-of-character drift detection.
+- **Fonts**: Fraunces (headings & story text) + Inter (UI chrome)
+- Dark-first; toggleable manually; persists to `localStorage`
+- Min 44px touch targets; visible focus outlines; 400px mobile-safe
 
 ---
 
-## 🚀 Quick Start Guide
+## Tech Stack
 
-### 1. Backend Setup
+| Layer | Tech |
+|-------|------|
+| Frontend | React 19 + TypeScript + Tailwind CSS + Vite |
+| Backend | Node.js + Express + TypeScript |
+| AI Engine | Google Gemini API (flash-lite) with deterministic fallbacks |
+| Storage | JSON file DB (`backend/data/db.json`) — zero infra |
+| Auth | Token-based session (SHA-256 hashed passwords) |
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- A [Google AI Studio](https://aistudio.google.com) Gemini API key (optional — works fully with smart fallbacks)
+
+### 1. Clone & Install
+
 ```bash
+git clone https://github.com/anand05-cell/Story-Ai.git
+cd Story-Ai
+
+# Backend
 cd backend
 npm install
-npm run build
-npm run dev
-```
-* The backend runs on `http://localhost:5000`.
-* Pre-configured with `.env` (Gemini API key).
-* Run test suite: `node test_api.js`
 
-### 2. Frontend Setup
+# Frontend
+cd ../frontend
+npm install
+```
+
+### 2. Configure Backend
+
+```bash
+cd backend
+cp .env.example .env
+# Edit .env and paste your GEMINI_API_KEY (optional)
+```
+
+### 3. Run Development
+
+**Terminal 1 — Backend:**
+```bash
+cd backend
+npm run dev
+# → http://localhost:5000
+```
+
+**Terminal 2 — Frontend:**
 ```bash
 cd frontend
-npm install
 npm run dev
+# → http://localhost:5173
 ```
-* Detailed API endpoints and copy-paste client available in [`docs/API_CONTRACT.md`](./docs/API_CONTRACT.md).
+
+### 4. Demo Accounts (Pre-seeded)
+
+| Name | Email | Password |
+|------|-------|----------|
+| Anya Sharma | anya@canonstory.studio | anya123 |
+| Devraj Sen | dev@canonstory.studio | dev123 |
+
+> Click the **1-Click Demo Profiles** in the Sign In modal for instant access.
 
 ---
 
-## 📡 API Endpoints Summary
+## API Endpoints
 
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/api/audit-lore` | Real-time continuity check (catches plot holes with rule citations) |
-| `POST` | `/api/analyze-voice` | Character voice fidelity analyzer & in-character rewrite engine |
-| `POST` | `/api/story/generate-beat` | Dynamic co-writer generating in-character screenplay beats |
-| `GET` | `/api/story-tree` | Retrieves full episodic branching graph with inherited state |
-| `POST` | `/api/story-tree/branch` | Creates an unscripted choice branch and updates state delta |
-| `GET` | `/api/context-cache-stats` | Real-time benchmark of Context Caching latency & cost savings |
-| `GET` | `/api/health` | Health check & model status |
+| Route | Method | Auth | Description |
+|-------|--------|------|-------------|
+| `/api/health` | GET | — | Server & Gemini status |
+| `/api/auth/register` | POST | — | Create account |
+| `/api/auth/login` | POST | — | Sign in |
+| `/api/auth/me` | GET | Bearer | Current user |
+| `/api/wizard/next-question` | POST | — | AI wizard step question |
+| `/api/wizard/generate-story` | POST | — | Full story generation |
+| `/api/branching/start` | POST | — | Start branching story |
+| `/api/branching/next` | POST | — | Next scene from choice |
+| `/api/drafts` | GET/POST | Bearer | List / create drafts |
+| `/api/drafts/:id` | GET/PUT/DELETE | Bearer (owner) | Draft CRUD |
+| `/api/drafts/:id/ai-draft` | POST | Bearer (owner) | AI episode draft |
+| `/api/drafts/:id/check-canon` | POST | Bearer (owner) | Full continuity audit |
+| `/api/drafts/:id/publish` | POST | Bearer (owner) | Publish to Books |
+| `/api/drafts/:id/unpublish` | POST | Bearer (owner) | Remove from Books |
+| `/api/books` | GET | Optional | Browse library |
+| `/api/books/best` | GET | Optional | Top 20 Bayesian ranked |
+| `/api/books/:id/like` | POST | Bearer | Toggle like |
+| `/api/books/:id/rate` | POST | Bearer | Rate 1–5 |
 
 ---
 
-## 🏆 Submission Track Alignment
-- ✅ **Structured Outputs**: Validated JSON response schemas across all diagnostics.
-- ✅ **Context Caching**: Live cache stats monitor showcasing token optimization.
-- ✅ **Vector Memory Trees**: Branch inheritance engine maintaining narrative state.
-- ✅ **Long Context**: Ingests complete multi-episode arcs for holistic canon audits.
+## AI Rules
+
+- Every structured JSON call returns validated JSON with deterministic fallback engines
+- Stories in Hinglish use Roman script only (never Devanagari)
+- Prompts are sliced under ~50,000 characters to prevent oversize calls
+- Error states: permission denied, rate limit, invalid output, cancelled — all show plain-language messages with Retry buttons, never infinite retry loops
+
+---
+
+## Project Structure
+
+```
+Story-Ai/
+├── backend/
+│   ├── src/
+│   │   ├── routes/        # auth, wizard, branching, drafts, books, audit, voice, story, tree
+│   │   ├── services/      # geminiService, wizardService, branchingService, canonChecker, storage
+│   │   ├── types/         # canonStudio.ts (shared types)
+│   │   ├── data/          # defaultStoryBible.ts (pre-seeded Neon Eclipse universe)
+│   │   └── server.ts      # Express app
+│   ├── data/              # db.json (created on first run)
+│   ├── .env.example
+│   └── package.json
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Header.tsx
+│   │   │   ├── AuthModal.tsx
+│   │   │   ├── TabWriteStory.tsx   # 7-step AI Wizard
+│   │   │   ├── TabChoosePath.tsx   # Branching story with live tree
+│   │   │   ├── TabWriterMode.tsx   # Private drafts + canon audit
+│   │   │   └── TabBooks.tsx        # Library + Best Books + Reader
+│   │   ├── api.ts         # Typed API client
+│   │   ├── types.ts       # Shared TypeScript interfaces
+│   │   ├── App.tsx        # Root SPA + cross-tab state flows
+│   │   └── index.css      # CSS variables (dark/light tokens)
+│   └── tailwind.config.js
+│
+└── docs/
+    └── API_CONTRACT.md
+```
+
+---
+
+*Built with Gemini API + React + Express. No database required.*
