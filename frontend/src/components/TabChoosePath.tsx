@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from 'react';
-import { api } from '../api';
+import { api, triggerDownload } from '../api';
 import type { BranchOption } from '../types';
 import {
   Compass,
@@ -194,6 +194,24 @@ export function TabChoosePath({ initialPremise }: TabChoosePathProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleExportJourney = async () => {
+    try {
+      const journey = {
+        storyTitle: idea.slice(0, 50),
+        genre,
+        scenes: activePathNodes.map((n) => ({
+          decisionIndex: n.sceneNumber,
+          sceneText: n.content,
+          chosenOption: n.choiceTaken
+        }))
+      };
+      const res = await api.exportBranchingJourney(journey);
+      triggerDownload(res.content, res.filename, res.mimeType);
+    } catch {
+      handleDownloadPath();
+    }
+  };
+
   const handleDownloadPath = () => {
     const text = `# Interactive Branching Story: ${genre}\nPremise: ${idea}\nDecisions: ${maxDecisions}\n\n` +
       activePathNodes
@@ -252,12 +270,20 @@ export function TabChoosePath({ initialPremise }: TabChoosePathProps) {
               <span>{copied ? 'Copied' : 'Copy this path'}</span>
             </button>
             <button
+              onClick={handleExportJourney}
+              className="flex items-center gap-1.5 px-3 py-2 bg-studio-card hover:bg-studio-raised border border-studio-border text-studio-text rounded text-xs min-h-[44px]"
+              title="Export Branching Journey Log as Markdown"
+            >
+              <Download className="w-3.5 h-3.5 text-studio-accent" />
+              <span>Export Log (.md)</span>
+            </button>
+            <button
               onClick={handleDownloadPath}
               className="flex items-center gap-1.5 px-3 py-2 bg-studio-card hover:bg-studio-raised border border-studio-border text-studio-text rounded text-xs min-h-[44px]"
               title="Save path as text file"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Save as text</span>
+              <span>.txt</span>
             </button>
             <button
               onClick={() => setInGame(false)}
@@ -428,10 +454,17 @@ export function TabChoosePath({ initialPremise }: TabChoosePathProps) {
                   <p className="text-xs text-studio-muted max-w-md mx-auto">
                     You have reached a final resolution reflecting the {activePathNodes.length - 1} critical decisions you made along this path. You can jump back to any scene in the tree to explore alternative futures.
                   </p>
-                  <div className="flex justify-center gap-3 pt-2">
+                  <div className="flex flex-wrap justify-center gap-3 pt-2">
+                    <button
+                      onClick={handleExportJourney}
+                      className="px-4 py-2 bg-studio-accent text-studio-bg font-bold text-xs rounded min-h-[44px] flex items-center gap-1.5"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>Export Journey (.md)</span>
+                    </button>
                     <button
                       onClick={handleCopyPath}
-                      className="px-4 py-2 bg-studio-accent text-studio-bg font-bold text-xs rounded min-h-[44px]"
+                      className="px-4 py-2 bg-studio-raised border border-studio-border text-studio-text font-bold text-xs rounded min-h-[44px]"
                     >
                       Copy Full Story
                     </button>

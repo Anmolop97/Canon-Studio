@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import { requireAuth, AuthenticatedRequest } from './auth.js';
 import { storageService } from '../services/storage.js';
 import { canonCheckerService } from '../services/canonChecker.js';
+import { exportService, ExportFormat } from '../services/exportService.js';
 
 export const draftsRouter = Router();
 
@@ -60,6 +61,38 @@ draftsRouter.get('/:id', (req: AuthenticatedRequest, res: Response) => {
     res.json(draft);
   } catch (error: any) {
     res.status(500).json({ error: error.message || 'Failed to get draft' });
+  }
+});
+
+/**
+ * GET /api/drafts/:id/export?format=fountain|markdown|txt&download=true|false
+ */
+draftsRouter.get('/:id/export', (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const format = ((req.query.format as string)?.toLowerCase() as ExportFormat) || 'markdown';
+    const draft = storageService.getDraftById(id);
+    if (!draft) {
+      res.status(404).json({ error: 'Draft not found' });
+      return;
+    }
+    if (draft.userId !== req.user!.id) {
+      res.status(403).json({ error: 'Forbidden: You do not own this draft' });
+      return;
+    }
+
+    const exported = exportService.exportDraft(draft, format);
+
+    if (req.query.download === 'true') {
+      res.setHeader('Content-Disposition', `attachment; filename="${exported.filename}"`);
+      res.setHeader('Content-Type', exported.mimeType);
+      res.send(exported.content);
+      return;
+    }
+
+    res.json(exported);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Failed to export draft' });
   }
 });
 

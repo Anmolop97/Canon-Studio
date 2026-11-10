@@ -9,6 +9,24 @@ import type {
 
 const API_BASE = 'http://localhost:5000/api';
 
+export interface ExportResponse {
+  content: string;
+  filename: string;
+  mimeType: string;
+}
+
+export function triggerDownload(content: string, filename: string, mimeType: string = 'text/plain') {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 class ApiClient {
   private token: string | null = null;
 
@@ -132,6 +150,22 @@ class ApiClient {
     });
   }
 
+  public async exportBranchingJourney(journey: {
+    storyTitle?: string;
+    genre?: string;
+    scenes: Array<{
+      decisionIndex: number;
+      sceneText: string;
+      chosenOption?: string;
+      optionType?: 'bold' | 'careful' | 'unexpected';
+    }>;
+  }): Promise<ExportResponse> {
+    return this.request<ExportResponse>('/branching/export-journey', {
+      method: 'POST',
+      body: JSON.stringify(journey)
+    });
+  }
+
   // Writer Mode Drafts
   public async getDrafts(): Promise<Draft[]> {
     return this.request<Draft[]>('/drafts');
@@ -159,6 +193,10 @@ class ApiClient {
     return this.request<{ success: boolean }>(`/drafts/${id}`, {
       method: 'DELETE'
     });
+  }
+
+  public async exportDraft(id: string, format: 'fountain' | 'markdown' | 'txt' = 'markdown'): Promise<ExportResponse> {
+    return this.request<ExportResponse>(`/drafts/${id}/export?format=${format}`);
   }
 
   public async draftEpisodeWithAI(draftId: string, episodeIndex: number, userPrompt: string): Promise<{
@@ -219,6 +257,10 @@ class ApiClient {
 
   public async getBook(id: string): Promise<Book> {
     return this.request<Book>(`/books/${id}`);
+  }
+
+  public async exportBook(id: string, format: 'fountain' | 'markdown' | 'txt' = 'markdown'): Promise<ExportResponse> {
+    return this.request<ExportResponse>(`/books/${id}/export?format=${format}`);
   }
 
   public async toggleLike(bookId: string): Promise<{ liked: boolean; totalLikes: number }> {

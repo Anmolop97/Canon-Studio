@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { api } from '../api';
+import { api, triggerDownload } from '../api';
 import type { Book, User } from '../types';
 import {
   BookOpen,
@@ -10,7 +10,8 @@ import {
   Layers,
   ArrowRight,
   ArrowLeft,
-  X
+  X,
+  Download
 } from 'lucide-react';
 
 interface TabBooksProps {
@@ -141,6 +142,21 @@ export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
       setReaderFeedback(`Your ${score}-star rating has been recorded.`);
     } catch (err: any) {
       setReaderFeedback(err.message || 'Failed to record rating');
+    }
+  };
+
+  // Export Book
+  const [isExporting, setIsExporting] = useState(false);
+  const handleExportBook = async (bookId: string, format: 'fountain' | 'markdown' | 'txt') => {
+    setIsExporting(true);
+    try {
+      const data = await api.exportBook(bookId, format);
+      triggerDownload(data.content, data.filename, data.mimeType);
+      setReaderFeedback(`Exported as ${data.filename}!`);
+    } catch (err: any) {
+      setReaderFeedback(`Export failed: ${err.message}`);
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -402,13 +418,47 @@ export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
                 </div>
               </div>
 
-              <button
-                onClick={() => setReadingBook(null)}
-                className="p-2 text-studio-muted hover:text-studio-text rounded min-h-[44px] min-w-[44px] flex items-center justify-center"
-                aria-label="Close reader"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Export Options for Reader */}
+                <div className="flex items-center gap-1 bg-studio-bg border border-studio-border rounded p-1">
+                  <span className="text-[11px] text-studio-muted font-medium px-1.5 flex items-center gap-1">
+                    <Download className="w-3.5 h-3.5 text-studio-accent" />
+                    <span className="hidden sm:inline">Export:</span>
+                  </span>
+                  <button
+                    onClick={() => handleExportBook(readingBook.id, 'fountain')}
+                    disabled={isExporting}
+                    title="Export Screenplay (.fountain)"
+                    className="px-2 py-1 text-[11px] bg-studio-raised hover:bg-studio-accent hover:text-studio-bg text-studio-text rounded font-mono font-medium transition-colors min-h-[36px]"
+                  >
+                    .fountain
+                  </button>
+                  <button
+                    onClick={() => handleExportBook(readingBook.id, 'markdown')}
+                    disabled={isExporting}
+                    title="Export Markdown (.md)"
+                    className="px-2 py-1 text-[11px] bg-studio-raised hover:bg-studio-accent hover:text-studio-bg text-studio-text rounded font-mono font-medium transition-colors min-h-[36px]"
+                  >
+                    .md
+                  </button>
+                  <button
+                    onClick={() => handleExportBook(readingBook.id, 'txt')}
+                    disabled={isExporting}
+                    title="Export Plain Text (.txt)"
+                    className="px-2 py-1 text-[11px] bg-studio-raised hover:bg-studio-accent hover:text-studio-bg text-studio-text rounded font-mono font-medium transition-colors min-h-[36px]"
+                  >
+                    .txt
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => setReadingBook(null)}
+                  className="p-2 text-studio-muted hover:text-studio-text rounded min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  aria-label="Close reader"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* Reader Content Body */}

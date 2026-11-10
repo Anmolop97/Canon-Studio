@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { optionalAuth, requireAuth, AuthenticatedRequest } from './auth.js';
 import { storageService } from '../services/storage.js';
+import { exportService, ExportFormat } from '../services/exportService.js';
 
 export const booksRouter = Router();
 
@@ -108,6 +109,36 @@ booksRouter.get('/:id', optionalAuth, (req: AuthenticatedRequest, res: Response)
     res.json(book);
   } catch (error: any) {
     res.status(500).json({ error: error.message || 'Failed to get book' });
+  }
+});
+
+/**
+ * GET /api/books/:id/export?format=fountain|markdown|txt&download=true|false
+ */
+booksRouter.get('/:id/export', optionalAuth, (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const format = ((req.query.format as string)?.toLowerCase() as ExportFormat) || 'markdown';
+    const all = storageService.getBooksWithMetrics();
+    const book = all.find(b => b.id === id);
+
+    if (!book) {
+      res.status(404).json({ error: 'Book not found' });
+      return;
+    }
+
+    const exported = exportService.exportBook(book, format);
+
+    if (req.query.download === 'true') {
+      res.setHeader('Content-Disposition', `attachment; filename="${exported.filename}"`);
+      res.setHeader('Content-Type', exported.mimeType);
+      res.send(exported.content);
+      return;
+    }
+
+    res.json(exported);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Failed to export book' });
   }
 });
 

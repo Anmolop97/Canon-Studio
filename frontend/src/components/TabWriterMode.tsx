@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { api } from '../api';
+import { api, triggerDownload } from '../api';
 import type { Draft, Episode, CanonFact, CanonCheckResult, User } from '../types';
 import {
   PenTool,
@@ -15,7 +15,8 @@ import {
   Volume2,
   FileText,
   RefreshCw,
-  Globe
+  Globe,
+  Download
 } from 'lucide-react';
 
 interface TabWriterModeProps {
@@ -412,6 +413,22 @@ export function TabWriterMode({ currentUser, onOpenAuth, preloadedDraft }: TabWr
     }
   };
 
+  // Export Draft (Fountain Screenplay / Markdown Bible / TXT)
+  const [isExporting, setIsExporting] = useState(false);
+  const handleExportDraft = async (fmt: 'fountain' | 'markdown' | 'txt') => {
+    if (!selectedDraftId) return;
+    setIsExporting(true);
+    try {
+      const data = await api.exportDraft(selectedDraftId, fmt);
+      triggerDownload(data.content, data.filename, data.mimeType);
+      setSaveNotice(`Exported as ${data.filename}!`);
+    } catch (err: any) {
+      setSaveNotice(`Export failed: ${err.message}`);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   // --- NON-AUTHENTICATED GATE ---
   if (!currentUser) {
     return (
@@ -493,7 +510,39 @@ export function TabWriterMode({ currentUser, onOpenAuth, preloadedDraft }: TabWr
         </div>
 
         {/* Publishing & Delete Draft Buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Screenplay & Bible Export Group */}
+          <div className="flex items-center gap-1 bg-studio-raised border border-studio-border rounded p-1">
+            <span className="text-[11px] text-studio-muted font-medium px-1.5 flex items-center gap-1">
+              <Download className="w-3.5 h-3.5 text-studio-accent" />
+              <span className="hidden sm:inline">Export:</span>
+            </span>
+            <button
+              onClick={() => handleExportDraft('fountain')}
+              disabled={isExporting}
+              title="Export as Industry Standard Screenplay (.fountain)"
+              className="px-2 py-1 text-[11px] bg-studio-card hover:bg-studio-accent hover:text-studio-bg text-studio-text rounded font-mono font-medium transition-colors min-h-[36px]"
+            >
+              .fountain
+            </button>
+            <button
+              onClick={() => handleExportDraft('markdown')}
+              disabled={isExporting}
+              title="Export Story Bible, Episodes & Canon Facts (.md)"
+              className="px-2 py-1 text-[11px] bg-studio-card hover:bg-studio-accent hover:text-studio-bg text-studio-text rounded font-mono font-medium transition-colors min-h-[36px]"
+            >
+              .md
+            </button>
+            <button
+              onClick={() => handleExportDraft('txt')}
+              disabled={isExporting}
+              title="Export Plain Text (.txt)"
+              className="px-2 py-1 text-[11px] bg-studio-card hover:bg-studio-accent hover:text-studio-bg text-studio-text rounded font-mono font-medium transition-colors min-h-[36px]"
+            >
+              .txt
+            </button>
+          </div>
+
           {publishedBookId ? (
             <>
               <span className="text-xs text-status-consistent font-medium flex items-center gap-1">
