@@ -16,6 +16,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { VoiceNarratorButton } from './VoiceNarratorButton';
+import { StoryAudio } from './StoryAudio';
 
 interface TabWriteStoryProps {
   onPlayBranching: (premise: { idea: string; genre: string; realism: string; language: string }) => void;
