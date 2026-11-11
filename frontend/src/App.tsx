@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Header, type StudioTab } from './components/Header';
 import { TabWriteStory } from './components/TabWriteStory';
 import { TabChoosePath } from './components/TabChoosePath';
@@ -117,19 +117,28 @@ export function App() {
   return (
     <div className="relative min-h-screen bg-studio-bg text-studio-text flex flex-col font-sans transition-colors duration-200 overflow-x-clip">
       
+      {/* Soft Ethereal Opening Dissolve Veil (Fades out gently on page open) */}
+      <motion.div
+        initial={{ opacity: 1 }}
+        animate={{ opacity: 0 }}
+        transition={{ duration: 0.95, ease: [0.22, 1, 0.36, 1] }}
+        className="fixed inset-0 pointer-events-none z-[9999] bg-[#e8e1cf] dark:bg-[#0F172A]"
+      />
+
       {/* Full-resolution Canva storybook landscape background */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-        {/* Layer 1: Smooth Panoramic Ken Burns Landscape Motion */}
+        {/* Layer 1: Smooth Panoramic Ken Burns Landscape Motion with Cinematic Entrance */}
         <motion.div
+          initial={{ opacity: 0, scale: 1.045 }}
           animate={{
-            scale: [1.015, 1.035, 1.015],
+            opacity: 1,
+            scale: [1.02, 1.038, 1.02],
             x: ['0%', '0.35%', '0%'],
           }}
           transition={{
-            duration: 36,
-            repeat: Infinity,
-            repeatType: 'reverse',
-            ease: 'easeInOut',
+            opacity: { duration: 1.2, ease: [0.16, 1, 0.3, 1] },
+            scale: { duration: 36, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' },
+            x: { duration: 36, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' },
           }}
           className="absolute inset-[-4%] will-change-transform bg-cover bg-center"
           style={{
@@ -152,8 +161,14 @@ export function App() {
         />
       </div>
 
-      {/* Studio Header (Persistent across all tabs & wizard steps) */}
-      <div id="studio-workspace" className="relative z-40">
+      {/* Studio Header (Persistent across all tabs & wizard steps) with Smooth Glide-In */}
+      <motion.div
+        id="studio-workspace"
+        className="relative z-40"
+        initial={{ opacity: 0, y: -16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+      >
         <Header
           activeTab={activeTab}
           onTabChange={setActiveTab}
@@ -163,47 +178,63 @@ export function App() {
           isDarkMode={isDarkMode}
           onToggleTheme={handleToggleTheme}
         />
-      </div>
+      </motion.div>
 
-      {/* Main Tab Content */}
-      <main className="relative z-10 flex-1 w-full pb-16">
-        {activeTab === 'wizard' && (
-          <TabWriteStory
-            onPlayBranching={handlePlayBranching}
-            onSaveToWriter={handleSaveToWriter}
-            onStepChange={setWizardStep}
-            onNavigateTab={setActiveTab}
-            onOpenAuth={() => setIsAuthModalOpen(true)}
-            currentUser={currentUser}
-          />
-        )}
+      {/* Main Tab Content with Orchestrated Rise-In & Fluid Cross-Fade */}
+      <motion.main
+        className="relative z-10 flex-1 w-full pb-16"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 8, filter: 'blur(2px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, y: -6, filter: 'blur(2px)' }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full"
+          >
+            {activeTab === 'wizard' && (
+              <TabWriteStory
+                onPlayBranching={handlePlayBranching}
+                onSaveToWriter={handleSaveToWriter}
+                onStepChange={setWizardStep}
+                onNavigateTab={setActiveTab}
+                onOpenAuth={() => setIsAuthModalOpen(true)}
+                currentUser={currentUser}
+              />
+            )}
 
-        {activeTab === 'branching' && (
-          <TabChoosePath
-            initialPremise={preloadedBranchingPremise}
-            onNavigateTab={setActiveTab}
-            onOpenAuth={() => setIsAuthModalOpen(true)}
-            currentUser={currentUser}
-          />
-        )}
+            {activeTab === 'branching' && (
+              <TabChoosePath
+                initialPremise={preloadedBranchingPremise}
+                onNavigateTab={setActiveTab}
+                onOpenAuth={() => setIsAuthModalOpen(true)}
+                currentUser={currentUser}
+              />
+            )}
 
-        {activeTab === 'writer' && (
-          <TabWriterMode
-            currentUser={currentUser}
-            onOpenAuth={() => setIsAuthModalOpen(true)}
-            preloadedDraft={preloadedDraft}
-            onNavigateTab={setActiveTab}
-          />
-        )}
+            {activeTab === 'writer' && (
+              <TabWriterMode
+                currentUser={currentUser}
+                onOpenAuth={() => setIsAuthModalOpen(true)}
+                preloadedDraft={preloadedDraft}
+                onNavigateTab={setActiveTab}
+              />
+            )}
 
-        {activeTab === 'books' && (
-          <TabBooks
-            currentUser={currentUser}
-            onOpenAuth={() => setIsAuthModalOpen(true)}
-            onNavigateTab={setActiveTab}
-          />
-        )}
-      </main>
+            {activeTab === 'books' && (
+              <TabBooks
+                currentUser={currentUser}
+                onOpenAuth={() => setIsAuthModalOpen(true)}
+                onNavigateTab={setActiveTab}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </motion.main>
 
       {/* Authentication Modal */}
       <AuthModal
