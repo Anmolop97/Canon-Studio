@@ -1,4 +1,4 @@
-# Canon Story Studio
+# Canon Studio
 
 > **A full-stack AI-powered fiction platform where non-writers generate stories, writers publish serialized sagas with AI continuity checking, and readers discover and rate them.**
 
