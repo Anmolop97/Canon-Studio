@@ -317,6 +317,8 @@ authRouter.get('/demo-accounts', (req: Request, res: Response) => {
     { id: 'user-anya', email: 'anya@canonstory.studio', displayName: 'Anya Sharma', demoPassword: 'anya123' },
     { id: 'user-dev', email: 'dev@canonstory.studio', displayName: 'Devraj Sen', demoPassword: 'dev123' },
     { id: 'user-guest', email: 'guest@canonstory.studio', displayName: 'Guest Writer', demoPassword: 'guest123' },
+    { id: 'user-anand', email: 'anand@canonstory.studio', displayName: 'Anand', demoPassword: 'anandanand' },
+    { id: 'user-anmol', email: 'anmol@canonstory.studio', displayName: 'Anmol', demoPassword: 'kakashi_op_97' },
   ];
   res.setHeader('Cache-Control', 'no-store');
   res.json(users);

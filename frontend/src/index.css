@@ -58,7 +58,7 @@
 }
 
 @layer base {
-  html { background: var(--color-bg); }
+  html { background: var(--color-bg); scroll-behavior: smooth; }
   body {
     background-color: var(--color-bg);
     color: var(--color-text);

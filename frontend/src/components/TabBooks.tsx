@@ -219,7 +219,7 @@ export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-[#263F35] dark:text-slate-300 leading-relaxed">
-            Unlike crude arithmetic averages where a story with a single 5-star vote ranks above classics with hundreds of fans, Canon Story Studio uses an equilibrium formula:
+            Unlike crude arithmetic averages where a story with a single 5-star vote ranks above classics with hundreds of fans, Canon Studio uses an equilibrium formula:
           </p>
 
           <div className="p-3 bg-[#F4F0E5] dark:bg-slate-800 border border-[#D7C397] dark:border-slate-700 rounded-xl font-mono text-xs sm:text-sm text-[#101C19] dark:text-sky-300 space-y-1">

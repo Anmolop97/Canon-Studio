@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import Lenis from 'lenis';
-import 'lenis/dist/lenis.css';
 import { motion } from 'motion/react';
 import { Header, type StudioTab } from './components/Header';
 import { TabWriteStory } from './components/TabWriteStory';
@@ -19,6 +17,7 @@ export function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [showError404, setShowError404] = useState(false);
+  const [apiLimitNotice, setApiLimitNotice] = useState<{ retryAfterSeconds: number | null } | null>(null);
 
   // Cross-tab transfer states
   const [preloadedBranchingPremise, setPreloadedBranchingPremise] = useState<{
@@ -51,29 +50,18 @@ export function App() {
     localStorage.setItem('canon_misty_theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
-  // Global Lenis Smooth Scroll
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
-      smoothWheel: true,
-      touchMultiplier: 1.5,
-    });
-
-    let rafId: number;
-    function raf(time: number) {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    }
-    rafId = requestAnimationFrame(raf);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
+    const showApiLimitNotice = (event: Event) => {
+      const detail = (event as CustomEvent<{ retryAfterSeconds?: number | null }>).detail;
+      setApiLimitNotice({ retryAfterSeconds: detail?.retryAfterSeconds ?? null });
     };
+    window.addEventListener('canon:api-limit', showApiLimitNotice);
+    return () => window.removeEventListener('canon:api-limit', showApiLimitNotice);
   }, []);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [activeTab]);
 
   // Check auth session on startup
   useEffect(() => {
@@ -217,6 +205,35 @@ export function App() {
         onClose={() => setIsAuthModalOpen(false)}
         onSuccess={handleAuthSuccess}
       />
+
+      {apiLimitNotice !== null && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={() => setApiLimitNotice(null)}>
+          <section
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="api-limit-title"
+            aria-describedby="api-limit-description"
+            className="w-full max-w-md rounded-3xl border border-[#D7C397] bg-[#FAF9F3] p-7 text-center shadow-2xl dark:border-slate-700 dark:bg-slate-900"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300" aria-hidden="true">
+              <span className="text-2xl">⏳</span>
+            </div>
+            <h2 id="api-limit-title" className="font-serif text-2xl font-bold text-[#29372b] dark:text-white">Limit reached</h2>
+            <p id="api-limit-description" className="mt-3 text-sm leading-6 text-[#69745e] dark:text-slate-300">
+              The service has reached its request limit. Please come back after some time and try again.
+              {apiLimitNotice.retryAfterSeconds !== null && ` You can retry in about ${Math.ceil(apiLimitNotice.retryAfterSeconds / 60)} minute${Math.ceil(apiLimitNotice.retryAfterSeconds / 60) === 1 ? '' : 's'}.`}
+            </p>
+            <button
+              type="button"
+              onClick={() => setApiLimitNotice(null)}
+              className="mt-6 min-h-11 rounded-xl bg-[#29372b] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#3b4a38] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
+            >
+              Okay
+            </button>
+          </section>
+        </div>
+      )}
     </div>
   );
 }

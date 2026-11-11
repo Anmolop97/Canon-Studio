@@ -126,8 +126,8 @@ npm run dev
 
 | Name | Email | Password |
 |------|-------|----------|
-| Anya Sharma | anya@canonstory.studio | anya123 |
-| Devraj Sen | dev@canonstory.studio | dev123 |
+| Anand | anand@canonstory.studio | anandanand |
+| Anmol | anmol@canonstory.studio | kakashi_op_97 |
 
 > Demo accounts are available only when `NODE_ENV` is not `production`. Production starts with an empty database and requires `AUTH_SECRET`.
 

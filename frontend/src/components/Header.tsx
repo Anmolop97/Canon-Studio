@@ -46,7 +46,7 @@ export function Header({
             </div>
             <div>
               <span className="studio-brand-name font-serif font-bold text-base sm:text-lg tracking-tight block leading-tight">
-                Canon Story Studio
+                Canon Studio
               </span>
               <span className="studio-brand-subtitle text-[10px] uppercase tracking-widest block font-sans font-semibold">
                 Narrative &amp; Continuity

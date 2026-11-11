@@ -142,19 +142,19 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={() => handleDemoLogin('elena@canon.studio', 'author123')}
+                  onClick={() => handleDemoLogin('anand@canonstory.studio', 'anandanand')}
                   className="px-3 py-2 text-xs font-semibold bg-[#FAF9F3] hover:bg-[#E9E2CE] text-[#101C19] border border-[#D7C397] rounded-xl transition-all text-left shadow-xs cursor-pointer"
                 >
-                  <span className="block font-bold text-[#101C19]">Elena Vance</span>
-                  <span className="text-[10px] text-[#58745C]">Sci-Fi Author</span>
+                  <span className="block font-bold text-[#101C19]">Anand</span>
+                  <span className="text-[10px] text-[#58745C]">Demo account</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleDemoLogin('marcus@canon.studio', 'master456')}
+                  onClick={() => handleDemoLogin('anmol@canonstory.studio', 'kakashi_op_97')}
                   className="px-3 py-2 text-xs font-semibold bg-[#FAF9F3] hover:bg-[#E9E2CE] text-[#101C19] border border-[#D7C397] rounded-xl transition-all text-left shadow-xs cursor-pointer"
                 >
-                  <span className="block font-bold text-[#101C19]">Marcus Aurel</span>
-                  <span className="text-[10px] text-[#58745C]">World Builder</span>
+                  <span className="block font-bold text-[#101C19]">Anmol</span>
+                  <span className="text-[10px] text-[#58745C]">Demo account</span>
                 </button>
               </div>
             </motion.div>}

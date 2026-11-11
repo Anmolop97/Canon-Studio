@@ -90,7 +90,7 @@ function MobileMenuIcon() {
 }
 
 export function Hero10({
-  brandName = "Canon Story Studio",
+  brandName = "Canon Studio",
   navItems = defaultNavItems,
   ctaText = "Sign in",
   ctaHref: _ctaHref = "#",

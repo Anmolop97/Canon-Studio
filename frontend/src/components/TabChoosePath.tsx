@@ -273,7 +273,7 @@ export function TabChoosePath({
     return (
       <Hero10
         hideHeader={true}
-        brandName="Canon Story Studio"
+        brandName="Canon Studio"
         navItems={[
           { label: "Write a Story", href: "#", onClick: () => _onNavigateTab?.('wizard'), isActive: false },
           { label: "Choose Your Path", href: "#", onClick: () => _onNavigateTab?.('branching'), isActive: true },

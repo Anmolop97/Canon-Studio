@@ -49,6 +49,11 @@ class ApiClient {
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
       const message = errorData.error || errorData.message || `Request failed (${res.status})`;
+      if (res.status === 429) {
+        window.dispatchEvent(new CustomEvent('canon:api-limit', {
+          detail: { retryAfterSeconds: Number(errorData.retryAfter) || null }
+        }));
+      }
       throw new Error(message);
     }
 

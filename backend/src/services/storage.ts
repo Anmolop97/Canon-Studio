@@ -46,6 +46,18 @@ const SEED_USERS: User[] = [
     email: 'guest@canonstory.studio',
     displayName: 'Guest Writer',
     createdAt: '2026-10-01T08:00:00.000Z'
+  },
+  {
+    id: 'user-anand',
+    email: 'anand@canonstory.studio',
+    displayName: 'Anand',
+    createdAt: '2026-11-11T00:00:00.000Z'
+  },
+  {
+    id: 'user-anmol',
+    email: 'anmol@canonstory.studio',
+    displayName: 'Anmol',
+    createdAt: '2026-11-11T00:00:00.000Z'
   }
 ];
 
@@ -244,6 +256,7 @@ class StorageService {
     this.ensureDataDir();
     this.db = this.loadDatabase();
     this.migrateLegacyPasswords();
+    this.ensureLocalDemoUsers();
   }
 
   private ensureDataDir() {
@@ -268,6 +281,8 @@ class StorageService {
         'user-anya': this.hashPassword('anya123'),
         'user-dev': this.hashPassword('dev123'),
         'user-guest': this.hashPassword('guest123'),
+        'user-anand': this.hashPassword('anandanand'),
+        'user-anmol': this.hashPassword('kakashi_op_97'),
       },
       drafts: [
         {
@@ -377,6 +392,38 @@ class StorageService {
       console.log('[Storage] Upgraded legacy seeded user passwords to salted PBKDF2');
       this.saveDatabase();
     }
+  }
+
+  /** Seed demo profiles for local development only; never create them in production. */
+  private ensureLocalDemoUsers(): void {
+    if (process.env.NODE_ENV === 'production') return;
+
+    const demoUsers = [
+      { id: 'user-anand', email: 'anand@canonstory.studio', displayName: 'Anand', password: 'anandanand' },
+      { id: 'user-anmol', email: 'anmol@canonstory.studio', displayName: 'Anmol', password: 'kakashi_op_97' },
+    ];
+    let changed = false;
+
+    for (const demo of demoUsers) {
+      let user = this.findUserByEmail(demo.email);
+      if (!user) {
+        user = {
+          id: demo.id,
+          email: demo.email,
+          displayName: demo.displayName,
+          createdAt: new Date().toISOString(),
+        };
+        this.db.users.push(user);
+        changed = true;
+      }
+
+      if (!this.db.userPasswords[user.id]) {
+        this.db.userPasswords[user.id] = this.hashPassword(demo.password);
+        changed = true;
+      }
+    }
+
+    if (changed) this.saveDatabase();
   }
 
   private saveDatabase(data: DatabaseSchema = this.db): void {
