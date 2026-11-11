@@ -7,7 +7,7 @@ import type {
   CanonCheckResult
 } from './types';
 
-const API_BASE = import.meta.env.VITE_API_BASE || '/api';
+const API_BASE = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? 'https://canon-studio.onrender.com/api' : '/api');
 
 export interface ExportResponse {
   content: string;
