@@ -8,6 +8,7 @@ import { Request, Response, NextFunction } from 'express';
  * Zero external dependencies.
  */
 export function securityHeaders(req: Request, res: Response, next: NextFunction): void {
+  res.setHeader('Cache-Control', 'no-store');
   // Prevent MIME-sniffing: forces browser to respect declared Content-Type
   res.setHeader('X-Content-Type-Options', 'nosniff');
 
@@ -22,6 +23,14 @@ export function securityHeaders(req: Request, res: Response, next: NextFunction)
 
   // Referrer policy: send full referrer within same origin, origin only across origins, no referrer on downgrade
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+  // Reduce browser cross-origin isolation and plugin attack surface.
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
 
   next();
 }

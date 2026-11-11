@@ -1,3 +1,4 @@
+import { publicErrorMessage } from '../middleware/publicError.js';
 import { Router, Response } from 'express';
 import { requireAuth, AuthenticatedRequest } from './auth.js';
 import { storageService } from '../services/storage.js';
@@ -19,7 +20,7 @@ draftsRouter.get('/', (req: AuthenticatedRequest, res: Response) => {
     const drafts = storageService.getDraftsByUser(userId);
     res.json(drafts);
   } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Failed to fetch drafts' });
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to fetch drafts') });
   }
 });
 
@@ -40,7 +41,7 @@ draftsRouter.post('/', (req: AuthenticatedRequest, res: Response) => {
     });
     res.status(201).json(draft);
   } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Failed to create draft' });
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to create draft') });
   }
 });
 
@@ -61,7 +62,7 @@ draftsRouter.get('/:id', (req: AuthenticatedRequest, res: Response) => {
     }
     res.json(draft);
   } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Failed to get draft' });
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to get draft') });
   }
 });
 
@@ -93,7 +94,7 @@ draftsRouter.get('/:id/export', (req: AuthenticatedRequest, res: Response) => {
 
     res.json(exported);
   } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Failed to export draft' });
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to export draft') });
   }
 });
 
@@ -124,7 +125,7 @@ draftsRouter.put('/:id', (req: AuthenticatedRequest, res: Response) => {
     });
     res.json(updated);
   } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Failed to update draft' });
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to update draft') });
   }
 });
 
@@ -156,7 +157,7 @@ draftsRouter.delete('/:id', (req: AuthenticatedRequest, res: Response) => {
     storageService.deleteDraft(id);
     res.json({ success: true, message: 'Draft deleted successfully' });
   } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Failed to delete draft' });
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to delete draft') });
   }
 });
 
@@ -204,7 +205,7 @@ draftsRouter.post('/:id/ai-draft', async (req: AuthenticatedRequest, res: Respon
     console.error('[API /api/drafts/:id/ai-draft Error]:', error);
     res.status(500).json({
       error: 'Failed to draft episode with AI',
-      message: error.message || 'Please retry.',
+      message: publicErrorMessage(error, 'Please retry.'),
       canRetry: true
     });
   }
@@ -253,7 +254,7 @@ draftsRouter.post('/:id/check-canon', async (req: AuthenticatedRequest, res: Res
     console.error('[API /api/drafts/:id/check-canon Error]:', error);
     res.status(500).json({
       error: 'Canon continuity audit encountered an error',
-      message: error.message || 'Please check text and retry.',
+      message: publicErrorMessage(error, 'Please check text and retry.'),
       canRetry: true
     });
   }
@@ -291,7 +292,7 @@ draftsRouter.post('/:id/publish', (req: AuthenticatedRequest, res: Response) => 
       book: publishedBook
     });
   } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Failed to publish story' });
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to publish story') });
   }
 });
 
@@ -322,7 +323,7 @@ draftsRouter.post('/:id/unpublish', (req: AuthenticatedRequest, res: Response) =
       message: 'Story unpublished from Books successfully.'
     });
   } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Failed to unpublish story' });
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to unpublish story') });
   }
 });
 
@@ -367,7 +368,7 @@ draftsRouter.post('/:id/episodes/:episodeIndex/illustrate', async (req: Authenti
     });
   } catch (error: any) {
     console.error('[API illustrate episode error]:', error);
-    res.status(500).json({ error: error.message || 'Failed to generate episode art' });
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to generate episode art') });
   }
 });
 

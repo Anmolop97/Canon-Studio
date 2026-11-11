@@ -7,7 +7,7 @@ import type {
   CanonCheckResult
 } from './types';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
 export interface ExportResponse {
   content: string;
@@ -28,23 +28,10 @@ export function triggerDownload(content: string, filename: string, mimeType: str
 }
 
 class ApiClient {
-  private token: string | null = null;
-
   constructor() {
-    this.token = localStorage.getItem('canon_auth_token');
-  }
-
-  public setToken(token: string | null) {
-    this.token = token;
-    if (token) {
-      localStorage.setItem('canon_auth_token', token);
-    } else {
+    if (typeof localStorage !== 'undefined') {
       localStorage.removeItem('canon_auth_token');
     }
-  }
-
-  public getToken(): string | null {
-    return this.token;
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -53,12 +40,9 @@ class ApiClient {
       ...((options.headers as Record<string, string>) || {})
     };
 
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
-    }
-
     const res = await fetch(`${API_BASE}${endpoint}`, {
       ...options,
+      credentials: 'include',
       headers
     });
 
@@ -68,6 +52,7 @@ class ApiClient {
       throw new Error(message);
     }
 
+    if (res.status === 204) return undefined as T;
     return res.json() as Promise<T>;
   }
 
@@ -76,30 +61,26 @@ class ApiClient {
     return this.request('/auth/demo-accounts');
   }
 
-  public async login(email: string, password: string): Promise<{ token: string; user: User }> {
-    const data = await this.request<{ token: string; user: User }>('/auth/login', {
+  public async login(email: string, password: string): Promise<{ user: User }> {
+    return this.request<{ user: User }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password })
     });
-    this.setToken(data.token);
-    return data;
   }
 
-  public async register(email: string, password: string, displayName: string): Promise<{ token: string; user: User }> {
-    const data = await this.request<{ token: string; user: User }>('/auth/register', {
+  public async register(email: string, password: string, displayName: string): Promise<{ user: User }> {
+    return this.request<{ user: User }>('/auth/register', {
       method: 'POST',
       body: JSON.stringify({ email, password, displayName })
     });
-    this.setToken(data.token);
-    return data;
   }
 
   public async getMe(): Promise<{ user: User }> {
     return this.request<{ user: User }>('/auth/me');
   }
 
-  public logout() {
-    this.setToken(null);
+  public logout(): void {
+    void this.request('/auth/logout', { method: 'POST' }).catch(() => undefined);
   }
 
   // Wizard

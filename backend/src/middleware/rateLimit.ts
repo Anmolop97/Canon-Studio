@@ -4,6 +4,7 @@ export interface RateLimiterOptions {
   windowMs?: number;
   max?: number;
   keyGenerator?: (req: Request) => string;
+  maxKeys?: number;
 }
 
 /**
@@ -17,6 +18,10 @@ export function defaultKeyGenerator(req: Request): string {
   }
   const ip = req.ip || req.socket?.remoteAddress || 'unknown';
   return `ip:${ip}`;
+}
+
+export function ipKeyGenerator(req: Request): string {
+  return `ip:${req.ip || req.socket?.remoteAddress || 'unknown'}`;
 }
 
 /**
@@ -47,17 +52,18 @@ export class SlidingWindowRateLimiter {
   private store = new Map<string, number[]>();
   private cleanupTimer: NodeJS.Timeout | null = null;
   private optionsMax?: number;
+  private maxKeys: number;
   public windowMs: number;
   public keyGenerator: (req: Request) => string;
 
   constructor(options: RateLimiterOptions = {}) {
-    this.windowMs = options.windowMs ?? (
-      process.env.RATE_LIMIT_AI_WINDOW_MS
-        ? parseInt(process.env.RATE_LIMIT_AI_WINDOW_MS, 10) || 60_000
-        : 60_000
-    );
+    const configuredWindow = Number.parseInt(process.env.RATE_LIMIT_AI_WINDOW_MS || '', 10);
+    this.windowMs = options.windowMs && options.windowMs > 0
+      ? options.windowMs
+      : configuredWindow > 0 ? configuredWindow : 60_000;
     this.optionsMax = options.max;
     this.keyGenerator = options.keyGenerator ?? defaultKeyGenerator;
+    this.maxKeys = options.maxKeys && options.maxKeys > 0 ? options.maxKeys : 20_000;
 
     // Periodic cleanup of expired entries to prevent memory leaks
     const cleanupInterval = Math.max(10_000, this.windowMs);
@@ -130,6 +136,15 @@ export class SlidingWindowRateLimiter {
       return;
     }
 
+    if (!this.store.has(key) && this.store.size >= this.maxKeys) {
+      this.cleanup();
+      if (this.store.size >= this.maxKeys) {
+        res.setHeader('Retry-After', '60');
+        res.status(429).json({ error: 'Too Many Requests', retryAfter: 60 });
+        return;
+      }
+    }
+
     // Record this request
     timestamps.push(now);
     this.store.set(key, timestamps);
@@ -150,8 +165,41 @@ export function createRateLimiter(options?: RateLimiterOptions): SlidingWindowRa
   return new SlidingWindowRateLimiter(options);
 }
 
+export function limitAiRequestBody(req: Request, res: Response, next: NextFunction): void {
+  const bodyBytes = Buffer.byteLength(JSON.stringify(req.body ?? {}), 'utf8');
+  if (bodyBytes > 64 * 1024) {
+    res.status(413).json({ error: 'AI request content exceeds the 64 KB limit.' });
+    return;
+  }
+  next();
+}
+
 // Default singleton instance configured for AI endpoints
 export const aiRateLimiterInstance = new SlidingWindowRateLimiter();
 export const aiRateLimiter = aiRateLimiterInstance.middleware;
+export const apiRateLimiterInstance = new SlidingWindowRateLimiter({
+  max: 300,
+  windowMs: 15 * 60_000,
+  keyGenerator: ipKeyGenerator,
+});
+export const apiRateLimiter = apiRateLimiterInstance.middleware;
+export const loginRateLimiterInstance = new SlidingWindowRateLimiter({
+  max: 10,
+  windowMs: 15 * 60_000,
+  keyGenerator: ipKeyGenerator,
+});
+export const loginRateLimiter = loginRateLimiterInstance.middleware;
+export const registerRateLimiterInstance = new SlidingWindowRateLimiter({
+  max: 5,
+  windowMs: 60 * 60_000,
+  keyGenerator: ipKeyGenerator,
+});
+export const registerRateLimiter = registerRateLimiterInstance.middleware;
+export const treeMutationRateLimiterInstance = new SlidingWindowRateLimiter({
+  max: 5,
+  windowMs: 60_000,
+  keyGenerator: ipKeyGenerator,
+});
+export const treeMutationRateLimiter = treeMutationRateLimiterInstance.middleware;
 
 export default aiRateLimiter;

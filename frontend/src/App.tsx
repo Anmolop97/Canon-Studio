@@ -79,13 +79,9 @@ export function App() {
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const token = api.getToken();
-        if (token) {
-          const res = await api.getMe();
-          setCurrentUser(res.user);
-        }
+        const res = await api.getMe();
+        setCurrentUser(res.user);
       } catch (_err) {
-        // Token invalid or expired, clear
         api.logout();
         setCurrentUser(null);
       }

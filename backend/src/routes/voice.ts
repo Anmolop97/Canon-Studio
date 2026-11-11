@@ -1,3 +1,4 @@
+import { publicErrorMessage } from '../middleware/publicError.js';
 import { Router, Request, Response } from 'express';
 import { voiceAnalyzer } from '../services/voiceAnalyzer.js';
 
@@ -20,6 +21,6 @@ voiceRouter.post('/', async (req: Request, res: Response) => {
     res.json(result);
   } catch (error: any) {
     console.error('[API /api/analyze-voice Error]:', error);
-    res.status(500).json({ error: error.message || 'Failed to analyze dialogue voice' });
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to analyze dialogue voice') });
   }
 });

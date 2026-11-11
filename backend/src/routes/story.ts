@@ -1,3 +1,4 @@
+import { publicErrorMessage } from '../middleware/publicError.js';
 import { Router, Request, Response } from 'express';
 import { geminiService } from '../services/geminiService.js';
 import { memoryTreeService } from '../services/memoryTree.js';
@@ -71,6 +72,6 @@ Come take it. If your cyber-optics can cut through the storm.`;
     });
   } catch (error: any) {
     console.error('[API /api/generate-beat Error]:', error);
-    res.status(500).json({ error: error.message || 'Failed to generate story beat' });
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to generate story beat') });
   }
 });

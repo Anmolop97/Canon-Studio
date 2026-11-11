@@ -186,7 +186,7 @@ Execute continuity audit and voice analysis now. Return ONLY valid JSON.`;
     if (jackArmFact) {
       if (lower.includes('jack') && (lower.includes('both hands') || lower.includes('two-handed') || lower.includes('heavy rifle with two hands') || lower.includes('two hands'))) {
         conflicts.push({
-          id: `conf-${crypto.randomUUID().slice(0, 6)}`,
+            id: `conf-${crypto.randomUUID()}`,
           earlierEpisode: jackArmFact.episodeNumber,
           earlierQuote: jackArmFact.quote || 'uncalibrated industrial prosthetic',
           currentQuote: 'aims with both hands',
@@ -201,7 +201,7 @@ Execute continuity audit and voice analysis now. Return ONLY valid JSON.`;
     if (stormFact) {
       if (lower.includes('ion storm') && (lower.includes('wireless commlink') || lower.includes('cellular call') || lower.includes('radioed headquarters'))) {
         conflicts.push({
-          id: `conf-${crypto.randomUUID().slice(0, 6)}`,
+            id: `conf-${crypto.randomUUID()}`,
           earlierEpisode: stormFact.episodeNumber,
           earlierQuote: stormFact.quote || 'Ion Storms disable long-range RF/cellular transmissions',
           currentQuote: 'picks up his wireless commlink',
@@ -217,7 +217,7 @@ Execute continuity audit and voice analysis now. Return ONLY valid JSON.`;
       const charName = df.subject.toLowerCase();
       if (lower.includes(charName) && (lower.includes(`said ${charName}`) || lower.includes(`${charName} said`) || lower.includes(`${charName} walked`) || lower.includes(`${charName} smiled`))) {
         conflicts.push({
-          id: `conf-${crypto.randomUUID().slice(0, 6)}`,
+            id: `conf-${crypto.randomUUID()}`,
           earlierEpisode: df.episodeNumber,
           earlierQuote: df.quote,
           currentQuote: `${df.subject} said/acted`,
@@ -230,7 +230,7 @@ Execute continuity audit and voice analysis now. Return ONLY valid JSON.`;
     // Check Voice Drift
     if (lower.includes('jack') && (lower.includes('terribly sorry') || lower.includes('excuse me') || lower.includes('inconvenience'))) {
       voice.push({
-        id: `voice-${crypto.randomUUID().slice(0, 6)}`,
+        id: `voice-${crypto.randomUUID()}`,
         character: 'Jack Vance',
         originalLine: 'Excuse me, Dr. Chen! I am terribly sorry for any inconvenience caused by our delay.',
         issue: 'Submissive and apologetic corporate customer-service tone contradicts a hardened, cynical mercenary.',
@@ -240,7 +240,7 @@ Execute continuity audit and voice analysis now. Return ONLY valid JSON.`;
 
     if (lower.includes("what's up girl") || lower.includes('yo, elena')) {
       voice.push({
-        id: `voice-${crypto.randomUUID().slice(0, 6)}`,
+        id: `voice-${crypto.randomUUID()}`,
         character: 'Lord Vane',
         originalLine: "Yo, Elena! What's up girl? You gotta chill with that water.",
         issue: 'Casual street slang violates High Council aristocratic decorum and vocabulary protocol.',
@@ -255,7 +255,7 @@ Execute continuity audit and voice analysis now. Return ONLY valid JSON.`;
       firstFew.forEach((s, idx) => {
         if (s.length > 25 && s.length < 200) {
           facts.push({
-            id: `fact-${crypto.randomUUID().slice(0, 6)}`,
+            id: `fact-${crypto.randomUUID()}`,
             subject: idx === 0 ? 'Protagonist / Location' : (idx === 1 ? 'Objective' : 'State'),
             quote: s.trim().slice(0, 100),
             text: s.trim(),
@@ -268,7 +268,7 @@ Execute continuity audit and voice analysis now. Return ONLY valid JSON.`;
 
     if (facts.length === 0) {
       facts.push({
-        id: `fact-${crypto.randomUUID().slice(0, 6)}`,
+        id: `fact-${crypto.randomUUID()}`,
         subject: 'Episode Event',
         quote: currentEpisodeContent.slice(0, 80),
         text: `Events of Episode ${episodeNumber} established in active story continuity.`,

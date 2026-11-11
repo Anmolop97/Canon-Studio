@@ -21,6 +21,11 @@ interface DatabaseSchema {
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
+const PBKDF2_ITERATIONS = 220_000;
+const MAX_USERS = 10_000;
+const MAX_DRAFTS_PER_USER = 50;
+const MAX_DRAFT_BYTES = 1_000_000;
+const MAX_USER_DRAFT_BYTES = 10_000_000;
 
 // Pre-seeded initial data
 const SEED_USERS: User[] = [
@@ -249,11 +254,14 @@ class StorageService {
 
   public hashPassword(password: string, salt?: string): string {
     const effectiveSalt = salt || crypto.randomBytes(16).toString('hex');
-    const hash = crypto.pbkdf2Sync(password, effectiveSalt, 100000, 64, 'sha512').toString('hex');
-    return `${effectiveSalt}:${hash}`;
+    const hash = crypto.pbkdf2Sync(password, effectiveSalt, PBKDF2_ITERATIONS, 64, 'sha512').toString('hex');
+    return `pbkdf2-sha512$${PBKDF2_ITERATIONS}$${effectiveSalt}$${hash}`;
   }
 
   private createInitialDatabase(): DatabaseSchema {
+    if (process.env.NODE_ENV === 'production') {
+      return { users: [], userPasswords: {}, drafts: [], books: [], likes: [], ratings: [] };
+    }
     return {
       users: SEED_USERS,
       userPasswords: {
@@ -359,7 +367,7 @@ class StorageService {
     let upgraded = false;
     for (const [userId, seedInfo] of Object.entries(KNOWN_SEEDS)) {
       const currentHash = this.db.userPasswords[userId];
-      if (currentHash && !currentHash.includes(':')) {
+      if (currentHash && !currentHash.startsWith('pbkdf2-sha512$') && !currentHash.includes(':')) {
         this.db.userPasswords[userId] = this.hashPassword(seedInfo.pass);
         upgraded = true;
       }
@@ -435,11 +443,13 @@ class StorageService {
   }
 
   public findUserByEmail(email: string): User | undefined {
-    return this.db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    return this.db.users.find(u => u.email.toLowerCase() === email.trim().toLowerCase());
   }
 
   public createUser(email: string, password: string, displayName: string): User {
-    const id = `user-${crypto.randomUUID().slice(0, 8)}`;
+    if (this.db.users.length >= MAX_USERS) throw new Error('Account limit reached.');
+    let id = `user-${crypto.randomUUID()}`;
+    while (this.findUserById(id)) id = `user-${crypto.randomUUID()}`;
     const user: User = {
       id,
       email: email.trim().toLowerCase(),
@@ -455,13 +465,23 @@ class StorageService {
   private verifyPasswordHash(password: string, storedHash: string): boolean {
     if (!storedHash || typeof storedHash !== 'string') return false;
 
+    if (storedHash.startsWith('pbkdf2-sha512$')) {
+      const [scheme, iterationText, salt, expectedHash, extra] = storedHash.split('$');
+      const iterations = Number.parseInt(iterationText || '', 10);
+      if (scheme !== 'pbkdf2-sha512' || extra !== undefined || !salt || !expectedHash || !Number.isInteger(iterations) || iterations < 100_000 || iterations > 1_000_000) return false;
+      const candidateHash = crypto.pbkdf2Sync(password, salt, iterations, 64, 'sha512').toString('hex');
+      const candidate = Buffer.from(candidateHash, 'hex');
+      const expected = Buffer.from(expectedHash, 'hex');
+      return candidate.length === expected.length && candidate.length > 0 && crypto.timingSafeEqual(candidate, expected);
+    }
+
     if (storedHash.includes(':')) {
       const parts = storedHash.split(':');
       if (parts.length !== 2) return false;
       const [salt, expectedHash] = parts;
       if (!salt || !expectedHash) return false;
 
-      const candidateHash = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
+      const candidateHash = crypto.pbkdf2Sync(password, salt, 100_000, 64, 'sha512').toString('hex');
       const candBuf = Buffer.from(candidateHash, 'hex');
       const expBuf = Buffer.from(expectedHash, 'hex');
 
@@ -490,8 +510,8 @@ class StorageService {
       const storedHash = this.db.userPasswords[userId];
       const isValid = this.verifyPasswordHash(password, storedHash);
 
-      if (isValid && !storedHash.includes(':')) {
-        // Transparently upgrade legacy unsalted SHA-256 hash to PBKDF2
+      if (isValid && !storedHash.startsWith('pbkdf2-sha512$')) {
+        // Upgrade legacy PBKDF2 and unsalted SHA-256 hashes after successful login.
         this.db.userPasswords[userId] = this.hashPassword(password);
         this.saveDatabase();
       }
@@ -508,7 +528,7 @@ class StorageService {
     const storedHash = secondArg;
     const isValid = this.verifyPasswordHash(password, storedHash);
 
-    if (isValid && !storedHash.includes(':') && this.db.userPasswords) {
+    if (isValid && !storedHash.startsWith('pbkdf2-sha512$') && this.db.userPasswords) {
       let upgraded = false;
       for (const [uid, hash] of Object.entries(this.db.userPasswords)) {
         if (hash === storedHash) {
@@ -536,14 +556,14 @@ class StorageService {
   public createDraft(userId: string, data: Partial<Draft>): Draft {
     const now = new Date().toISOString();
     const newDraft: Draft = {
-      id: `draft-${crypto.randomUUID().slice(0, 8)}`,
+      id: `draft-${crypto.randomUUID()}`,
       userId,
       title: data.title?.trim() || 'Untitled Saga',
       genre: data.genre || 'Sci-fi',
       blurb: data.blurb || '',
       episodes: data.episodes || [
         {
-          id: `ep-${crypto.randomUUID().slice(0, 6)}`,
+          id: `ep-${crypto.randomUUID()}`,
           order: 1,
           title: 'Episode 1: The Beginning',
           content: '',
@@ -558,6 +578,7 @@ class StorageService {
       createdAt: now,
       updatedAt: now
     };
+    this.assertDraftQuota(userId, newDraft);
     this.db.drafts.push(newDraft);
     this.saveDatabase();
     return newDraft;
@@ -574,9 +595,45 @@ class StorageService {
       userId: existing.userId,
       updatedAt: new Date().toISOString()
     };
+    this.assertDraftQuota(updated.userId, updated, updated.id);
     this.db.drafts[index] = updated;
     this.saveDatabase();
     return updated;
+  }
+
+  private assertDraftQuota(userId: string, candidate: Draft, replacedId?: string): void {
+    const episodes = candidate.episodes;
+    if (!Array.isArray(episodes) || episodes.length > 100 ||
+        !Array.isArray(candidate.canonFacts) || candidate.canonFacts.length > 500 ||
+        !Array.isArray(candidate.voiceNotes) || candidate.voiceNotes.length > 100) {
+      throw new Error('Draft exceeds the allowed item limits.');
+    }
+    if (episodes.some(episode => !episode || typeof episode.title !== 'string' || typeof episode.content !== 'string')) {
+      throw new Error('Draft episodes must have text titles and content.');
+    }
+
+    const serialized = JSON.stringify({
+      title: candidate.title,
+      genre: candidate.genre,
+      blurb: candidate.blurb,
+      episodes: candidate.episodes,
+      canonFacts: candidate.canonFacts,
+      voiceNotes: candidate.voiceNotes,
+    });
+    const candidateBytes = Buffer.byteLength(serialized, 'utf8');
+    if (candidateBytes > MAX_DRAFT_BYTES) throw new Error('A draft cannot exceed 1 MB.');
+
+    const otherDrafts = this.db.drafts.filter(draft => draft.userId === userId && draft.id !== replacedId);
+    if (!replacedId && otherDrafts.length >= MAX_DRAFTS_PER_USER) throw new Error('Draft limit reached.');
+    const existingBytes = otherDrafts.reduce((total, draft) => total + Buffer.byteLength(JSON.stringify({
+      title: draft.title,
+      genre: draft.genre,
+      blurb: draft.blurb,
+      episodes: draft.episodes,
+      canonFacts: draft.canonFacts,
+      voiceNotes: draft.voiceNotes,
+    }), 'utf8'), 0);
+    if (existingBytes + candidateBytes > MAX_USER_DRAFT_BYTES) throw new Error('Account draft storage limit reached.');
   }
 
   public deleteDraft(id: string): boolean {
@@ -614,7 +671,7 @@ class StorageService {
     }
 
     const newBook: Book = {
-      id: `book-${crypto.randomUUID().slice(0, 8)}`,
+      id: `book-${crypto.randomUUID()}`,
       draftId: draft.id,
       authorId: author.id,
       authorName: author.displayName,
@@ -670,7 +727,7 @@ class StorageService {
       liked = false;
     } else {
       this.db.likes.push({
-        id: `like-${crypto.randomUUID().slice(0, 8)}`,
+        id: `like-${crypto.randomUUID()}`,
         bookId,
         userId,
         createdAt: new Date().toISOString()
@@ -707,7 +764,7 @@ class StorageService {
       existing.updatedAt = now;
     } else {
       this.db.ratings.push({
-        id: `rat-${crypto.randomUUID().slice(0, 8)}`,
+        id: `rat-${crypto.randomUUID()}`,
         bookId,
         userId,
         score: clampedScore,

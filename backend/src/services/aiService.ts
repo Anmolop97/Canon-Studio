@@ -176,6 +176,7 @@ Scene:
 
     const res = await fetch(`${this.openrouterBaseUrl}/chat/completions`, {
       method: 'POST',
+      signal: AbortSignal.timeout(30_000),
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${this.openrouterApiKey}`,
@@ -191,8 +192,7 @@ Scene:
     });
 
     if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`OpenRouter API Error ${res.status}: ${err}`);
+      throw new Error(`OpenRouter request failed with status ${res.status}.`);
     }
 
     const data = await res.json() as any;
@@ -212,6 +212,7 @@ Scene:
 
     const res = await fetch(`${this.openrouterBaseUrl}/chat/completions`, {
       method: 'POST',
+      signal: AbortSignal.timeout(30_000),
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${this.openrouterApiKey}`,
@@ -227,8 +228,7 @@ Scene:
     });
 
     if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`OpenRouter API Error ${res.status}: ${err}`);
+      throw new Error(`OpenRouter request failed with status ${res.status}.`);
     }
 
     const data = await res.json() as any;
@@ -258,13 +258,13 @@ Scene:
 
     const res = await fetch(endpoint, {
       method: 'POST',
+      signal: AbortSignal.timeout(30_000),
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody)
     });
 
     if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`Gemini API Error ${res.status}: ${err}`);
+      throw new Error(`Gemini request failed with status ${res.status}.`);
     }
 
     const data = await res.json() as any;
@@ -288,13 +288,13 @@ Scene:
 
     const res = await fetch(endpoint, {
       method: 'POST',
+      signal: AbortSignal.timeout(30_000),
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody)
     });
 
     if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`Gemini API Error ${res.status}: ${err}`);
+      throw new Error(`Gemini request failed with status ${res.status}.`);
     }
 
     const data = await res.json() as any;
@@ -319,6 +319,7 @@ Scene:
 
     const res = await fetch(`${this.groqBaseUrl}/chat/completions`, {
       method: 'POST',
+      signal: AbortSignal.timeout(30_000),
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${this.groqApiKey}`
@@ -332,8 +333,7 @@ Scene:
     });
 
     if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`Groq API Error ${res.status}: ${err}`);
+      throw new Error(`Groq request failed with status ${res.status}.`);
     }
 
     const data = await res.json() as any;
@@ -353,6 +353,7 @@ Scene:
 
     const res = await fetch(`${this.groqBaseUrl}/chat/completions`, {
       method: 'POST',
+      signal: AbortSignal.timeout(30_000),
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${this.groqApiKey}`
@@ -367,8 +368,7 @@ Scene:
     });
 
     if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`Groq API Error ${res.status}: ${err}`);
+      throw new Error(`Groq request failed with status ${res.status}.`);
     }
 
     const data = await res.json() as any;

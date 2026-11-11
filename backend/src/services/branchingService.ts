@@ -205,7 +205,7 @@ Write the consequences and next scene now with 3 new choices. Return ONLY the JS
 
         if (result && result.content && Array.isArray(result.options) && result.options.length === 3) {
           return {
-            id: `scene-${req.decisionIndex + 1}-${crypto.randomUUID().slice(0, 4)}`,
+            id: `scene-${req.decisionIndex + 1}-${crypto.randomUUID()}`,
             sceneNumber: req.decisionIndex + 1,
             content: result.content.trim(),
             isEnding: false,
@@ -272,7 +272,7 @@ Write the consequences and next scene now with 3 new choices. Return ONLY the JS
     const sceneNum = req.decisionIndex + 1;
     if (isHinglish) {
       return {
-        id: `scene-${sceneNum}-${crypto.randomUUID().slice(0, 4)}`,
+        id: `scene-${sceneNum}-${crypto.randomUUID()}`,
         sceneNumber: sceneNum,
         content: `Aapne chuna: "${req.chosenOptionText}". Yeh kadam uthate hi gali ke andhere se ek naya mod saamne aaya. Ek masked drone neeche utra aur uski infrared beam seedhe aapke chehre par aakar tiki. Lekin drone ne fire karne ke bajaye ek encrypted audio snippet play kiya: "Aria abhi zinda hai, lekin sub-station 4 mein locked hai." Ion Storm ki wajah se wireless channels crackle karne lage. Ab aapko faisla lena hai ki is warning par bharosa karein ya aage ka rasta khud banayein.`,
         isEnding: false,
@@ -286,7 +286,7 @@ Write the consequences and next scene now with 3 new choices. Return ONLY the JS
     }
 
     return {
-      id: `scene-${sceneNum}-${crypto.randomUUID().slice(0, 4)}`,
+      id: `scene-${sceneNum}-${crypto.randomUUID()}`,
       sceneNumber: sceneNum,
       content: `Responding to your actionâ€”"${req.chosenOptionText}"â€”the immediate environment fractured into heightened tension. A surveillance drone dropped through the rain clouds, its targeting laser sweeping across your chest before abruptly cutting to amber diagnostic mode. A synthesized voice crackled through the interference: "The beacon is active. Aria is trapped inside Sub-station 4, but the lockdown protocol initiates in three minutes." The Ion Storm surged overhead, crackling against the rusted girders and leaving only seconds to maneuver.`,
       isEnding: false,

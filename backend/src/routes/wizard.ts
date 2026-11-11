@@ -1,3 +1,4 @@
+import { publicErrorMessage } from '../middleware/publicError.js';
 import { Router, Request, Response } from 'express';
 import { wizardService, WizardAnswers } from '../services/wizardService.js';
 
@@ -17,7 +18,7 @@ wizardRouter.post('/next-question', async (req: Request, res: Response) => {
     console.error('[API /api/wizard/next-question Error]:', error);
     res.status(500).json({
       error: 'Failed to generate contextual question',
-      message: error.message || 'The AI service encountered an issue. Please retry.',
+      message: publicErrorMessage(error, 'The AI service encountered an issue. Please retry.'),
       canRetry: true
     });
   }
@@ -36,7 +37,7 @@ wizardRouter.post('/generate-story', async (req: Request, res: Response) => {
     console.error('[API /api/wizard/generate-story Error]:', error);
     res.status(500).json({
       error: 'Story generation encountered an error',
-      message: error.message || 'Please check your inputs and retry.',
+      message: publicErrorMessage(error, 'Please check your inputs and retry.'),
       canRetry: true
     });
   }

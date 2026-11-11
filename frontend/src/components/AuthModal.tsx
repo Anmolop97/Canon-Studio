@@ -134,7 +134,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
             </motion.div>
 
             {/* Quick 1-Click Demo Profiles */}
-            <motion.div variants={itemVariants} className="mb-5 p-3.5 rounded-2xl bg-[#F4F0E5] dark:bg-slate-800 border border-[#D7C397]">
+            {!import.meta.env.PROD && <motion.div variants={itemVariants} className="mb-5 p-3.5 rounded-2xl bg-[#F4F0E5] dark:bg-slate-800 border border-[#D7C397]">
               <div className="text-[11px] font-bold uppercase tracking-wider text-[#263F35] dark:text-slate-300 mb-2 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-[#C1A66B]" />
                 <span>Instant 1-Click Demo Logins</span>
@@ -157,7 +157,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                   <span className="text-[10px] text-[#58745C]">World Builder</span>
                 </button>
               </div>
-            </motion.div>
+            </motion.div>}
 
             {error && (
               <motion.div variants={itemVariants} className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-2 text-xs sm:text-sm text-red-600 dark:text-red-400">
@@ -204,11 +204,14 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                 <input
                   type="password"
                   required
+                  minLength={isRegister ? 15 : undefined}
+                  maxLength={128}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="w-full rounded-xl border border-[#D7C397] bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-[#101C19] dark:text-white placeholder:text-[#87977A] focus:outline-none focus:ring-2 focus:ring-[#101C19]"
                 />
+                {isRegister && <span className="text-[11px] text-studio-muted">Use at least 15 characters.</span>}
               </motion.div>
 
               <motion.div variants={itemVariants} className="mt-2">

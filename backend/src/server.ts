@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { auditRouter } from './routes/audit.js';
@@ -13,17 +13,24 @@ import { booksRouter } from './routes/books.js';
 import { cyberpunkUniverse } from './data/defaultStoryBible.js';
 import { aiService } from './services/aiService.js';
 import { securityHeaders } from './middleware/security.js';
-import { aiRateLimiter } from './middleware/rateLimit.js';
-import { optionalAuth } from './routes/auth.js';
+import { aiRateLimiter, apiRateLimiter, limitAiRequestBody } from './middleware/rateLimit.js';
+import { validateAuthConfiguration } from './routes/auth.js';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+app.disable('x-powered-by');
+const parsedPort = Number.parseInt(process.env.PORT || '5000', 10);
+const PORT = Number.isInteger(parsedPort) && parsedPort >= 1 && parsedPort <= 65_535 ? parsedPort : 5000;
+const HOST = process.env.HOST || '127.0.0.1';
+const trustedProxyHops = Number.parseInt(process.env.TRUST_PROXY_HOPS || '0', 10);
+if (Number.isInteger(trustedProxyHops) && trustedProxyHops > 0 && trustedProxyHops <= 10) {
+  app.set('trust proxy', trustedProxyHops);
+}
 
 // CORS Allowlist Configuration (R5)
 export function getAllowedOrigins(): string[] {
-  const defaultOrigins = [
+  const developmentOrigins = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'http://localhost:3000',
@@ -47,6 +54,7 @@ export function getAllowedOrigins(): string[] {
     });
   }
 
+  const defaultOrigins = process.env.NODE_ENV === 'production' ? [] : developmentOrigins;
   return Array.from(new Set([...defaultOrigins, ...configured]));
 }
 
@@ -70,12 +78,29 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+  allowedHeaders: ['Content-Type', 'X-Requested-With', 'Accept']
 }));
 
 // Defensive Security Headers Middleware (R5)
 app.use(securityHeaders);
-app.use(express.json({ limit: '20mb' }));
+app.use('/api', apiRateLimiter);
+app.use('/api', (req: Request, res: Response, next: NextFunction) => {
+  const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method);
+  const cookieName = process.env.NODE_ENV === 'production' ? '__Host-canon_session=' : 'canon_session=';
+  const hasSessionCookie = req.headers.cookie?.split(';').some(part => part.trim().startsWith(cookieName));
+  if (!isMutation || !hasSessionCookie) {
+    next();
+    return;
+  }
+
+  const origin = req.headers.origin?.replace(/\/$/, '');
+  if (!origin || !getAllowedOrigins().includes(origin)) {
+    res.status(403).json({ error: 'Request origin is not allowed.' });
+    return;
+  }
+  next();
+});
+app.use(express.json({ limit: '1mb' }));
 
 // Health Check
 app.get('/api/health', (req: Request, res: Response) => {
@@ -122,10 +147,20 @@ app.get('/api/context-cache-stats', (req: Request, res: Response) => {
   });
 });
 
-// Targeted Sliding Window Rate Limiting on AI Generation Endpoints (R4)
-app.post('/api/wizard/generate-story', optionalAuth, aiRateLimiter);
-app.post('/api/drafts/:id/ai-draft', optionalAuth, aiRateLimiter);
-app.post('/api/branching/next', optionalAuth, aiRateLimiter);
+// Shared rate limits cover all provider-backed routes, including legacy endpoints.
+app.use([
+  '/api/wizard/next-question',
+  '/api/wizard/generate-story',
+  '/api/branching/start',
+  '/api/branching/next',
+  '/api/branching/illustrate-scene',
+  '/api/drafts/:id/ai-draft',
+  '/api/drafts/:id/check-canon',
+  '/api/drafts/:id/episodes/:episodeIndex/illustrate',
+  '/api/audit-lore',
+  '/api/analyze-voice',
+  '/api/generate-beat',
+], limitAiRequestBody, aiRateLimiter);
 
 // Mount Canon Story Studio Core Routes
 app.use('/api/auth', authRouter);
@@ -140,15 +175,28 @@ app.use('/api/analyze-voice', voiceRouter);
 app.use('/api/story', storyRouter);
 app.use('/api/story-tree', treeRouter);
 
+// Keep parser and unexpected errors from leaking stack traces or internals.
+app.use((error: any, _req: Request, res: Response, next: NextFunction) => {
+  if (res.headersSent) return next(error);
+  const status = error?.type === 'entity.too.large' ? 413 : error?.type === 'entity.parse.failed' ? 400 : 500;
+  const message = status === 413 ? 'Request body is too large.' : status === 400 ? 'Request body is invalid JSON.' : 'Internal server error.';
+  res.status(status).json({ error: message });
+});
+
 // Start Server
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
+  validateAuthConfiguration();
+  const server = app.listen(PORT, HOST, () => {
     console.log(`=================================================`);
     console.log(`📖 Canon Story Studio Backend running on http://localhost:${PORT}`);
     console.log(`🤖 AI Provider: ${aiService.activeProvider()}`);
     console.log(`🔑 Groq: ${aiService.isGroqConfigured() ? 'ACTIVE' : 'not set'} | Gemini: ${aiService.isGeminiConfigured() ? 'ACTIVE (fallback)' : 'not set'}`);
     console.log(`=================================================`);
   });
+  server.headersTimeout = 15_000;
+  server.requestTimeout = 30_000;
+  server.timeout = 45_000;
+  server.keepAliveTimeout = 5_000;
 }
 
 export default app;

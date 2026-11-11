@@ -71,21 +71,21 @@ Professional serialized fiction workspace:
 | Backend | Node.js + Express + TypeScript |
 | AI Engine | Google Gemini API (flash-lite) with deterministic fallbacks |
 | Storage | JSON file DB (`backend/data/db.json`) — zero infra |
-| Auth | Token-based session (SHA-256 hashed passwords) |
+| Auth | HttpOnly SameSite session cookie; salted PBKDF2-SHA512 password hashes |
 
 ---
 
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 20.19+ or 22.12+
 - A [Google AI Studio](https://aistudio.google.com) Gemini API key (optional — works fully with smart fallbacks)
 
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/anand05-cell/Story-Ai.git
-cd Story-Ai
+git clone https://github.com/anand05-cell/Canon-Studio.git
+cd Canon-Studio
 
 # Backend
 cd backend
@@ -101,7 +101,9 @@ npm install
 ```bash
 cd backend
 cp .env.example .env
-# Edit .env and paste your GEMINI_API_KEY (optional)
+# Add an AI provider key if you want live AI generation (optional).
+# For production, set AUTH_SECRET to at least 32 random bytes.
+# Example: node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
 ```
 
 ### 3. Run Development
@@ -120,14 +122,22 @@ npm run dev
 # → http://localhost:5173
 ```
 
-### 4. Demo Accounts (Pre-seeded)
+### 4. Demo Accounts (Development Only)
 
 | Name | Email | Password |
 |------|-------|----------|
 | Anya Sharma | anya@canonstory.studio | anya123 |
 | Devraj Sen | dev@canonstory.studio | dev123 |
 
-> Click the **1-Click Demo Profiles** in the Sign In modal for instant access.
+> Demo accounts are available only when `NODE_ENV` is not `production`. Production starts with an empty database and requires `AUTH_SECRET`.
+
+### Production Security
+
+- Set `NODE_ENV=production`, a random `AUTH_SECRET` of at least 32 bytes, and `FRONTEND_URL` to the exact HTTPS frontend origin.
+- The backend binds to `127.0.0.1` by default. Set `HOST=0.0.0.0` only when a container or trusted reverse proxy requires it; terminate HTTPS at the proxy. Set `TRUST_PROXY_HOPS` only when the backend is reachable exclusively through that proxy, using the exact proxy hop count.
+- The backend returns auth in an HttpOnly, Secure, SameSite=Strict cookie in production. The frontend and API should share an origin or be configured with explicit allowed origins.
+- Passwords for new accounts must be 15–128 characters. Auth and API rate limits are in-memory and apply to one backend process; multiple production instances need a shared rate-limit store.
+- Use a durable database, encrypted backups, and secret storage for a public production deployment. Do not commit `.env` or provider keys. The production security headers in Vite preview must also be configured on the static hosting/CDN if you deploy `frontend/dist` elsewhere.
 
 ---
 

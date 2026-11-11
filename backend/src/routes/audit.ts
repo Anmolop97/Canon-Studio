@@ -1,3 +1,4 @@
+import { publicErrorMessage } from '../middleware/publicError.js';
 import { Router, Request, Response } from 'express';
 import { loreAuditor } from '../services/loreAuditor.js';
 import { memoryTreeService } from '../services/memoryTree.js';
@@ -30,6 +31,6 @@ auditRouter.post('/', async (req: Request, res: Response) => {
     res.json(auditResult);
   } catch (error: any) {
     console.error('[API /api/audit-lore Error]:', error);
-    res.status(500).json({ error: error.message || 'Failed to execute lore audit' });
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to execute lore audit') });
   }
 });

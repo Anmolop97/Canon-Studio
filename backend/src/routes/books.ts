@@ -1,3 +1,4 @@
+import { publicErrorMessage } from '../middleware/publicError.js';
 import { Router, Response } from 'express';
 import { optionalAuth, requireAuth, AuthenticatedRequest } from './auth.js';
 import { storageService } from '../services/storage.js';
@@ -55,7 +56,7 @@ booksRouter.get('/', optionalAuth, (req: AuthenticatedRequest, res: Response) =>
 
     res.json(books);
   } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Failed to fetch books' });
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to fetch books') });
   }
 });
 
@@ -87,7 +88,7 @@ booksRouter.get('/best', optionalAuth, (req: AuthenticatedRequest, res: Response
       books: top20
     });
   } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Failed to fetch best books' });
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to fetch best books') });
   }
 });
 
@@ -108,7 +109,7 @@ booksRouter.get('/:id', optionalAuth, (req: AuthenticatedRequest, res: Response)
 
     res.json(book);
   } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Failed to get book' });
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to get book') });
   }
 });
 
@@ -138,7 +139,7 @@ booksRouter.get('/:id/export', optionalAuth, (req: AuthenticatedRequest, res: Re
 
     res.json(exported);
   } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Failed to export book' });
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to export book') });
   }
 });
 
@@ -157,7 +158,7 @@ booksRouter.post('/:id/like', requireAuth, (req: AuthenticatedRequest, res: Resp
       res.status(403).json({ error: error.message });
       return;
     }
-    res.status(500).json({ error: error.message || 'Failed to toggle like' });
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to toggle like') });
   }
 });
 
@@ -183,6 +184,6 @@ booksRouter.post('/:id/rate', requireAuth, (req: AuthenticatedRequest, res: Resp
       res.status(403).json({ error: error.message });
       return;
     }
-    res.status(500).json({ error: error.message || 'Failed to record rating' });
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to record rating') });
   }
 });

@@ -56,14 +56,13 @@ export class GeminiService {
 
     const response = await fetch(endpoint, {
       method: 'POST',
+      signal: AbortSignal.timeout(30_000),
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`[Gemini API Error] ${response.status}:`, errorText);
-      throw new Error(`Gemini API Error: ${response.status} - ${errorText}`);
+      throw new Error(`Gemini request failed with status ${response.status}.`);
     }
 
     const data = await response.json();
@@ -107,13 +106,13 @@ export class GeminiService {
 
     const response = await fetch(endpoint, {
       method: 'POST',
+      signal: AbortSignal.timeout(30_000),
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
-      const err = await response.text();
-      throw new Error(`Gemini API Error: ${err}`);
+      throw new Error(`Gemini request failed with status ${response.status}.`);
     }
 
     const data = await response.json();

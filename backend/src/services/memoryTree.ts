@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import { StoryNode, StoryNodeChoice } from '../types/index.js';
 import { sampleStoryTree } from '../data/defaultStoryBible.js';
 
@@ -43,8 +44,8 @@ export class MemoryTreeService {
       throw new Error(`Parent node ${parentNodeId} not found`);
     }
 
-    const newNodeId = `node-dyn-${Date.now()}`;
-    const choiceId = `choice-dyn-${Date.now()}`;
+    const newNodeId = `node-dyn-${crypto.randomUUID()}`;
+    const choiceId = `choice-dyn-${crypto.randomUUID()}`;
 
     // Compute inherited state
     const currentRep = { ...parent.activeState.factionReputation };
