@@ -21,6 +21,18 @@ export default {
   				contradiction: '#EF4444',
   				consistent: '#10B981',
   				warning: '#F59E0B'
+  			},
+  			enchanted: {
+  				forest: '#101C19',
+  				moss: '#263F35',
+  				sage: '#58745C',
+  				gold: '#C1A66B',
+  				ivory: '#E9E2CE',
+  				cream: '#F4F0E5',
+  				paleSage: '#DCE5D6',
+  				olive: '#87977A',
+  				warmWhite: '#FAF9F3',
+  				goldBorder: '#D7C397'
   			}
   		},
   		fontFamily: {

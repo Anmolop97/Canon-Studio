@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import Lenis from 'lenis';
+import 'lenis/dist/lenis.css';
 import { motion } from 'motion/react';
 import { Header, type StudioTab } from './components/Header';
 import { TabWriteStory } from './components/TabWriteStory';
@@ -9,6 +11,7 @@ import { AuthModal } from './components/AuthModal';
 import ErrorPage from './components/ui/error-3';
 import { api } from './api';
 import type { User } from './types';
+import storybookLandscape from './assets/storybook-background.png';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<StudioTab>('wizard');
@@ -33,11 +36,9 @@ export function App() {
     imagePrompt?: string;
   } | null>(null);
 
-  // Theme state: misty light default (Image 1 aesthetic)
+  // Keep the warm parchment theme selected by the reader across visits.
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    // Reset to pure light mode so all boxes are clean frosted white
-    localStorage.removeItem('canon_misty_theme');
-    return false;
+    return localStorage.getItem('canon_misty_theme') === 'dark';
   });
 
   // Apply theme class to <html>
@@ -49,6 +50,30 @@ export function App() {
     }
     localStorage.setItem('canon_misty_theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
+
+  // Global Lenis Smooth Scroll
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      touchMultiplier: 1.5,
+    });
+
+    let rafId: number;
+    function raf(time: number) {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    }
+    rafId = requestAnimationFrame(raf);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+    };
+  }, []);
 
   // Check auth session on startup
   useEffect(() => {
@@ -108,17 +133,16 @@ export function App() {
   return (
     <div className="relative min-h-screen bg-studio-bg text-studio-text flex flex-col font-sans transition-colors duration-200 overflow-x-clip">
       
-      {/* Animated Misty Mountain Background (Watermelon UI with Ken Burns & Drifting Mist) */}
+      {/* Full-resolution Canva storybook landscape background */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
         {/* Layer 1: Smooth Panoramic Ken Burns Landscape Motion */}
         <motion.div
           animate={{
-            scale: [1, 1.07, 1.03, 1],
-            x: ['0%', '1.8%', '-1.5%', '0%'],
-            y: ['0%', '-1.2%', '0.8%', '0%'],
+            scale: [1.015, 1.035, 1.015],
+            x: ['0%', '0.35%', '0%'],
           }}
           transition={{
-            duration: 20,
+            duration: 36,
             repeat: Infinity,
             repeatType: 'reverse',
             ease: 'easeInOut',
@@ -126,46 +150,15 @@ export function App() {
           className="absolute inset-[-4%] will-change-transform"
         >
           <img
-            src="https://assets.watermelon.sh/hero-10-bg.avif"
+            src={storybookLandscape}
             alt=""
-            className="h-full w-full object-cover object-center dark:opacity-40 opacity-90 contrast-[1.08] saturate-[1.05]"
+          className="storybook-landscape h-full w-full object-cover object-center dark:opacity-75 opacity-100"
           />
         </motion.div>
 
-        {/* Layer 2: Drifting Ethereal Mist & Fog Wave */}
-        <motion.div
-          animate={{
-            x: ['-25%', '25%', '-25%'],
-            opacity: [0.35, 0.65, 0.35],
-          }}
-          transition={{
-            duration: 16,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          className="absolute inset-x-[-30%] top-[30%] h-[55%] bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.45)_0%,rgba(241,245,249,0.20)_45%,transparent_75%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(56,189,248,0.08)_0%,rgba(30,41,59,0.18)_50%,transparent_75%)] blur-2xl will-change-transform pointer-events-none"
-        />
-
-        {/* Layer 3: Secondary Counter-Drifting Cloud Veil */}
-        <motion.div
-          animate={{
-            x: ['20%', '-20%', '20%'],
-            opacity: [0.25, 0.50, 0.25],
-          }}
-          transition={{
-            duration: 22,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          className="absolute inset-x-[-20%] top-[15%] h-[40%] bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.35)_0%,transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(15,23,42,0.3)_0%,transparent_70%)] blur-3xl will-change-transform pointer-events-none"
-        />
-
-        {/* Ambient Misty atmospheric gradient layers - crisp, non-milky depth */}
+        {/* Keep the reference artwork clear; only a subtle dark-mode veil. */}
         <div
-          className="absolute inset-0 bg-[linear-gradient(180deg,rgba(226,232,240,0.35)_0%,rgba(241,245,249,0.14)_35%,rgba(226,232,240,0.08)_65%,rgba(226,232,240,0.55)_100%)] dark:bg-[linear-gradient(180deg,rgba(9,13,22,0.78)_0%,rgba(9,13,22,0.50)_35%,rgba(9,13,22,0.30)_65%,rgba(9,13,22,0.85)_100%)]"
-        />
-        <div
-          className="absolute inset-x-0 top-0 h-[45%] bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.45)_0%,rgba(255,255,255,0.10)_50%,transparent_80%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(30,41,59,0.55)_0%,rgba(15,23,42,0.20)_50%,transparent_80%)]"
+          className="absolute inset-0 bg-transparent dark:bg-[#101810]/25"
         />
       </div>
 

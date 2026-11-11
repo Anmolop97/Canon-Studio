@@ -93,8 +93,8 @@ export function Pricing5({
               className={cn(
                 "relative flex flex-col rounded-3xl p-2 transition-all duration-300 border shadow-lg",
                 plan.isPopular
-                  ? "bg-slate-900 text-white border-amber-400/80 shadow-[0_20px_50px_rgba(15,23,42,0.25)] ring-2 ring-amber-400/40"
-                  : "bg-studio-raised border-studio-border text-studio-text shadow-md",
+                  ? "bg-[#101C19] text-[#E9E2CE] border-[#C1A66B] shadow-[0_20px_50px_rgba(16,28,25,0.35)] ring-2 ring-[#C1A66B]/50"
+                  : "bg-[#F4F0E5] border-[#D7C397] text-[#101C19] shadow-md",
               )}
             >
               <div className="mt-3 mb-4 px-4 sm:px-5">
@@ -103,8 +103,8 @@ export function Pricing5({
                     className={cn(
                       "text-xl font-bold font-serif",
                       plan.isPopular
-                        ? "text-white"
-                        : "text-studio-text",
+                        ? "text-[#E9E2CE]"
+                        : "text-[#101C19]",
                     )}
                   >
                     {plan.name}
@@ -114,8 +114,8 @@ export function Pricing5({
                       className={cn(
                         "text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full",
                         plan.isPopular
-                          ? "bg-amber-400 text-slate-950 font-extrabold shadow-xs"
-                          : "bg-studio-card border border-studio-border text-studio-muted",
+                          ? "bg-[#C1A66B] text-[#101C19] font-extrabold shadow-xs"
+                          : "bg-[#E9E2CE] border border-[#D7C397] text-[#263F35]",
                       )}
                     >
                       {plan.badge}
@@ -126,8 +126,8 @@ export function Pricing5({
                   className={cn(
                     "mt-2 text-xs leading-relaxed min-h-[36px]",
                     plan.isPopular
-                      ? "text-slate-300"
-                      : "text-studio-muted",
+                      ? "text-[#E9E2CE]/80"
+                      : "text-[#58745C]",
                   )}
                 >
                   {plan.description}
@@ -138,8 +138,8 @@ export function Pricing5({
                 className={cn(
                   "flex flex-1 flex-col rounded-2xl p-6 transition-colors",
                   plan.isPopular
-                    ? "bg-slate-950/90 text-white border border-slate-800"
-                    : "bg-studio-card text-studio-text border border-studio-border/60",
+                    ? "bg-[#263F35]/70 text-[#E9E2CE] border border-[#D7C397]/40"
+                    : "bg-[#FAF9F3] text-[#101C19] border border-[#D7C397]/60",
                 )}
               >
                 <div className="flex items-baseline gap-1">
@@ -149,7 +149,7 @@ export function Pricing5({
                   <span
                     className={cn(
                       "text-xs font-medium",
-                      plan.isPopular ? "text-slate-400" : "text-studio-muted",
+                      plan.isPopular ? "text-[#E9E2CE]/80" : "text-[#87977A]",
                     )}
                   >
                     / {isYearly ? "year" : "month"}
@@ -163,14 +163,14 @@ export function Pricing5({
                         className={cn(
                           "size-5 shrink-0 mt-0.5",
                           plan.isPopular
-                            ? "text-amber-400"
-                            : "text-indigo-600 dark:text-sky-400",
+                            ? "text-[#C1A66B]"
+                            : "text-[#58745C]",
                         )}
                       />
                       <span
                         className={cn(
                           "text-xs sm:text-sm font-medium leading-tight",
-                          plan.isPopular ? "text-slate-200" : "text-studio-text",
+                          plan.isPopular ? "text-[#E9E2CE]" : "text-[#101C19]",
                         )}
                       >
                         {feature.name}
@@ -184,10 +184,8 @@ export function Pricing5({
                   className={cn(
                     "mt-8 h-12 w-full rounded-xl text-sm font-bold transition-all flex items-center justify-center cursor-pointer shadow-md active:scale-[0.98]",
                     plan.isPopular
-                      ? "bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold shadow-amber-400/20 shadow-lg"
-                      : plan.id === 'free'
-                      ? "bg-studio-raised hover:bg-studio-card border border-studio-border text-studio-muted cursor-default"
-                      : "bg-studio-accent hover:bg-studio-accent/90 text-studio-bg shadow-sm",
+                      ? "bg-[#C1A66B] hover:bg-[#D7C397] text-[#101C19]"
+                      : "bg-[#101C19] hover:bg-[#263F35] text-[#E9E2CE]"
                   )}
                 >
                   {plan.buttonText}

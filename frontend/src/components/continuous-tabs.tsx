@@ -49,12 +49,9 @@ export const ContinuousTabs: FC<ContinuousTabsProps> = ({
     return (
         <LayoutGroup>
             <nav
-                className="
+                className="studio-glass-capsule
           relative flex items-center gap-0.5 sm:gap-1 p-1 sm:p-1.5
             rounded-full
-            border border-studio-border
-            bg-studio-raised/90 backdrop-blur-md
-            shadow-[inset_0_-1px_2px_rgba(0,0,0,0.06),0_2px_8px_rgba(0,0,0,0.04)]
             transition-all duration-300
           "
             >
@@ -77,10 +74,8 @@ export const ContinuousTabs: FC<ContinuousTabsProps> = ({
                                         damping: 30,
                                         mass: 0.9,
                                     }}
-                                    className="
+                                    className="studio-glass-active
                       absolute inset-0 rounded-full
-                      bg-studio-accent
-                      shadow-xs
                     "
                                 />
                             )}
@@ -90,8 +85,8 @@ export const ContinuousTabs: FC<ContinuousTabsProps> = ({
                                 layout="position"
                                 className={`relative z-10 text-xs sm:text-sm font-semibold transition-colors duration-200
                     ${isActive
-                                        ? "text-studio-bg"
-                                        : "text-studio-muted hover:text-studio-text"
+                                        ? "text-[#FAF9F3] dark:text-[#F5EEDC] font-bold"
+                                        : "text-[#263F35] hover:text-[#101C19] dark:text-slate-300 dark:hover:text-white"
                                     }
                   `}
                             >

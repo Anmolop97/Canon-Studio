@@ -35,26 +35,26 @@ export function Header({
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-studio-card/90 backdrop-blur-md border-b border-studio-border shadow-xs">
+    <header className="studio-glass-header sticky top-0 z-50 w-full bg-transparent border-b transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
         <div className="flex items-center justify-between h-16 gap-2">
           
           {/* Logo & Studio Working Title */}
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded bg-studio-raised border border-studio-border flex items-center justify-center text-studio-accent font-serif font-bold text-lg flex-shrink-0">
+          <div className="brand-area flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-[#FAF9F3]/90 border border-[#D7C397]/70 dark:bg-slate-800/80 dark:border-slate-700 flex items-center justify-center text-[#101C19] dark:text-[#D9C58B] font-serif font-bold text-lg flex-shrink-0 shadow-xs">
               C
             </div>
             <div>
-              <span className="font-serif font-bold text-base sm:text-lg text-studio-text tracking-tight block leading-tight">
+              <span className="studio-brand-name font-serif font-bold text-base sm:text-lg tracking-tight block leading-tight">
                 Canon Story Studio
               </span>
-              <span className="text-[10px] text-studio-muted uppercase tracking-wider block font-sans">
-                Narrative & Continuity
+              <span className="studio-brand-subtitle text-[10px] uppercase tracking-widest block font-sans font-semibold">
+                Narrative &amp; Continuity
               </span>
             </div>
           </div>
 
-          {/* Desktop Navigation Tabs (Watermelon Continuous Tabs) */}
+          {/* Desktop Navigation Tabs (Enchanted Forest Continuous Tabs) */}
           <div className="hidden md:flex items-center">
             <ContinuousTabs
               tabs={[
@@ -73,26 +73,28 @@ export function Header({
             {/* Pricing Modal Button */}
             <button
               onClick={() => setIsPricingOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-amber-500 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded min-h-[44px] transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-[#C1A66B] bg-[#FAF9F3]/85 hover:bg-[#FAF9F3] border border-[#D7C397] dark:bg-slate-800/80 dark:border-amber-500/30 dark:text-amber-400 rounded-xl min-h-[42px] transition-all shadow-xs cursor-pointer"
             >
-              <Sparkles className="w-3.5 h-3.5 fill-current" />
+              <Sparkles className="w-3.5 h-3.5 fill-[#C1A66B] text-[#C1A66B]" />
               <span>Upgrade</span>
             </button>
 
             {/* Animated Sun/Moon Mode Toggle (Button-26) */}
-            <Button26 isDark={isDarkMode} onToggle={onToggleTheme} />
+            <div className="[&>button]:bg-[#FAF9F3]/85 [&>button]:dark:bg-slate-800/80 [&>button]:border-[#D7C397] [&>button]:rounded-xl [&>button]:shadow-xs">
+              <Button26 isDark={isDarkMode} onToggle={onToggleTheme} />
+            </div>
 
             {/* Auth Session Button */}
             {currentUser ? (
               <div className="flex items-center gap-2">
-                <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-studio-raised border border-studio-border rounded text-xs text-studio-text min-h-[44px]">
-                  <UserIcon className="w-3.5 h-3.5 text-studio-accent" />
-                  <span className="font-medium max-w-[120px] truncate">{currentUser.displayName}</span>
+                <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-[#FAF9F3]/85 dark:bg-slate-800 border border-[#D7C397]/80 dark:border-slate-700 rounded-xl text-xs text-[#101C19] dark:text-white min-h-[42px]">
+                  <UserIcon className="w-3.5 h-3.5 text-[#58745C] dark:text-[#B7C29B]" />
+                  <span className="font-semibold max-w-[120px] truncate">{currentUser.displayName}</span>
                 </div>
                 <button
                   onClick={onLogout}
                   title="Sign out"
-                  className="flex items-center gap-1.5 px-3 py-2 text-xs text-studio-muted hover:text-red-400 bg-studio-raised hover:bg-red-950/20 border border-studio-border rounded transition-colors min-h-[44px]"
+                  className="flex items-center gap-1.5 px-3 py-2 text-xs text-[#58745C] hover:text-red-500 bg-[#FAF9F3]/85 dark:bg-slate-800 hover:bg-red-50 border border-[#D7C397]/60 dark:border-slate-700 rounded-xl transition-colors min-h-[42px]"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">Sign out</span>
@@ -101,7 +103,7 @@ export function Header({
             ) : (
               <button
                 onClick={onOpenAuth}
-                className="flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-medium bg-studio-accent hover:bg-studio-accent/90 text-studio-bg rounded transition-colors min-h-[44px]"
+                className="flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-bold bg-[#101C19] hover:bg-[#263F35] text-[#FAF9F3] dark:bg-[#3B4A38] dark:hover:bg-[#526548] dark:text-[#F5EEDC] rounded-xl transition-all shadow-md active:scale-[0.98] min-h-[42px] cursor-pointer"
               >
                 <LogIn className="w-3.5 h-3.5" />
                 <span>Sign in</span>
@@ -110,9 +112,9 @@ export function Header({
           </div>
         </div>
 
-        {/* Mobile Navigation Tabs (Watermelon Capsule Style) */}
-        <nav className="flex md:hidden items-center justify-between border-t border-studio-border/40 py-2 overflow-x-auto">
-          <div className="flex w-full items-center gap-1 rounded-full border border-studio-border bg-studio-raised p-1 backdrop-blur-md shadow-inner">
+        {/* Mobile Navigation Tabs */}
+        <nav className="flex md:hidden items-center justify-between border-t border-[#D7C397]/30 dark:border-slate-800 py-2 overflow-x-auto">
+          <div className="flex w-full items-center gap-1 rounded-full border border-[#D7C397]/70 bg-[#FAF9F3]/85 p-1 shadow-xs dark:bg-slate-900/80 dark:border-slate-700">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
@@ -123,8 +125,8 @@ export function Header({
                   onClick={() => onTabChange(item.id)}
                   className={`flex-1 flex items-center justify-center gap-1 py-1.5 px-2 text-[11px] font-semibold rounded-full transition-all min-h-[38px] cursor-pointer ${
                     isActive
-                      ? 'text-studio-text bg-studio-card shadow-sm font-bold'
-                      : 'text-studio-muted hover:text-studio-text'
+                      ? 'text-[#E9E2CE] bg-[#101C19] shadow-sm font-bold dark:bg-[#3B4A38] dark:text-[#F5EEDC]'
+                      : 'text-[#263F35] hover:text-[#101C19] dark:text-slate-300'
                   }`}
                 >
                   {item.icon}

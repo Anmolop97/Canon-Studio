@@ -91,10 +91,12 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
+      data-lenis-prevent
       className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-md overflow-y-auto"
     >
       <div 
-        className="w-full max-w-4xl bg-studio-card border border-studio-border rounded-3xl shadow-2xl overflow-hidden relative text-studio-text flex flex-col lg:flex-row my-auto"
+        data-lenis-prevent
+        className="w-full max-w-4xl bg-[#FAF9F3] dark:bg-slate-900 border border-[#D7C397] dark:border-slate-700 rounded-3xl shadow-2xl overflow-hidden relative text-[#101C19] dark:text-white flex flex-col lg:flex-row my-auto"
         role="dialog"
         aria-modal="true"
         aria-labelledby="auth-modal-title"
@@ -102,13 +104,13 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-2 text-studio-muted hover:text-studio-text rounded-full bg-studio-raised backdrop-blur-sm transition-colors cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center"
+          className="absolute top-4 right-4 z-20 p-2 text-[#58745C] hover:text-[#101C19] rounded-full bg-[#F4F0E5] dark:bg-slate-800 border border-[#D7C397] dark:border-slate-700 transition-colors cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center"
           aria-label="Close modal"
         >
           <X className="w-5 h-5" />
         </button>
 
-        {/* Left Form Column (Watermelon Auth-07 style) */}
+        {/* Left Form Column */}
         <div className="flex-1 p-6 sm:p-10 flex flex-col justify-center">
           <motion.div
             variants={containerVariants}
@@ -118,13 +120,13 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
           >
             {/* Header / Brand */}
             <motion.div variants={itemVariants} className="mb-6">
-              <span className="text-xs font-bold tracking-widest uppercase text-studio-muted">
+              <span className="text-xs font-bold tracking-widest uppercase text-[#58745C] dark:text-sky-400">
                 CANON STUDIO &bull; AUTHENTICATION
               </span>
-              <h2 id="auth-modal-title" className="text-2xl sm:text-3xl font-bold tracking-tight text-studio-text mt-1">
+              <h2 id="auth-modal-title" className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-[#101C19] dark:text-white mt-1">
                 {isRegister ? 'Create your Account' : 'Welcome back'}
               </h2>
-              <p className="text-sm text-studio-muted mt-1">
+              <p className="text-sm text-[#263F35] dark:text-slate-300 mt-1">
                 {isRegister
                   ? 'Join narrative architects publishing serialized sagas.'
                   : 'Sign in to access your drafts, canon entities, and books.'}
@@ -132,29 +134,27 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
             </motion.div>
 
             {/* Quick 1-Click Demo Profiles */}
-            <motion.div variants={itemVariants} className="mb-5 p-3 rounded-2xl bg-studio-raised border border-studio-border">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-studio-muted mb-2 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <motion.div variants={itemVariants} className="mb-5 p-3.5 rounded-2xl bg-[#F4F0E5] dark:bg-slate-800 border border-[#D7C397]">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-[#263F35] dark:text-slate-300 mb-2 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#C1A66B]" />
                 <span>Instant 1-Click Demo Logins</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  disabled={loading}
-                  onClick={() => handleDemoLogin('anya@canonstory.studio', 'anya123')}
-                  className="p-2.5 text-left bg-studio-card hover:bg-studio-raised border border-studio-border rounded-xl transition-all cursor-pointer"
+                  onClick={() => handleDemoLogin('elena@canon.studio', 'author123')}
+                  className="px-3 py-2 text-xs font-semibold bg-[#FAF9F3] hover:bg-[#E9E2CE] text-[#101C19] border border-[#D7C397] rounded-xl transition-all text-left shadow-xs cursor-pointer"
                 >
-                  <div className="text-xs font-semibold text-studio-text">Anya Sharma</div>
-                  <div className="text-[10px] text-studio-muted">Author &bull; anya123</div>
+                  <span className="block font-bold text-[#101C19]">Elena Vance</span>
+                  <span className="text-[10px] text-[#58745C]">Sci-Fi Author</span>
                 </button>
                 <button
                   type="button"
-                  disabled={loading}
-                  onClick={() => handleDemoLogin('dev@canonstory.studio', 'dev123')}
-                  className="p-2.5 text-left bg-studio-card hover:bg-studio-raised border border-studio-border rounded-xl transition-all cursor-pointer"
+                  onClick={() => handleDemoLogin('marcus@canon.studio', 'master456')}
+                  className="px-3 py-2 text-xs font-semibold bg-[#FAF9F3] hover:bg-[#E9E2CE] text-[#101C19] border border-[#D7C397] rounded-xl transition-all text-left shadow-xs cursor-pointer"
                 >
-                  <div className="text-xs font-semibold text-studio-text">Devraj Sen</div>
-                  <div className="text-[10px] text-studio-muted">Reviewer &bull; dev123</div>
+                  <span className="block font-bold text-[#101C19]">Marcus Aurel</span>
+                  <span className="text-[10px] text-[#58745C]">World Builder</span>
                 </button>
               </div>
             </motion.div>
@@ -178,13 +178,13 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="e.g. Maya Lin"
-                    className="w-full rounded-full border border-studio-border bg-studio-bg px-4 py-2.5 text-sm text-studio-text placeholder:text-studio-muted/70 focus:outline-none focus:ring-2 focus:ring-studio-accent"
+                    className="w-full rounded-xl border border-[#D7C397] bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-[#101C19] dark:text-white placeholder:text-[#87977A] focus:outline-none focus:ring-2 focus:ring-[#101C19]"
                   />
                 </motion.div>
               )}
 
               <motion.div variants={itemVariants} className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-studio-text">
+                <label className="text-xs font-semibold text-[#101C19] dark:text-white">
                   Email Address
                 </label>
                 <input
@@ -193,12 +193,12 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@domain.com"
-                  className="w-full rounded-full border border-studio-border bg-studio-bg px-4 py-2.5 text-sm text-studio-text placeholder:text-studio-muted/70 focus:outline-none focus:ring-2 focus:ring-studio-accent"
+                  className="w-full rounded-xl border border-[#D7C397] bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-[#101C19] dark:text-white placeholder:text-[#87977A] focus:outline-none focus:ring-2 focus:ring-[#101C19]"
                 />
               </motion.div>
 
               <motion.div variants={itemVariants} className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-studio-text">
+                <label className="text-xs font-semibold text-[#101C19] dark:text-white">
                   Password
                 </label>
                 <input
@@ -207,7 +207,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full rounded-full border border-studio-border bg-studio-bg px-4 py-2.5 text-sm text-studio-text placeholder:text-studio-muted/70 focus:outline-none focus:ring-2 focus:ring-studio-accent"
+                  className="w-full rounded-xl border border-[#D7C397] bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-[#101C19] dark:text-white placeholder:text-[#87977A] focus:outline-none focus:ring-2 focus:ring-[#101C19]"
                 />
               </motion.div>
 
@@ -215,7 +215,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full rounded-full bg-studio-accent hover:bg-studio-accent/90 text-studio-bg py-3 text-sm font-semibold transition-all shadow cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="w-full rounded-xl bg-[#101C19] hover:bg-[#263F35] text-[#E9E2CE] dark:bg-sky-500 dark:hover:bg-sky-400 dark:text-slate-950 py-3 text-sm font-bold transition-all shadow-md active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <span className="animate-pulse">Authenticating...</span>

@@ -287,7 +287,7 @@ export function TabChoosePath({
         description={"Every choice branches the story tree into uncharted territory.\nMake tactical decisions and illustrate the climax in 16:9 cinematic concept art."}
         usersText="Over 20k active users"
       >
-        <div className="bg-studio-card/95 backdrop-blur-xl border border-studio-border shadow-xl rounded-2xl p-6 sm:p-8 text-left max-w-2xl w-full mx-auto text-studio-text space-y-5 transition-all">
+        <div className="bg-[#f8f1df]/48 dark:bg-[#1d2921]/48 backdrop-blur-2xl border border-white/55 dark:border-white/15 shadow-[0_24px_70px_rgba(41,55,43,0.2),inset_0_1px_0_rgba(255,255,255,0.62)] rounded-[28px] p-6 sm:p-8 text-left max-w-2xl w-full mx-auto text-[#101C19] dark:text-white space-y-5 transition-all">
           {errorMessage && (
             <div className="p-3 bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800 rounded-xl text-xs text-red-700 dark:text-red-300 flex items-center justify-between">
               <span>{errorMessage}</span>
@@ -296,7 +296,7 @@ export function TabChoosePath({
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-studio-muted uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-[#58745C] dark:text-sky-400 uppercase tracking-wider mb-2">
               Story Seed / Central Premise
             </label>
             <textarea
@@ -304,19 +304,19 @@ export function TabChoosePath({
               value={idea}
               onChange={(e) => setIdea(e.target.value)}
               placeholder="Describe the initial situation or mystery..."
-              className="w-full bg-studio-bg border border-studio-border rounded-xl p-3.5 text-sm text-studio-text placeholder:text-studio-muted/70 focus:outline-none focus:ring-2 focus:ring-studio-accent leading-relaxed"
+              className="w-full bg-[#F4F0E5] dark:bg-slate-800 border border-[#D7C397] dark:border-slate-700 rounded-xl p-3.5 text-sm text-[#101C19] dark:text-white placeholder:text-[#87977A] focus:outline-none focus:ring-2 focus:ring-[#101C19] leading-relaxed"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-studio-muted uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-[#58745C] dark:text-sky-400 uppercase tracking-wider mb-2">
                 Genre
               </label>
               <select
                 value={genre}
                 onChange={(e) => setGenre(e.target.value)}
-                className="w-full bg-studio-bg border border-studio-border rounded-xl px-3 py-2.5 text-sm text-studio-text focus:outline-none focus:ring-2 focus:ring-studio-accent min-h-[44px]"
+                className="w-full bg-[#F4F0E5] dark:bg-slate-800 border border-[#D7C397] dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm text-[#101C19] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#101C19] min-h-[44px]"
               >
                 <option value="Sci-fi">Sci-fi</option>
                 <option value="Thriller">Thriller</option>
@@ -332,13 +332,13 @@ export function TabChoosePath({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-studio-muted uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-[#58745C] dark:text-sky-400 uppercase tracking-wider mb-2">
                 Language
               </label>
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
-                className="w-full bg-studio-bg border border-studio-border rounded-xl px-3 py-2.5 text-sm text-studio-text focus:outline-none focus:ring-2 focus:ring-studio-accent min-h-[44px]"
+                className="w-full bg-[#F4F0E5] dark:bg-slate-800 border border-[#D7C397] dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm text-[#101C19] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#101C19] min-h-[44px]"
               >
                 <option value="English">English</option>
                 <option value="Hinglish (Hindi in Roman letters)">Hinglish (Roman Hindi)</option>
@@ -348,7 +348,7 @@ export function TabChoosePath({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-studio-muted uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-[#58745C] dark:text-sky-400 uppercase tracking-wider mb-2">
               Decisions Before Climactic Ending
             </label>
             <div className="grid grid-cols-3 gap-3">
@@ -359,8 +359,8 @@ export function TabChoosePath({
                   onClick={() => setMaxDecisions(num)}
                   className={`py-2.5 px-3 rounded-xl border text-center transition-all cursor-pointer ${
                     maxDecisions === num
-                      ? 'bg-studio-accent text-studio-bg border-studio-accent shadow-sm font-semibold'
-                      : 'bg-studio-raised border-studio-border text-studio-text hover:bg-studio-card'
+                      ? 'bg-[#101C19] text-[#E9E2CE] border-[#101C19] shadow-sm font-bold'
+                      : 'bg-[#FAF9F3] border-[#D7C397] text-[#101C19] hover:bg-[#E9E2CE]'
                   }`}
                 >
                   <div className="text-sm font-serif font-bold">{num} Decisions</div>
@@ -375,7 +375,7 @@ export function TabChoosePath({
           <button
             onClick={handleStartGame}
             disabled={loadingNext || !idea.trim()}
-            className="w-full bg-studio-accent hover:bg-studio-accent/90 disabled:opacity-50 text-studio-bg font-medium py-3.5 px-6 rounded-xl transition-all flex items-center justify-center gap-2 min-h-[46px] cursor-pointer shadow-md"
+            className="w-full bg-[#101C19] hover:bg-[#263F35] disabled:opacity-50 text-[#E9E2CE] font-bold py-3.5 px-6 rounded-xl transition-all flex items-center justify-center gap-2 min-h-[46px] cursor-pointer shadow-md"
           >
             {loadingNext ? (
               <span className="animate-pulse">Authoring Scene 1...</span>

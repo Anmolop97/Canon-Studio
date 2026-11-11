@@ -471,23 +471,23 @@ export function TabWriterMode({ currentUser, onOpenAuth, preloadedDraft }: TabWr
     }
   };
 
-  // --- NON-AUTHENTICATED GATE ---
+  // --- NON-AUTHENTICATED GATE (Enchanted Forest) ---
   if (!currentUser) {
     return (
       <div className="w-full max-w-xl mx-auto px-4 py-16 text-center">
-        <div className="bg-studio-card border border-studio-border rounded-lg p-8 shadow-xl">
-          <div className="w-14 h-14 bg-studio-raised border border-studio-border rounded-full flex items-center justify-center mx-auto mb-4 text-studio-accent">
+        <div className="bg-[#FAF9F3] dark:bg-slate-900 border border-[#D7C397] dark:border-slate-700 rounded-2xl p-8 shadow-xl">
+          <div className="w-14 h-14 bg-[#F4F0E5] dark:bg-slate-800 border border-[#D7C397] rounded-2xl flex items-center justify-center mx-auto mb-4 text-[#101C19] dark:text-sky-400">
             <PenTool className="w-7 h-7" />
           </div>
-          <h2 className="text-2xl font-serif font-bold text-studio-text mb-2">
+          <h2 className="text-2xl font-serif font-bold text-[#101C19] dark:text-white mb-2">
             Sign In to Writer Mode
           </h2>
-          <p className="text-sm text-studio-muted mb-6 leading-relaxed">
+          <p className="text-sm text-[#263F35] dark:text-slate-300 mb-6 leading-relaxed">
             Writer Mode provides private workspace drafts, multi-episode serialization, and deep AI-powered canon continuity checking. Sign in or pick a demo profile to start writing.
           </p>
           <button
             onClick={onOpenAuth}
-            className="w-full bg-studio-accent hover:bg-studio-accent/90 text-studio-bg font-bold py-3 px-6 rounded transition-colors text-sm min-h-[44px] cursor-pointer"
+            className="w-full bg-[#101C19] hover:bg-[#263F35] text-[#E9E2CE] font-bold py-3 px-6 rounded-xl transition-all text-sm min-h-[44px] cursor-pointer shadow-md"
           >
             Sign in to Write
           </button>
@@ -500,17 +500,17 @@ export function TabWriterMode({ currentUser, onOpenAuth, preloadedDraft }: TabWr
   if (drafts.length === 0 && !loadingDrafts) {
     return (
       <div className="w-full max-w-xl mx-auto px-4 py-16 text-center">
-        <div className="bg-studio-card border border-studio-border rounded-lg p-8">
-          <FileText className="w-12 h-12 text-studio-muted mx-auto mb-3" />
-          <h2 className="text-xl font-serif font-bold text-studio-text mb-1">
+        <div className="bg-[#FAF9F3] dark:bg-slate-900 border border-[#D7C397] dark:border-slate-700 rounded-2xl p-8 shadow-md">
+          <FileText className="w-12 h-12 text-[#87977A] mx-auto mb-3" />
+          <h2 className="text-xl font-serif font-bold text-[#101C19] dark:text-white mb-1">
             No Story Drafts Yet
           </h2>
-          <p className="text-sm text-studio-muted mb-5">
+          <p className="text-sm text-[#263F35] dark:text-slate-300 mb-5">
             Create your first serialized fiction draft or transfer a story from the wizard.
           </p>
           <button
             onClick={handleNewDraft}
-            className="bg-studio-accent hover:bg-studio-accent/90 text-studio-bg font-bold py-2.5 px-5 rounded text-sm min-h-[44px] inline-flex items-center gap-2"
+            className="bg-[#101C19] hover:bg-[#263F35] text-[#E9E2CE] font-bold py-2.5 px-6 rounded-xl text-sm min-h-[44px] inline-flex items-center gap-2 shadow-md cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Create New Saga</span>
@@ -523,8 +523,8 @@ export function TabWriterMode({ currentUser, onOpenAuth, preloadedDraft }: TabWr
   return (
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-6 space-y-6">
       
-      {/* Top Workspace Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-studio-border pb-4">
+      {/* Top Workspace Header (Enchanted Forest) */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#D7C397]/60 pb-4">
         <div className="flex items-center gap-3">
           <select
             value={selectedDraftId || ''}
@@ -532,7 +532,7 @@ export function TabWriterMode({ currentUser, onOpenAuth, preloadedDraft }: TabWr
               const d = drafts.find(x => x.id === e.target.value);
               if (d) selectDraft(d);
             }}
-            className="bg-studio-card border border-studio-border rounded px-3 py-2 text-sm font-serif font-bold text-studio-text focus:border-studio-accent min-h-[44px] max-w-[240px] truncate"
+            className="bg-[#FAF9F3] dark:bg-slate-900 border border-[#D7C397] dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-serif font-bold text-[#101C19] dark:text-white focus:border-[#101C19] min-h-[44px] max-w-[240px] truncate shadow-xs"
           >
             {drafts.map(d => (
               <option key={d.id} value={d.id}>
@@ -543,10 +543,10 @@ export function TabWriterMode({ currentUser, onOpenAuth, preloadedDraft }: TabWr
 
           <button
             onClick={handleNewDraft}
-            className="flex items-center gap-1.5 px-3 py-2 bg-studio-raised hover:bg-studio-accent/20 border border-studio-border text-xs text-studio-accent rounded font-medium min-h-[44px]"
+            className="flex items-center gap-1.5 px-3 py-2 bg-[#FAF9F3] hover:bg-[#F4F0E5] border border-[#D7C397] text-xs text-[#101C19] rounded-xl font-bold min-h-[44px] transition-all shadow-xs cursor-pointer"
             title="Create a new serialized saga draft"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-3.5 h-3.5 text-[#58745C]" />
             <span className="hidden sm:inline">New Draft</span>
           </button>
         </div>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Play, Pause, RefreshCw, SkipBack, Volume2 } from 'lucide-react';
+import { Play, Pause, RefreshCw, SkipBack } from 'lucide-react';
 
 interface StoryAudioProps {
   storyText: string;

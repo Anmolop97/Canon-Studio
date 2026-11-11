@@ -34,7 +34,7 @@ class AIService {
 
   constructor() {
     this.groqApiKey       = process.env.GROQ_API_KEY       || '';
-    this.groqModel        = process.env.GROQ_MODEL          || 'llama-3.3-70b-versatile';
+    this.groqModel        = process.env.GROQ_MODEL          || 'openai/gpt-oss-120b';
     this.geminiApiKey     = process.env.GEMINI_API_KEY      || '';
     this.geminiModel      = process.env.GEMINI_MODEL        || 'gemini-3.5-flash-lite';
     this.openrouterApiKey = process.env.OPENROUTER_API_KEY || '';
@@ -50,19 +50,28 @@ class AIService {
 
   public activeProvider(): string {
     const active: string[] = [];
-    if (this.isOpenRouterConfigured()) active.push(`Story: OpenRouter (${this.openrouterModel})`);
+    if (this.isGroqConfigured())       active.push(`Ultra-Fast Core: Groq (${this.groqModel})`);
+    if (this.isOpenRouterConfigured()) active.push(`Story Writer: OpenRouter (${this.openrouterModel})`);
     if (this.isGeminiConfigured())     active.push(`Visual Director: Gemini (${this.geminiModel})`);
-    if (this.isGroqConfigured())       active.push(`Groq (${this.groqModel})`);
 
     if (active.length > 0) return active.join(' + ');
     return 'None — please configure API keys in backend/.env';
   }
 
   // ---------------------------------------------------------------------------
-  // TEXT GENERATION (Primary: OpenRouter for Story -> Fallback: Gemini -> Groq)
+  // TEXT GENERATION (Primary: Groq -> Fallback: OpenRouter -> Gemini)
   // ---------------------------------------------------------------------------
   public async generateText(prompt: string, systemInstruction?: string): Promise<string> {
-    // 1. Try OpenRouter (Primary Story Writer)
+    // 1. Try Groq (Primary Ultra-Fast Inference)
+    if (this.isGroqConfigured()) {
+      try {
+        return await this._groqText(prompt, systemInstruction);
+      } catch (err) {
+        console.warn('[AIService] Groq text failed, trying OpenRouter fallback:', (err as Error).message);
+      }
+    }
+
+    // 2. Try OpenRouter (Story Specialist)
     if (this.isOpenRouterConfigured()) {
       try {
         return await this._openrouterText(prompt, systemInstruction);
@@ -71,21 +80,12 @@ class AIService {
       }
     }
 
-    // 2. Try Gemini
+    // 3. Try Gemini
     if (this.isGeminiConfigured()) {
       try {
         return await this._geminiText(prompt, systemInstruction);
       } catch (err) {
-        console.warn('[AIService] Gemini text failed, trying Groq fallback:', (err as Error).message);
-      }
-    }
-
-    // 3. Try Groq
-    if (this.isGroqConfigured()) {
-      try {
-        return await this._groqText(prompt, systemInstruction);
-      } catch (err) {
-        console.warn('[AIService] Groq text failed:', (err as Error).message);
+        console.warn('[AIService] Gemini text failed:', (err as Error).message);
       }
     }
 
@@ -93,10 +93,19 @@ class AIService {
   }
 
   // ---------------------------------------------------------------------------
-  // STRUCTURED JSON GENERATION (Primary: OpenRouter -> Fallback: Gemini -> Groq)
+  // STRUCTURED JSON GENERATION (Primary: Groq -> Fallback: OpenRouter -> Gemini)
   // ---------------------------------------------------------------------------
   public async generateStructuredJSON<T>(options: AIStructuredOptions): Promise<T> {
-    // 1. Try OpenRouter (Primary Story Writer)
+    // 1. Try Groq (Primary Ultra-Fast Inference)
+    if (this.isGroqConfigured()) {
+      try {
+        return await this._groqJSON<T>(options);
+      } catch (err) {
+        console.warn('[AIService] Groq JSON failed, trying OpenRouter fallback:', (err as Error).message);
+      }
+    }
+
+    // 2. Try OpenRouter (Story Specialist)
     if (this.isOpenRouterConfigured()) {
       try {
         return await this._openrouterJSON<T>(options);
@@ -105,21 +114,12 @@ class AIService {
       }
     }
 
-    // 2. Try Gemini
+    // 3. Try Gemini
     if (this.isGeminiConfigured()) {
       try {
         return await this._geminiJSON<T>(options);
       } catch (err) {
-        console.warn('[AIService] Gemini JSON failed, trying Groq fallback:', (err as Error).message);
-      }
-    }
-
-    // 3. Try Groq
-    if (this.isGroqConfigured()) {
-      try {
-        return await this._groqJSON<T>(options);
-      } catch (err) {
-        console.warn('[AIService] Groq JSON failed:', (err as Error).message);
+        console.warn('[AIService] Gemini JSON failed:', (err as Error).message);
       }
     }
 

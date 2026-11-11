@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion, type Variants } from "motion/react";
 import { FaArrowRight, FaChevronDown, FaXmark } from "react-icons/fa6";
+import storybookBackground from "../../assets/storybook-background.png";
 
 export interface Hero10NavItem {
   label: string;
@@ -36,7 +37,7 @@ const defaultNavItems: Hero10NavItem[] = [
   { label: "Community Books", href: "#books" },
 ];
 
-const defaultBackground = "https://assets.watermelon.sh/hero-10-bg.avif";
+const defaultBackground = storybookBackground;
 
 const headerVariants: Variants = {
   hidden: { opacity: 0, y: -16, filter: "blur(8px)" },
@@ -108,30 +109,34 @@ export function Hero10({
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <section className="relative isolate min-h-screen w-full overflow-hidden bg-slate-200 dark:bg-zinc-950 font-sans text-slate-900 dark:text-zinc-100 antialiased">
-      <motion.div
-        variants={backgroundVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.35 }}
-        className="absolute inset-0 will-change-transform"
-        aria-hidden="true"
-      >
-        <img
-          src={backgroundImage}
-          alt=""
-          className="h-full w-full object-cover object-center outline outline-1 outline-black/10 dark:opacity-40"
-        />
-      </motion.div>
+    <section className={`relative isolate min-h-screen w-full overflow-hidden ${hideHeader ? 'bg-transparent' : 'bg-slate-200 dark:bg-zinc-950'} font-sans text-slate-900 dark:text-zinc-100 antialiased`}>
+      {!hideHeader && (
+        <>
+          <motion.div
+            variants={backgroundVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.35 }}
+            className="absolute inset-0 will-change-transform"
+            aria-hidden="true"
+          >
+            <img
+              src={backgroundImage}
+              alt=""
+              className="h-full w-full object-cover object-center outline outline-1 outline-black/10 dark:opacity-40"
+            />
+          </motion.div>
 
-      <div
-        className="absolute inset-0 bg-[linear-gradient(180deg,rgba(226,232,240,0.82)_0%,rgba(241,245,249,0.58)_32%,rgba(226,232,240,0.08)_66%,rgba(15,23,42,0.08)_100%)] dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.88)_0%,rgba(15,23,42,0.72)_32%,rgba(15,23,42,0.4)_66%,rgba(15,23,42,0.95)_100%)]"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute inset-x-0 top-0 h-[48%] bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.82)_0%,rgba(255,255,255,0.4)_42%,rgba(255,255,255,0)_74%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(30,41,59,0.7)_0%,rgba(15,23,42,0.4)_42%,transparent_74%)]"
-        aria-hidden="true"
-      />
+          <div
+            className="absolute inset-0 bg-[linear-gradient(180deg,rgba(239,230,207,0.24)_0%,rgba(239,230,207,0.08)_32%,rgba(41,55,43,0.04)_66%,rgba(41,55,43,0.12)_100%)] dark:bg-[linear-gradient(180deg,rgba(15,23,18,0.54)_0%,rgba(15,23,18,0.32)_32%,rgba(15,23,18,0.2)_66%,rgba(15,23,18,0.58)_100%)]"
+            aria-hidden="true"
+          />
+          <div
+            className="absolute inset-x-0 top-0 h-[48%] bg-[radial-gradient(ellipse_at_center,rgba(255,250,232,0.24)_0%,rgba(255,250,232,0.08)_42%,rgba(255,250,232,0)_74%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(30,41,59,0.42)_0%,rgba(15,23,42,0.22)_42%,transparent_74%)]"
+            aria-hidden="true"
+          />
+        </>
+      )}
 
       <div className="relative z-10 mx-auto flex min-h-[760px] w-full max-w-[1440px] flex-col px-5 py-5 sm:min-h-screen sm:px-10 lg:px-[74px]">
         {!hideHeader && (
@@ -285,7 +290,7 @@ export function Hero10({
 
           <motion.p
             variants={contentItem}
-            className="mask-l-form-90% mask-r-form-90% mt-4 max-w-[620px] bg-white/5 mask-b-from-90% text-[clamp(0.95rem,1.25vw,1.1rem)] leading-[1.42] font-normal text-pretty whitespace-pre-line text-slate-700 dark:text-zinc-200 backdrop-blur-[2px]"
+            className="mask-l-form-90% mask-r-form-90% mt-4 max-w-[620px] bg-transparent mask-b-from-90% text-[clamp(0.95rem,1.25vw,1.1rem)] leading-[1.42] font-normal text-pretty whitespace-pre-line text-slate-700 dark:text-zinc-200 drop-shadow-[0_1px_8px_rgba(255,250,232,0.72)] dark:drop-shadow-[0_1px_8px_rgba(15,23,18,0.8)]"
           >
             {description}
           </motion.p>

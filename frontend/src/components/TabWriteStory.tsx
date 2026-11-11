@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { api } from '../api';
 import type { WizardQuestion } from '../types';
 import {
-  Sparkles,
   ArrowRight,
   ArrowLeft,
   Shuffle,
@@ -13,10 +12,14 @@ import {
   Compass,
   PenTool,
   Square,
-  AlertCircle
+  AlertCircle,
+  BookOpen,
+  Sparkles
 } from 'lucide-react';
 import { VoiceNarratorButton } from './VoiceNarratorButton';
 import { StoryAudio } from './StoryAudio';
+import { StudioDeepDive } from './StudioDeepDive';
+import { Newsletter2 } from './ui/newsletter-2';
 
 interface TabWriteStoryProps {
   onPlayBranching: (premise: { idea: string; genre: string; realism: string; language: string }) => void;
@@ -325,18 +328,17 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
     keywords && { label: `Seed: ${keywords}` },
     selectedGenre && { label: `Genre: ${selectedGenre}` },
     selectedRealism && { label: `World: ${selectedRealism}` },
-    selectedLanguage && { label: `Lang: ${selectedLanguage}` },
     step4Answer && { label: `Lead: ${step4Answer.slice(0, 25)}...` },
     step5Answer && { label: `Arena: ${step5Answer.slice(0, 25)}...` },
     step6Answer && { label: `Twist: ${step6Answer.slice(0, 25)}...` },
   ].filter(Boolean) as Array<{ label: string }>;
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 py-6 md:py-10">
+    <div className={`w-full mx-auto px-4 ${currentStep === 0 ? 'max-w-6xl py-10 md:py-16' : 'max-w-4xl py-6 md:py-10'}`}>
       
       {/* Wizard Header Bar */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between text-xs font-semibold text-studio-muted uppercase tracking-wider mb-2">
+      <div className={currentStep === 0 ? 'mb-3 md:mb-4' : 'mb-6'}>
+        <div className="story-wizard-meta flex items-center justify-between text-xs font-bold uppercase tracking-wider mb-2">
           <span>Write a Story &bull; Guided AI Wizard</span>
           {currentStep <= 7 && <span>Step {currentStep} of 7</span>}
         </div>
@@ -373,7 +375,7 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
 
       {/* --- STEP 0: FREE-TEXT KEYWORDS --- */}
       {currentStep === 0 && (
-        <div className="bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-white/60 dark:border-slate-700/80 rounded-2xl p-6 md:p-8 shadow-[0_20px_50px_rgba(15,23,42,0.10)] dark:shadow-2xl animate-in fade-in duration-200">
+        <div className="story-seed-card mt-1 md:mt-2 flex flex-col bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-white/60 dark:border-slate-700/80 rounded-2xl p-6 md:p-8 shadow-[0_20px_50px_rgba(15,23,42,0.10)] dark:shadow-2xl animate-in fade-in duration-200">
           <h2 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 dark:text-white mb-2">
             What story do you want to tell today?
           </h2>
@@ -401,7 +403,7 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
             </div>
           </form>
 
-          <div className="mb-6">
+          <div className="mb-0">
             <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
               Or pick an idea to explore:
             </div>
@@ -419,13 +421,28 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
             </div>
           </div>
 
+          <div className="story-inspiration my-7 md:my-9 flex items-center gap-4 rounded-xl px-4 py-4 md:px-5 md:py-5">
+            <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#DCE1D0]/70 dark:bg-emerald-900/40 text-[#58745C] dark:text-emerald-200">
+              <BookOpen className="h-6 w-6" strokeWidth={1.5} />
+              <Sparkles className="absolute -right-1 -top-1 h-4 w-4 text-[#B8954B]" strokeWidth={1.5} />
+            </div>
+            <div className="min-w-0">
+              <h3 className="font-serif text-base sm:text-lg font-semibold text-[#263F35] dark:text-[#E9E2CE]">
+                Every great world begins with an idea.
+              </h3>
+              <p className="mt-1 max-w-2xl text-xs sm:text-sm leading-relaxed text-[#687563] dark:text-slate-300">
+                Create vivid characters, imagine new worlds, and shape unforgettable stories—one small idea at a time.
+              </p>
+            </div>
+          </div>
+
           <div className="border-t border-slate-200 dark:border-slate-800 pt-4 flex justify-between items-center">
             <button
               type="button"
               onClick={handleNoIdea}
-              className="px-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-sky-300 hover:text-indigo-600 dark:hover:text-sky-200 font-semibold flex items-center gap-2 min-h-[44px] transition-colors cursor-pointer"
+              className="story-surprise-button px-3.5 py-2 text-xs sm:text-sm font-semibold flex items-center gap-2 min-h-[44px] transition-all cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 text-indigo-600 dark:text-sky-400" />
+              <Sparkles className="h-4 w-4 shrink-0 text-[#B8954B]" strokeWidth={1.7} />
               <span>I have no idea yet (Surprise me)</span>
             </button>
           </div>
@@ -696,6 +713,13 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
             </div>
           </div>
 
+          {/* Web Speech Neural Story Audio Narrator */}
+          {(generatedStory?.content || streamedContent) && !isGenerating && (
+            <div className="mb-5">
+              <StoryAudio storyText={generatedStory?.content || streamedContent} />
+            </div>
+          )}
+
           {/* 16:9 Cinematic Concept Art Banner */}
           {storyArt && (
             <div className="relative mb-6 rounded-lg overflow-hidden border border-studio-border bg-black/40 shadow-xl group">
@@ -794,6 +818,20 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
           )}
         </div>
       )}
+
+      {/* ────────────────────────────────────────────────────────────
+          MIDDLE: 3 Professional Functional Layers (Lore, Branching, Auditor)
+         ──────────────────────────────────────────────────────────── */}
+      <div className="mt-64 md:mt-80">
+        <StudioDeepDive />
+      </div>
+
+      {/* ────────────────────────────────────────────────────────────
+          END: Creator Support & Narrative Dispatch Section
+         ──────────────────────────────────────────────────────────── */}
+      <div className="mt-8 mb-6">
+        <Newsletter2 />
+      </div>
     </div>
   );
 }

@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 1024" fill="none">
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#c8d0bd"/><stop offset=".48" stop-color="#e8ddc3"/><stop offset="1" stop-color="#f4e8d0"/></linearGradient>
+    <linearGradient id="haze" x2="0" y2="1"><stop stop-color="#f4eddb" stop-opacity=".08"/><stop offset="1" stop-color="#fff7e6" stop-opacity=".72"/></linearGradient>
+    <linearGradient id="mountain" x2="0" y2="1"><stop stop-color="#8b987b"/><stop offset="1" stop-color="#485c49"/></linearGradient>
+    <linearGradient id="cliff" x2="0" y2="1"><stop stop-color="#78816a"/><stop offset="1" stop-color="#354a3b"/></linearGradient>
+    <linearGradient id="water" x2="0" y2="1"><stop stop-color="#e6eee0" stop-opacity=".95"/><stop offset="1" stop-color="#b7cbbb" stop-opacity=".28"/></linearGradient>
+    <linearGradient id="stone" x2="1" y2="1"><stop stop-color="#d2c8a7"/><stop offset="1" stop-color="#777d68"/></linearGradient>
+    <radialGradient id="sun"><stop stop-color="#fff7df" stop-opacity=".85"/><stop offset="1" stop-color="#f5e8cd" stop-opacity="0"/></radialGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="22"/></filter>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".65" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values=".25 0 0 0 .4 .25 0 0 0 .37 .25 0 0 0 .25 0 0 0 .12 0"/></filter>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h2048v1024H0z"/>
+  <ellipse cx="1010" cy="180" rx="930" ry="360" fill="url(#sun)"/>
+  <g fill="#fff8e9" opacity=".52" filter="url(#soft)"><ellipse cx="304" cy="228" rx="300" ry="48"/><ellipse cx="1030" cy="305" rx="430" ry="54"/><ellipse cx="1700" cy="245" rx="250" ry="55"/></g>
+  <path fill="#b3bba4" d="m0 562 147-155 83 76 117-146 134 170 143-196 149 174 144-210 160 204 142-154 124 129 128-176 137 179 132-124 148 120v341H0z" opacity=".72"/>
+  <path fill="#7e8c72" d="m0 675 124-126 95 70 151-177 149 185 162-217 155 211 132-124 119 125 139-187 160 181 133-114 150 102 149-125v345H0z" opacity=".78"/>
+  <path fill="url(#mountain)" d="m0 746 112-85 98 38 151-111 127 145 145-158 142 144 145-113 115 117 140-160 133 137 104-70 109 55 118-123 109 107v355H0z" opacity=".84"/>
+  <path fill="#e8dfc8" opacity=".34" d="m112 661 98 38-53-78zm249-73 127 145-104-171zm145 2 127-15-131-65zm236-21 142 144-99-172zm402-16 133 137-84-162zm346 67 109 55-82-93z"/>
+  <path fill="#e7e2cc" opacity=".54" d="M0 738c182 25 312 49 485 28 180-22 305-4 467 34 207 49 373 27 570-25 173-46 332-37 526-6v255H0z"/>
+  <!-- distant forest -->
+  <g fill="#53684d" opacity=".72"><path d="m0 629 20-49 20 49h-12v49H12v-49zM43 645l16-40 17 40H65v43H54v-43zM95 635l21-54 21 54h-14v53h-14v-53zM1750 640l19-49 20 49h-13v47h-13v-47zM1820 628l23-59 22 59h-15v60h-15v-60zM1920 643l18-47 19 47h-13v46h-13v-46zM1990 620l24-60 25 60h-17v67h-15v-67z"/></g>
+  <!-- waterfall valley and river -->
+  <path fill="url(#water)" d="M1374 458h76l-14 262 44 170h-133l40-170zM1540 415h106l-21 312 85 183h-178l54-183zM1766 457h90l-21 268 81 177h-155l44-177z"/>
+  <path stroke="#fff8e8" stroke-opacity=".8" stroke-width="8" d="M1395 470v239l35 133M1571 429v279l69 148M1795 470v236l57 145"/>
+  <path stroke="#cfddca" stroke-opacity=".7" stroke-width="4" d="M1417 476v228m178-266v270m221-225v230"/>
+  <path fill="#526748" d="M1317 501 1500 367l150 67 197-164 201 175v425l-120 92h-635z" opacity=".45"/>
+  <path fill="url(#cliff)" d="m1435 450 196-107 190-159 227 166v417l-154 126h-579l111-182z"/>
+  <path fill="#394a3b" d="m1440 495 191-101 190-150 227 167v100l-127-64-139 80-191-80-151 113z" opacity=".62"/>
+  <!-- castle -->
+  <g fill="url(#stone)" stroke="#786f55" stroke-width="6" stroke-linejoin="round">
+    <path d="M1558 435V255h54V204h35v51h54v180z"/><path d="M1643 417V180h58v-65h38v65h58v237z"/>
+    <path d="M1752 427V232h49v-58h34v58h51v195z"/><path d="M1517 435h403v56h-403z"/>
+    <path d="M1584 258v-74l46 74zm81-92V94l48 72zm110 61v-77l43 77z"/>
+  </g>
+  <g fill="#56634e"><path d="M1574 280h22v39h-22zm93-54h23v42h-23zm104 25h21v42h-21z"/></g>
+  <g fill="#e9dfc6" opacity=".8"><path d="M1574 302h22v8h-22zm93-53h23v8h-23zm104 24h21v8h-21z"/></g>
+  <g stroke="#d5c69e" stroke-width="5" opacity=".75"><path d="M1700 116v-60m-17 27h34M1610 203v-55m-15 25h30M1785 173v-48m-14 22h28"/></g>
+  <!-- broken stone arch at left -->
+  <g stroke="url(#stone)" stroke-width="28" stroke-linecap="round" opacity=".96">
+    <path d="M-23 812V633c0-121 78-201 174-201s167 78 167 201v134"/>
+    <path d="M-2 518h45m225 0h57M-7 554h37m235 0h53M6 589h28m244 0h42"/>
+  </g>
+  <g fill="#596c4c" opacity=".95"><path d="M0 482q33-60 80-44-39 11-48 52 48-20 79 4-52 1-84 46-27-12-27-58zm0 112q55-53 94-30-46 13-62 44 42-15 78 10-53-4-97 43-13-27-13-67z"/></g>
+  <!-- foreground foliage -->
+  <g fill="#526949" opacity=".95"><path d="M0 0q90 17 145 95Q86 53 48 80q84 9 124 78Q92 121 26 145 48 76 0 0zM180 0q67 26 91 98-46-44-78-39 55 28 70 82-57-44-114-48Q183 51 180 0z"/></g>
+  <g stroke="#b7a56e" stroke-width="4" opacity=".45"><path d="M0 0q105 85 162 190M42 31l-25 44m89 15-29 43m-28-51 41-19"/></g>
+  <rect width="2048" height="1024" filter="url(#grain)" opacity=".17"/>
+  <path fill="url(#haze)" d="M0 0h2048v1024H0z"/>
+</svg>

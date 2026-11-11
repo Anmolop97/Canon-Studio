@@ -33,7 +33,7 @@ const Button26 = ({ isDark: controlledDark, onToggle }: Button26Props) => {
       aria-label="Toggle dark mode"
       className={cn(
         isDark
-          ? 'border-blue-500 !text-blue-400 hover:bg-blue-500/10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20 dark:border-blue-400 dark:!text-blue-400 dark:hover:bg-blue-400/10 dark:focus-visible:border-blue-400 dark:focus-visible:ring-blue-400/40'
+          ? 'border-[#B8954B] !text-[#D9C58B] hover:bg-[#B8954B]/10 focus-visible:border-[#D9C58B] focus-visible:ring-[#D9C58B]/20 dark:border-[#B8954B] dark:!text-[#D9C58B] dark:hover:bg-[#B8954B]/10 dark:focus-visible:border-[#D9C58B] dark:focus-visible:ring-[#D9C58B]/30'
           : 'border-amber-500 !text-amber-500 hover:bg-amber-500/10 focus-visible:border-amber-500 focus-visible:ring-amber-500/20 dark:border-amber-400 dark:!text-amber-400 dark:hover:bg-amber-400/10 dark:focus-visible:border-amber-400 dark:focus-visible:ring-amber-400/40',
       )}
     >

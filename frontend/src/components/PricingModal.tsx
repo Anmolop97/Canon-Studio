@@ -79,9 +79,13 @@ export function PricingModal({ isOpen, onClose }: PricingModalProps) {
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
+      data-lenis-prevent
       className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 overflow-y-auto"
     >
-      <div className="relative w-full max-w-6xl max-h-[92vh] overflow-y-auto bg-studio-card border border-studio-border rounded-3xl p-5 sm:p-10 shadow-2xl text-studio-text my-auto">
+      <div 
+        data-lenis-prevent
+        className="relative w-full max-w-6xl max-h-[92vh] overflow-y-auto bg-[#FAF9F3] dark:bg-slate-900 border border-[#D7C397] dark:border-slate-700 rounded-3xl p-5 sm:p-10 shadow-2xl text-[#101C19] dark:text-white my-auto"
+      >
         <button
           onClick={onClose}
           className="absolute right-4 top-4 z-20 p-2.5 rounded-full text-studio-muted hover:text-studio-text hover:bg-studio-raised transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
