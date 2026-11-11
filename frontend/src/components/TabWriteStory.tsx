@@ -720,32 +720,6 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
             </div>
           )}
 
-          {/* 16:9 Cinematic Concept Art Banner */}
-          {storyArt && (
-            <div className="relative mb-6 rounded-lg overflow-hidden border border-studio-border bg-black/40 shadow-xl group">
-              <img
-                src={storyArt.imageUrl}
-                alt={storyArt.imagePrompt || generatedStory?.title}
-                className="w-full h-56 sm:h-72 object-cover transition-transform duration-300 group-hover:scale-101"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex flex-col justify-end p-4">
-                <div className="flex items-center justify-between text-xs text-white/90">
-                  <span className="font-semibold flex items-center gap-1.5 text-xs text-studio-accent">
-                    <span>🎬 Gemini Art Director</span>
-                    <span className="text-white/60">&bull; 16:9 Cinematic Visual Concept Art</span>
-                  </span>
-                  <span className="text-[10px] uppercase font-bold text-studio-accent px-1.5 py-0.5 rounded bg-studio-bg shrink-0">FLUX HD</span>
-                </div>
-                {storyArt.imagePrompt && (
-                  <p className="text-xs text-white/80 italic mt-1 line-clamp-2">
-                    &ldquo;{storyArt.imagePrompt}&rdquo;
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
           {/* Thinking State */}
           {isThinking && (
             <div className="py-10 flex flex-col items-center justify-center gap-3 text-studio-muted">
@@ -756,12 +730,25 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
             </div>
           )}
 
+          {/* Clear story illustration leads the generated narrative. */}
+          {storyArt && (
+            <div className="mb-6 overflow-hidden rounded-lg border border-studio-border shadow-xl">
+              <img
+                src={storyArt.imageUrl}
+                alt={generatedStory?.title || 'Generated story illustration'}
+                className="block w-full h-auto"
+                loading="lazy"
+              />
+            </div>
+          )}
+
           {/* Story Body */}
           {streamedContent && (
             <div className="prose prose-invert max-w-none text-studio-text font-serif text-base sm:text-lg leading-relaxed whitespace-pre-line space-y-4 mb-8">
               {streamedContent}
             </div>
           )}
+
 
           {/* Post Generation Actions */}
           {!isGenerating && generatedStory && (
