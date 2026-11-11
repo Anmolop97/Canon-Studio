@@ -8,6 +8,13 @@
  */
 
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 dotenv.config();
 
 export interface AIStructuredOptions {
@@ -156,6 +163,14 @@ Scene:
     if (this.isOpenRouterConfigured()) {
       try {
         const result = await this._openrouterText(directorPrompt);
+        const cleaned = result.trim().replace(/^["']|["']$/g, '');
+        if (cleaned.length > 10) return cleaned;
+      } catch {}
+    }
+
+    if (this.isGroqConfigured()) {
+      try {
+        const result = await this._groqText(directorPrompt, 'You are an award-winning cinematic art director. Output raw visual prompt only.');
         const cleaned = result.trim().replace(/^["']|["']$/g, '');
         if (cleaned.length > 10) return cleaned;
       } catch {}

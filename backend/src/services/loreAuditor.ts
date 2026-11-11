@@ -1,5 +1,5 @@
 import { LoreAuditResponse, StoryBible, StoryNode } from '../types/index.js';
-import { geminiService } from './geminiService.js';
+import { aiService } from './aiService.js';
 import { cyberpunkUniverse } from '../data/defaultStoryBible.js';
 
 export class LoreAuditor {
@@ -64,8 +64,8 @@ ${sceneText}
 Audit this scene now. Search rigorously for any contradictions with the established rules, damaged limbs, weather interference (ion storms), missing items, or forbidden actions. Return ONLY the specified JSON.`;
 
     try {
-      if (geminiService.isConfigured()) {
-        const result = await geminiService.generateStructuredJSON<LoreAuditResponse>({
+      if (aiService.isConfigured()) {
+        const result = await aiService.generateStructuredJSON<LoreAuditResponse>({
           prompt,
           systemInstruction,
           temperature: 0.1
@@ -73,7 +73,7 @@ Audit this scene now. Search rigorously for any contradictions with the establis
         return result;
       }
     } catch (error) {
-      console.warn('[LoreAuditor] Gemini call failed or offline, falling back to heuristic engine:', error);
+      console.warn('[LoreAuditor] AI call failed or offline, falling back to heuristic engine:', error);
     }
 
     // Heuristic Fallback Engine (Ensures 100% demo uptime if offline)

@@ -1,6 +1,6 @@
 import { publicErrorMessage } from '../middleware/publicError.js';
 import { Router, Request, Response } from 'express';
-import { geminiService } from '../services/geminiService.js';
+import { aiService } from '../services/aiService.js';
 import { memoryTreeService } from '../services/memoryTree.js';
 import { cyberpunkUniverse } from '../data/defaultStoryBible.js';
 
@@ -43,8 +43,8 @@ Tone: ${tone || 'Gritty, tense, cinematic'}
 Generate a short, high-impact scene beat (approx 120-180 words) in standard screenplay format.`;
 
     let generatedScript = '';
-    if (geminiService.isConfigured()) {
-      generatedScript = await geminiService.generateText(prompt, systemInstruction);
+    if (aiService.isConfigured()) {
+      generatedScript = await aiService.generateText(prompt, systemInstruction);
     } else {
       generatedScript = `EXT. SUB-LEVEL 3 ALLEY - NIGHT
 

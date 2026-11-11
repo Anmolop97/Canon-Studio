@@ -1,6 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { auditRouter } from './routes/audit.js';
 import { voiceRouter } from './routes/voice.js';
 import { storyRouter } from './routes/story.js';
@@ -16,13 +18,17 @@ import { securityHeaders } from './middleware/security.js';
 import { aiRateLimiter, apiRateLimiter, limitAiRequestBody } from './middleware/rateLimit.js';
 import { validateAuthConfiguration } from './routes/auth.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 dotenv.config();
 
 const app = express();
 app.disable('x-powered-by');
 const parsedPort = Number.parseInt(process.env.PORT || '5000', 10);
 const PORT = Number.isInteger(parsedPort) && parsedPort >= 1 && parsedPort <= 65_535 ? parsedPort : 5000;
-const HOST = process.env.HOST || '127.0.0.1';
+const HOST = process.env.HOST || '0.0.0.0';
 const trustedProxyHops = Number.parseInt(process.env.TRUST_PROXY_HOPS || '0', 10);
 if (Number.isInteger(trustedProxyHops) && trustedProxyHops > 0 && trustedProxyHops <= 10) {
   app.set('trust proxy', trustedProxyHops);
@@ -36,6 +42,11 @@ export function getAllowedOrigins(): string[] {
     'http://localhost:3000',
     'http://127.0.0.1:3000',
     'http://localhost:5000'
+  ];
+
+  const defaultProductionOrigins = [
+    'https://canon-studio.pages.dev',
+    'https://canonstudio.pages.dev'
   ];
 
   const configured: string[] = [];
@@ -54,7 +65,9 @@ export function getAllowedOrigins(): string[] {
     });
   }
 
-  const defaultOrigins = process.env.NODE_ENV === 'production' ? [] : developmentOrigins;
+  const defaultOrigins = process.env.NODE_ENV === 'production' 
+    ? defaultProductionOrigins 
+    : [...developmentOrigins, ...defaultProductionOrigins];
   return Array.from(new Set([...defaultOrigins, ...configured]));
 }
 
@@ -159,6 +172,7 @@ app.use([
   '/api/drafts/:id/episodes/:episodeIndex/illustrate',
   '/api/audit-lore',
   '/api/analyze-voice',
+  '/api/story/generate-beat',
   '/api/generate-beat',
 ], limitAiRequestBody, aiRateLimiter);
 

@@ -1,5 +1,5 @@
 import { CharacterVoiceProfile, VoiceFidelityResponse } from '../types/index.js';
-import { geminiService } from './geminiService.js';
+import { aiService } from './aiService.js';
 import { cyberpunkUniverse } from '../data/defaultStoryBible.js';
 
 export class VoiceAnalyzer {
@@ -48,8 +48,8 @@ DIALOGUE LINE TO ANALYZE:
 Evaluate this dialogue line now. Check if it breaks forbidden speech patterns (e.g. polite modern apologies for hardboiled mercenaries, or slang for cold scientists). Return ONLY the specified JSON.`;
 
     try {
-      if (geminiService.isConfigured()) {
-        const result = await geminiService.generateStructuredJSON<VoiceFidelityResponse>({
+      if (aiService.isConfigured()) {
+        const result = await aiService.generateStructuredJSON<VoiceFidelityResponse>({
           prompt,
           systemInstruction,
           temperature: 0.2
@@ -57,7 +57,7 @@ Evaluate this dialogue line now. Check if it breaks forbidden speech patterns (e
         return result;
       }
     } catch (error) {
-      console.warn('[VoiceAnalyzer] Gemini call failed, using heuristic engine:', error);
+      console.warn('[VoiceAnalyzer] AI call failed, using heuristic engine:', error);
     }
 
     // Heuristic Fallback

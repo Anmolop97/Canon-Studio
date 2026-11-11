@@ -1,6 +1,7 @@
 import { publicErrorMessage } from '../middleware/publicError.js';
 import { Router, Request, Response, NextFunction } from 'express';
 import crypto from 'node:crypto';
+import { Buffer } from 'node:buffer';
 import { storageService } from '../services/storage.js';
 import { User } from '../types/canonStudio.js';
 import { loginRateLimiter, registerRateLimiter } from '../middleware/rateLimit.js';
@@ -54,14 +55,16 @@ function setSessionCookie(res: Response, token: string): void {
   const production = process.env.NODE_ENV === 'production';
   const secure = production ? '; Secure' : '';
   const path = production ? '/' : '/api';
-  res.setHeader('Set-Cookie', `${authCookieName()}=${token}; HttpOnly; SameSite=Strict; Path=${path}; Max-Age=${AUTH_TOKEN_TTL_SECONDS}${secure}`);
+  const sameSite = process.env.COOKIE_SAMESITE || (production ? 'None' : 'Lax');
+  res.setHeader('Set-Cookie', `${authCookieName()}=${token}; HttpOnly; SameSite=${sameSite}; Path=${path}; Max-Age=${AUTH_TOKEN_TTL_SECONDS}${secure}`);
 }
 
 function clearSessionCookie(res: Response): void {
   const production = process.env.NODE_ENV === 'production';
   const secure = production ? '; Secure' : '';
   const path = production ? '/' : '/api';
-  res.setHeader('Set-Cookie', `${authCookieName()}=; HttpOnly; SameSite=Strict; Path=${path}; Max-Age=0${secure}`);
+  const sameSite = process.env.COOKIE_SAMESITE || (production ? 'None' : 'Lax');
+  res.setHeader('Set-Cookie', `${authCookieName()}=; HttpOnly; SameSite=${sameSite}; Path=${path}; Max-Age=0${secure}`);
 }
 
 /**

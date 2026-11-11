@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { Buffer } from 'node:buffer';
+import { fileURLToPath } from 'url';
 import {
   User,
   Draft,
@@ -9,6 +11,9 @@ import {
   RatingRecord,
   BookCardData,
 } from '../types/canonStudio.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 interface DatabaseSchema {
   users: User[];
@@ -19,7 +24,7 @@ interface DatabaseSchema {
   ratings: RatingRecord[];
 }
 
-const DATA_DIR = path.resolve(process.cwd(), 'data');
+const DATA_DIR = process.env.DATA_DIR || path.resolve(__dirname, '../../data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
 const PBKDF2_ITERATIONS = 220_000;
 const MAX_USERS = 10_000;
