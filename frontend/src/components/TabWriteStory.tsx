@@ -15,10 +15,15 @@ import {
   Square,
   AlertCircle
 } from 'lucide-react';
+import { VoiceNarratorButton } from './VoiceNarratorButton';
 
 interface TabWriteStoryProps {
   onPlayBranching: (premise: { idea: string; genre: string; realism: string; language: string }) => void;
   onSaveToWriter: (story: { title: string; genre: string; content: string; imageUrl?: string; imagePrompt?: string }) => void;
+  onStepChange?: (step: number) => void;
+  onNavigateTab?: (tab: 'wizard' | 'branching' | 'writer' | 'books') => void;
+  onOpenAuth?: () => void;
+  currentUser?: { displayName: string } | null;
 }
 
 const GENRES = [
@@ -367,27 +372,27 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
 
       {/* --- STEP 0: FREE-TEXT KEYWORDS --- */}
       {currentStep === 0 && (
-        <div className="bg-studio-card border border-studio-border rounded-lg p-6 md:p-8 animate-in fade-in duration-200">
-          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-studio-text mb-2">
+        <div className="bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-white/60 dark:border-slate-700/80 rounded-2xl p-6 md:p-8 shadow-[0_20px_50px_rgba(15,23,42,0.10)] dark:shadow-2xl animate-in fade-in duration-200">
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 dark:text-white mb-2">
             What story do you want to tell today?
           </h2>
-          <p className="text-sm text-studio-muted mb-6">
+          <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-6">
             Enter a few keywords, a premise, or click an idea chip below to get started.
           </p>
 
           <form onSubmit={handleKeywordSubmit} className="mb-6">
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div className="flex flex-col sm:flex-row gap-2.5">
               <input
                 type="text"
                 value={customKeywordInput}
                 onChange={(e) => setCustomKeywordInput(e.target.value)}
                 placeholder="e.g. A runaway clone seeking the architect of her memories"
-                className="flex-1 bg-studio-bg border border-studio-border rounded px-4 py-3 text-sm text-studio-text focus:border-studio-accent focus:ring-1 focus:ring-studio-accent min-h-[44px]"
+                className="flex-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-slate-900 dark:focus:border-sky-400 focus:ring-1 focus:ring-slate-900 dark:focus:ring-sky-400 shadow-xs min-h-[44px]"
               />
               <button
                 type="submit"
                 disabled={!customKeywordInput.trim()}
-                className="bg-studio-accent hover:bg-studio-accent/90 disabled:opacity-50 text-studio-bg font-semibold text-sm px-6 py-3 rounded transition-colors flex items-center justify-center gap-2 min-h-[44px] cursor-pointer"
+                className="bg-slate-950 hover:bg-slate-800 dark:bg-sky-500 dark:hover:bg-sky-400 text-white dark:text-slate-950 font-semibold text-sm px-7 py-3 rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[44px] cursor-pointer active:scale-[0.98]"
               >
                 <span>Continue</span>
                 <ArrowRight className="w-4 h-4" />
@@ -396,7 +401,7 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
           </form>
 
           <div className="mb-6">
-            <div className="text-xs font-semibold text-studio-muted uppercase tracking-wider mb-3">
+            <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
               Or pick an idea to explore:
             </div>
             <div className="flex flex-wrap gap-2">
@@ -405,7 +410,7 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
                   key={example}
                   type="button"
                   onClick={() => handleKeywordSelect(example)}
-                  className="px-3.5 py-2 text-xs sm:text-sm bg-studio-raised hover:bg-studio-accent/20 border border-studio-border hover:border-studio-accent text-studio-text rounded transition-colors text-left min-h-[44px] flex items-center"
+                  className="px-3.5 py-2 text-xs sm:text-sm bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200/90 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 text-slate-800 dark:text-slate-200 font-medium rounded-lg transition-all text-left min-h-[44px] flex items-center shadow-xs cursor-pointer active:scale-[0.98]"
                 >
                   {example}
                 </button>
@@ -413,13 +418,13 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
             </div>
           </div>
 
-          <div className="border-t border-studio-border pt-4 flex justify-between items-center">
+          <div className="border-t border-slate-200 dark:border-slate-800 pt-4 flex justify-between items-center">
             <button
               type="button"
               onClick={handleNoIdea}
-              className="px-4 py-2 text-xs sm:text-sm text-studio-accent hover:underline font-semibold flex items-center gap-1.5 min-h-[44px]"
+              className="px-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-sky-300 hover:text-indigo-600 dark:hover:text-sky-200 font-semibold flex items-center gap-2 min-h-[44px] transition-colors cursor-pointer"
             >
-              <Sparkles className="w-4 h-4" />
+              <Sparkles className="w-4 h-4 text-indigo-600 dark:text-sky-400" />
               <span>I have no idea yet (Surprise me)</span>
             </button>
           </div>
@@ -655,6 +660,7 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
                 </button>
               ) : (
                 <>
+                  <VoiceNarratorButton />
                   <button
                     onClick={() => handleIllustrateStory()}
                     disabled={isIllustrating}

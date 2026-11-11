@@ -18,11 +18,13 @@ import {
   Globe,
   Download
 } from 'lucide-react';
+import { VoiceNarratorButton } from './VoiceNarratorButton';
 
 interface TabWriterModeProps {
   currentUser: User | null;
   onOpenAuth: () => void;
   preloadedDraft?: { title: string; genre: string; content: string; imageUrl?: string; imagePrompt?: string } | null;
+  onNavigateTab?: (tab: 'wizard' | 'branching' | 'writer' | 'books') => void;
 }
 
 export function TabWriterMode({ currentUser, onOpenAuth, preloadedDraft }: TabWriterModeProps) {
@@ -551,6 +553,7 @@ export function TabWriterMode({ currentUser, onOpenAuth, preloadedDraft }: TabWr
 
         {/* Publishing & Delete Draft Buttons */}
         <div className="flex flex-wrap items-center gap-2">
+          <VoiceNarratorButton />
           {/* Screenplay & Bible Export Group */}
           <div className="flex items-center gap-1 bg-studio-raised border border-studio-border rounded p-1">
             <span className="text-[11px] text-studio-muted font-medium px-1.5 flex items-center gap-1">

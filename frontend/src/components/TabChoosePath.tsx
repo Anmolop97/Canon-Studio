@@ -15,6 +15,7 @@ import {
   CheckCircle,
   AlertTriangle
 } from 'lucide-react';
+import { Hero10 } from './ui/hero-10';
 
 interface TabChoosePathProps {
   initialPremise?: {
@@ -23,6 +24,9 @@ interface TabChoosePathProps {
     realism: string;
     language: string;
   } | null;
+  onNavigateTab?: (tab: 'wizard' | 'branching' | 'writer' | 'books') => void;
+  onOpenAuth?: () => void;
+  currentUser?: { displayName: string } | null;
 }
 
 interface PathNode {
@@ -35,7 +39,12 @@ interface PathNode {
   parentId?: string | null;
 }
 
-export function TabChoosePath({ initialPremise }: TabChoosePathProps) {
+export function TabChoosePath({
+  initialPremise,
+  onNavigateTab: _onNavigateTab,
+  onOpenAuth: _onOpenAuth,
+  currentUser: _currentUser
+}: TabChoosePathProps) {
   // Setup screen vs Active story screen
   const [inGame, setInGame] = useState(false);
   const [idea, setIdea] = useState(initialPremise?.idea || 'A stranded courier discovers their cargo has an organic heartbeat.');
@@ -259,6 +268,129 @@ export function TabChoosePath({ initialPremise }: TabChoosePathProps) {
     }
   };
 
+  // --- PRE-GAME SETUP SCREEN (RENDERED IN HERO 10 WITH MISTY MOUNTAIN THEME) ---
+  if (!inGame) {
+    return (
+      <Hero10
+        hideHeader={true}
+        brandName="Canon Story Studio"
+        navItems={[
+          { label: "Write a Story", href: "#", onClick: () => _onNavigateTab?.('wizard'), isActive: false },
+          { label: "Choose Your Path", href: "#", onClick: () => _onNavigateTab?.('branching'), isActive: true },
+          { label: "Writer Mode", href: "#", onClick: () => _onNavigateTab?.('writer'), isActive: false },
+          { label: "Community Books", href: "#", onClick: () => _onNavigateTab?.('books'), isActive: false },
+        ]}
+        ctaText={_currentUser ? _currentUser.displayName : "Sign in"}
+        onCtaClick={_onOpenAuth}
+        eyebrowText="Dynamic Branching Multiverse"
+        title={"Choose Your Path\nShape The Narrative"}
+        description={"Every choice branches the story tree into uncharted territory.\nMake tactical decisions and illustrate the climax in 16:9 cinematic concept art."}
+        usersText="Over 20k active users"
+      >
+        <div className="bg-studio-card/95 backdrop-blur-xl border border-studio-border shadow-xl rounded-2xl p-6 sm:p-8 text-left max-w-2xl w-full mx-auto text-studio-text space-y-5 transition-all">
+          {errorMessage && (
+            <div className="p-3 bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800 rounded-xl text-xs text-red-700 dark:text-red-300 flex items-center justify-between">
+              <span>{errorMessage}</span>
+              <button onClick={() => setErrorMessage(null)} className="font-bold">✕</button>
+            </div>
+          )}
+
+          <div>
+            <label className="block text-xs font-semibold text-studio-muted uppercase tracking-wider mb-2">
+              Story Seed / Central Premise
+            </label>
+            <textarea
+              rows={3}
+              value={idea}
+              onChange={(e) => setIdea(e.target.value)}
+              placeholder="Describe the initial situation or mystery..."
+              className="w-full bg-studio-bg border border-studio-border rounded-xl p-3.5 text-sm text-studio-text placeholder:text-studio-muted/70 focus:outline-none focus:ring-2 focus:ring-studio-accent leading-relaxed"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-studio-muted uppercase tracking-wider mb-2">
+                Genre
+              </label>
+              <select
+                value={genre}
+                onChange={(e) => setGenre(e.target.value)}
+                className="w-full bg-studio-bg border border-studio-border rounded-xl px-3 py-2.5 text-sm text-studio-text focus:outline-none focus:ring-2 focus:ring-studio-accent min-h-[44px]"
+              >
+                <option value="Sci-fi">Sci-fi</option>
+                <option value="Thriller">Thriller</option>
+                <option value="Horror">Horror</option>
+                <option value="Mystery">Mystery</option>
+                <option value="Fantasy">Fantasy</option>
+                <option value="Romantic">Romantic</option>
+                <option value="Delulu">Delulu</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Adventure">Adventure</option>
+                <option value="Dark twist">Dark twist</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-studio-muted uppercase tracking-wider mb-2">
+                Language
+              </label>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="w-full bg-studio-bg border border-studio-border rounded-xl px-3 py-2.5 text-sm text-studio-text focus:outline-none focus:ring-2 focus:ring-studio-accent min-h-[44px]"
+              >
+                <option value="English">English</option>
+                <option value="Hinglish (Hindi in Roman letters)">Hinglish (Roman Hindi)</option>
+                <option value="Hindi (Devanagari)">Hindi (Devanagari)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-studio-muted uppercase tracking-wider mb-2">
+              Decisions Before Climactic Ending
+            </label>
+            <div className="grid grid-cols-3 gap-3">
+              {[3, 5, 8].map((num) => (
+                <button
+                  key={num}
+                  type="button"
+                  onClick={() => setMaxDecisions(num)}
+                  className={`py-2.5 px-3 rounded-xl border text-center transition-all cursor-pointer ${
+                    maxDecisions === num
+                      ? 'bg-studio-accent text-studio-bg border-studio-accent shadow-sm font-semibold'
+                      : 'bg-studio-raised border-studio-border text-studio-text hover:bg-studio-card'
+                  }`}
+                >
+                  <div className="text-sm font-serif font-bold">{num} Decisions</div>
+                  <div className="text-[10px] opacity-80">
+                    {num === 3 ? '~500 words' : num === 5 ? '~900 words' : '~1,400 words'}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={handleStartGame}
+            disabled={loadingNext || !idea.trim()}
+            className="w-full bg-studio-accent hover:bg-studio-accent/90 disabled:opacity-50 text-studio-bg font-medium py-3.5 px-6 rounded-xl transition-all flex items-center justify-center gap-2 min-h-[46px] cursor-pointer shadow-md"
+          >
+            {loadingNext ? (
+              <span className="animate-pulse">Authoring Scene 1...</span>
+            ) : (
+              <>
+                <Compass className="w-4 h-4" />
+                <span>Begin Interactive Journey →</span>
+              </>
+            )}
+          </button>
+        </div>
+      </Hero10>
+    );
+  }
+
   return (
     <div className="w-full max-w-6xl mx-auto px-3 sm:px-6 py-6 md:py-10">
       
@@ -322,103 +454,6 @@ export function TabChoosePath({ initialPremise }: TabChoosePathProps) {
             className="px-3 py-1 bg-studio-raised border border-studio-border text-xs rounded hover:bg-studio-accent/20"
           >
             Dismiss
-          </button>
-        </div>
-      )}
-
-      {/* --- PRE-GAME SETUP SCREEN --- */}
-      {!inGame && (
-        <div className="bg-studio-card border border-studio-border rounded-lg p-6 md:p-8 max-w-2xl mx-auto space-y-6 animate-in fade-in duration-200">
-          <div>
-            <label className="block text-xs font-semibold text-studio-muted uppercase tracking-wider mb-2">
-              Story Seed / Central Premise
-            </label>
-            <textarea
-              rows={3}
-              value={idea}
-              onChange={(e) => setIdea(e.target.value)}
-              placeholder="Describe the initial situation or mystery..."
-              className="w-full bg-studio-bg border border-studio-border rounded p-3 text-sm text-studio-text focus:border-studio-accent focus:ring-1 focus:ring-studio-accent"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-studio-muted uppercase tracking-wider mb-2">
-                Genre
-              </label>
-              <select
-                value={genre}
-                onChange={(e) => setGenre(e.target.value)}
-                className="w-full bg-studio-bg border border-studio-border rounded px-3 py-2.5 text-sm text-studio-text focus:border-studio-accent focus:ring-1 focus:ring-studio-accent min-h-[44px]"
-              >
-                <option value="Sci-fi">Sci-fi</option>
-                <option value="Thriller">Thriller</option>
-                <option value="Horror">Horror</option>
-                <option value="Mystery">Mystery</option>
-                <option value="Fantasy">Fantasy</option>
-                <option value="Romantic">Romantic</option>
-                <option value="Delulu">Delulu</option>
-                <option value="Comedy">Comedy</option>
-                <option value="Adventure">Adventure</option>
-                <option value="Dark twist">Dark twist</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-studio-muted uppercase tracking-wider mb-2">
-                Language
-              </label>
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="w-full bg-studio-bg border border-studio-border rounded px-3 py-2.5 text-sm text-studio-text focus:border-studio-accent focus:ring-1 focus:ring-studio-accent min-h-[44px]"
-              >
-                <option value="English">English</option>
-                <option value="Hinglish (Hindi in Roman letters)">Hinglish (Roman Hindi)</option>
-                <option value="Hindi (Devanagari)">Hindi (Devanagari)</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-studio-muted uppercase tracking-wider mb-2">
-              Decisions Before Climactic Ending
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              {[3, 5, 8].map((num) => (
-                <button
-                  key={num}
-                  type="button"
-                  onClick={() => setMaxDecisions(num)}
-                  className={`py-3 px-4 rounded border text-center font-medium text-sm transition-colors min-h-[44px] ${
-                    maxDecisions === num
-                      ? 'bg-studio-raised border-studio-accent text-studio-accent font-bold'
-                      : 'bg-studio-bg border-studio-border text-studio-text hover:bg-studio-raised'
-                  }`}
-                >
-                  <div className="text-base font-serif">{num} Decisions</div>
-                  <div className="text-[11px] text-studio-muted">
-                    {num === 3 ? 'Short (~500 w)' : num === 5 ? 'Standard (~900 w)' : 'Epic (~1,400 w)'}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <button
-            onClick={handleStartGame}
-            disabled={loadingNext || !idea.trim()}
-            className="w-full bg-studio-accent hover:bg-studio-accent/90 disabled:opacity-50 text-studio-bg font-bold py-3 px-6 rounded transition-colors flex items-center justify-center gap-2 min-h-[44px] cursor-pointer"
-          >
-            {loadingNext ? (
-              <span className="animate-pulse">Authoring Scene 1...</span>
-            ) : (
-              <>
-                <Compass className="w-4 h-4" />
-                <span>Begin Interactive Journey</span>
-              </>
-            )}
           </button>
         </div>
       )}

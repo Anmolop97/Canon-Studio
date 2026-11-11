@@ -13,10 +13,12 @@ import {
   X,
   Download
 } from 'lucide-react';
+import { VoiceNarratorButton } from './VoiceNarratorButton';
 
 interface TabBooksProps {
   currentUser: User | null;
   onOpenAuth: () => void;
+  onNavigateTab?: (tab: 'wizard' | 'branching' | 'writer' | 'books') => void;
 }
 
 export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
@@ -419,6 +421,7 @@ export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
               </div>
 
               <div className="flex items-center gap-2">
+                <VoiceNarratorButton />
                 {/* Export Options for Reader */}
                 <div className="flex items-center gap-1 bg-studio-bg border border-studio-border rounded p-1">
                   <span className="text-[11px] text-studio-muted font-medium px-1.5 flex items-center gap-1">
