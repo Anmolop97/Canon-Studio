@@ -25,6 +25,11 @@ export default defineConfig({
       }
     }
   },
+  build: {
+    target: 'esnext',
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 1000,
+  },
   preview: {
     headers: {
       'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://assets.watermelon.sh https://image.pollinations.ai; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",

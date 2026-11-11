@@ -9,7 +9,7 @@ import { AuthModal } from './components/AuthModal';
 import ErrorPage from './components/ui/error-3';
 import { api } from './api';
 import type { User } from './types';
-import storybookLandscape from './assets/storybook-background.png';
+import storybookLandscape from './assets/storybook-background.webp';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<StudioTab>('wizard');
@@ -131,12 +131,18 @@ export function App() {
             repeatType: 'reverse',
             ease: 'easeInOut',
           }}
-          className="absolute inset-[-4%] will-change-transform"
+          className="absolute inset-[-4%] will-change-transform bg-cover bg-center"
+          style={{
+            backgroundImage: `url("data:image/webp;base64,UklGRsIAAABXRUJQVlA4ILYAAABwBACdASogABAAPu1iqk4ppaQiMAgBMB2JZACdAdwLgEYGH64CNMLwRgKegAD+471ObXLMh3SIKhlA9rQdb8njlg913jvatozfF0uQwORhnLFTOA35WAh19VjsOTUKRf3qdrB3XIZ/+zPyY/w2UldvtnsQX42pX6GHjsRsMpl3IebiAjZai7LbV5fpy7pMDw1TxkuGi0/hDirf9ujk5ohXhvg9A1MekND7QWkOnLOqmkAUMAAAAA==")`,
+          }}
         >
           <img
             src={storybookLandscape}
-            alt=""
-          className="storybook-landscape h-full w-full object-cover object-center dark:opacity-75 opacity-100"
+            alt="Enchanted Storybook Studio Landscape"
+            fetchPriority="high"
+            decoding="async"
+            loading="eager"
+            className="storybook-landscape h-full w-full object-cover object-center dark:opacity-75 opacity-100 transition-opacity duration-300"
           />
         </motion.div>
 

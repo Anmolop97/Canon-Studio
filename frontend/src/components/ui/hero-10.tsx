@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion, type Variants } from "motion/react";
 import { FaArrowRight, FaChevronDown, FaXmark } from "react-icons/fa6";
-import storybookBackground from "../../assets/storybook-background.png";
+import storybookBackground from "../../assets/storybook-background.webp";
 
 export interface Hero10NavItem {
   label: string;
