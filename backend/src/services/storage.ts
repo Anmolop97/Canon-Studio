@@ -238,6 +238,7 @@ class StorageService {
   constructor() {
     this.ensureDataDir();
     this.db = this.loadDatabase();
+    this.migrateLegacyPasswords();
   }
 
   private ensureDataDir() {
@@ -246,21 +247,14 @@ class StorageService {
     }
   }
 
-  private hashPassword(password: string): string {
-    return crypto.createHash('sha256').update(password).digest('hex');
+  public hashPassword(password: string, salt?: string): string {
+    const effectiveSalt = salt || crypto.randomBytes(16).toString('hex');
+    const hash = crypto.pbkdf2Sync(password, effectiveSalt, 100000, 64, 'sha512').toString('hex');
+    return `${effectiveSalt}:${hash}`;
   }
 
-  private loadDatabase(): DatabaseSchema {
-    if (fs.existsSync(DB_FILE)) {
-      try {
-        const raw = fs.readFileSync(DB_FILE, 'utf-8');
-        return JSON.parse(raw);
-      } catch (err) {
-        console.warn('[Storage] Error loading db.json, re-initializing seed data', err);
-      }
-    }
-
-    const initialDb: DatabaseSchema = {
+  private createInitialDatabase(): DatabaseSchema {
+    return {
       users: SEED_USERS,
       userPasswords: {
         'user-anya': this.hashPassword('anya123'),
@@ -321,17 +315,113 @@ class StorageService {
       likes: SEED_LIKES,
       ratings: SEED_RATINGS
     };
+  }
 
+  private loadDatabase(): DatabaseSchema {
+    if (fs.existsSync(DB_FILE)) {
+      try {
+        const raw = fs.readFileSync(DB_FILE, 'utf-8');
+        return JSON.parse(raw);
+      } catch (err) {
+        const corruptBackupPath = path.join(DATA_DIR, `db.corrupt.${Date.now()}.json`);
+        try {
+          fs.copyFileSync(DB_FILE, corruptBackupPath);
+        } catch (copyErr) {
+          console.error('[Storage] Failed to backup corrupted db.json:', copyErr);
+        }
+        console.warn(`[Storage] Database corrupted! Backed up to ${corruptBackupPath}. Falling back to initial seed data.`, err);
+      }
+    }
+
+    const initialDb = this.createInitialDatabase();
     this.saveDatabase(initialDb);
     return initialDb;
   }
 
-  private saveDatabase(data: DatabaseSchema = this.db) {
+  private migrateLegacyPasswords(): void {
+    if (!this.db || !this.db.userPasswords) return;
+
+    const KNOWN_SEEDS: Record<string, { pass: string; legacyHash: string }> = {
+      'user-anya': {
+        pass: 'anya123',
+        legacyHash: '60dfe5e3a235a08d387d7148dbb69aace5d4db94ada3ea35f24def9473f4c47b'
+      },
+      'user-dev': {
+        pass: 'dev123',
+        legacyHash: '87274af01876341455b32d805946f272871bb42effa6604dccf28bb027afa82b'
+      },
+      'user-guest': {
+        pass: 'guest123',
+        legacyHash: '6b93ccba414ac1d0ae1e77f3fac560c748a6701ed6946735a49d463351518e16'
+      }
+    };
+
+    let upgraded = false;
+    for (const [userId, seedInfo] of Object.entries(KNOWN_SEEDS)) {
+      const currentHash = this.db.userPasswords[userId];
+      if (currentHash && !currentHash.includes(':')) {
+        this.db.userPasswords[userId] = this.hashPassword(seedInfo.pass);
+        upgraded = true;
+      }
+    }
+
+    if (upgraded) {
+      console.log('[Storage] Upgraded legacy seeded user passwords to salted PBKDF2');
+      this.saveDatabase();
+    }
+  }
+
+  private saveDatabase(data: DatabaseSchema = this.db): void {
+    this.ensureDataDir();
+    const tempFile = path.join(
+      DATA_DIR,
+      `.db.tmp.${process.pid}_${Date.now()}_${crypto.randomBytes(4).toString('hex')}.json`
+    );
+
     try {
-      this.ensureDataDir();
-      fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+      const content = JSON.stringify(data, null, 2);
+      const fd = fs.openSync(tempFile, 'w');
+      try {
+        fs.writeFileSync(fd, content, 'utf-8');
+        fs.fsyncSync(fd);
+      } finally {
+        fs.closeSync(fd);
+      }
+
+      const MAX_RETRIES = 5;
+      const RETRY_DELAY_MS = 30;
+      let renameSuccess = false;
+      let lastError: any = null;
+
+      for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        try {
+          fs.renameSync(tempFile, DB_FILE);
+          renameSuccess = true;
+          break;
+        } catch (err: any) {
+          lastError = err;
+          if (
+            (err.code === 'EPERM' || err.code === 'EBUSY' || err.code === 'EACCES') &&
+            attempt < MAX_RETRIES - 1
+          ) {
+            Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, RETRY_DELAY_MS);
+          } else {
+            break;
+          }
+        }
+      }
+
+      if (!renameSuccess) {
+        throw lastError;
+      }
     } catch (err) {
-      console.error('[Storage] Error saving database:', err);
+      try {
+        if (fs.existsSync(tempFile)) {
+          fs.unlinkSync(tempFile);
+        }
+      } catch (_) {}
+      console.error('[Storage] Error saving database atomically:', err);
+      throw err;
     }
   }
 
@@ -348,7 +438,7 @@ class StorageService {
     return this.db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
   }
 
-  public createUser(email: string, password: string,displayName: string): User {
+  public createUser(email: string, password: string, displayName: string): User {
     const id = `user-${crypto.randomUUID().slice(0, 8)}`;
     const user: User = {
       id,
@@ -362,10 +452,76 @@ class StorageService {
     return user;
   }
 
-  public verifyPassword(userId: string, password: string): boolean {
-    const storedHash = this.db.userPasswords[userId];
-    if (!storedHash) return false;
-    return storedHash === this.hashPassword(password);
+  private verifyPasswordHash(password: string, storedHash: string): boolean {
+    if (!storedHash || typeof storedHash !== 'string') return false;
+
+    if (storedHash.includes(':')) {
+      const parts = storedHash.split(':');
+      if (parts.length !== 2) return false;
+      const [salt, expectedHash] = parts;
+      if (!salt || !expectedHash) return false;
+
+      const candidateHash = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
+      const candBuf = Buffer.from(candidateHash, 'hex');
+      const expBuf = Buffer.from(expectedHash, 'hex');
+
+      if (candBuf.length !== expBuf.length || candBuf.length === 0) {
+        return false;
+      }
+      return crypto.timingSafeEqual(candBuf, expBuf);
+    } else {
+      // Legacy unsalted SHA-256
+      const legacyHash = crypto.createHash('sha256').update(password).digest('hex');
+      const candBuf = Buffer.from(legacyHash, 'hex');
+      const expBuf = Buffer.from(storedHash, 'hex');
+
+      if (candBuf.length !== expBuf.length || candBuf.length === 0) {
+        return false;
+      }
+      return crypto.timingSafeEqual(candBuf, expBuf);
+    }
+  }
+
+  public verifyPassword(firstArg: string, secondArg: string): boolean {
+    // Mode 1: Called with (userId, password)
+    if (this.db.userPasswords && typeof this.db.userPasswords[firstArg] === 'string') {
+      const userId = firstArg;
+      const password = secondArg;
+      const storedHash = this.db.userPasswords[userId];
+      const isValid = this.verifyPasswordHash(password, storedHash);
+
+      if (isValid && !storedHash.includes(':')) {
+        // Transparently upgrade legacy unsalted SHA-256 hash to PBKDF2
+        this.db.userPasswords[userId] = this.hashPassword(password);
+        this.saveDatabase();
+      }
+      return isValid;
+    }
+
+    // If firstArg is a known user ID without a password, return false
+    if (this.db.users && this.db.users.some(u => u.id === firstArg)) {
+      return false;
+    }
+
+    // Mode 2: Called with (password, storedHash)
+    const password = firstArg;
+    const storedHash = secondArg;
+    const isValid = this.verifyPasswordHash(password, storedHash);
+
+    if (isValid && !storedHash.includes(':') && this.db.userPasswords) {
+      let upgraded = false;
+      for (const [uid, hash] of Object.entries(this.db.userPasswords)) {
+        if (hash === storedHash) {
+          this.db.userPasswords[uid] = this.hashPassword(password);
+          upgraded = true;
+        }
+      }
+      if (upgraded) {
+        this.saveDatabase();
+      }
+    }
+
+    return isValid;
   }
 
   // --- Drafts (Private per user) ---

@@ -25,6 +25,7 @@ yarn-error.log*
 Thumbs.db
 .vscode/
 .idea/
+.agents/
 
 # Generated runtime data (do not commit)
 backend/data/

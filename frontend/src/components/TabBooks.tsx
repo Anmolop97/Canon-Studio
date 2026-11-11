@@ -13,10 +13,12 @@ import {
   X,
   Download
 } from 'lucide-react';
+import { VoiceNarratorButton } from './VoiceNarratorButton';
 
 interface TabBooksProps {
   currentUser: User | null;
   onOpenAuth: () => void;
+  onNavigateTab?: (tab: 'wizard' | 'branching' | 'writer' | 'books') => void;
 }
 
 export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
@@ -419,6 +421,7 @@ export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
               </div>
 
               <div className="flex items-center gap-2">
+                <VoiceNarratorButton />
                 {/* Export Options for Reader */}
                 <div className="flex items-center gap-1 bg-studio-bg border border-studio-border rounded p-1">
                   <span className="text-[11px] text-studio-muted font-medium px-1.5 flex items-center gap-1">
@@ -463,6 +466,24 @@ export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
 
             {/* Reader Content Body */}
             <div className="flex-1 overflow-y-auto p-5 sm:p-8 space-y-4 font-serif text-base sm:text-lg leading-relaxed text-studio-text">
+              {/* Cinematic Scene Concept Art */}
+              {readingBook.episodes[activeEpisodeIndex]?.imageUrl && (
+                <div className="relative rounded-lg overflow-hidden border border-studio-border mb-6 bg-black/40 shadow-xl">
+                  <img
+                    src={readingBook.episodes[activeEpisodeIndex].imageUrl}
+                    alt={readingBook.episodes[activeEpisodeIndex].imagePrompt || readingBook.title}
+                    className="w-full h-56 sm:h-72 object-cover"
+                    loading="lazy"
+                  />
+                  {readingBook.episodes[activeEpisodeIndex].imagePrompt && (
+                    <div className="p-3 bg-studio-raised border-t border-studio-border text-xs text-studio-muted italic font-sans flex items-center justify-between gap-2">
+                      <span className="line-clamp-1">🎬 Concept Art: &ldquo;{readingBook.episodes[activeEpisodeIndex].imagePrompt}&rdquo;</span>
+                      <span className="text-[10px] uppercase font-bold text-studio-accent px-1.5 py-0.5 rounded bg-studio-bg shrink-0">16:9 HD</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <h3 className="font-serif font-bold text-xl text-studio-accent border-b border-studio-border/50 pb-2">
                 {readingBook.episodes[activeEpisodeIndex]?.title || `Episode ${activeEpisodeIndex + 1}`}
               </h3>

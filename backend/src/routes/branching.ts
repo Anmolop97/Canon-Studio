@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { branchingService, BranchingSetup, NextSceneRequest } from '../services/branchingService.js';
 import { exportService, BranchJourneyExportInput } from '../services/exportService.js';
+import { imageService } from '../services/imageService.js';
 
 export const branchingRouter = Router();
 
@@ -67,3 +68,23 @@ branchingRouter.post('/export-journey', (req: Request, res: Response) => {
     });
   }
 });
+
+/**
+ * POST /api/branching/illustrate-scene
+ * Body: { sceneText: string, title?: string, genre?: string }
+ */
+branchingRouter.post('/illustrate-scene', async (req: Request, res: Response) => {
+  try {
+    const { sceneText, title, genre } = req.body;
+    if (!sceneText) {
+      res.status(400).json({ error: 'sceneText is required' });
+      return;
+    }
+    const art = await imageService.generateSceneArt(sceneText, title, genre);
+    res.json(art);
+  } catch (error: any) {
+    console.error('[API /api/branching/illustrate-scene Error]:', error);
+    res.status(500).json({ error: error.message || 'Failed to illustrate scene' });
+  }
+});
+

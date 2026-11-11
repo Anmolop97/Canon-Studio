@@ -3,6 +3,7 @@ import { requireAuth, AuthenticatedRequest } from './auth.js';
 import { storageService } from '../services/storage.js';
 import { canonCheckerService } from '../services/canonChecker.js';
 import { exportService, ExportFormat } from '../services/exportService.js';
+import { imageService } from '../services/imageService.js';
 
 export const draftsRouter = Router();
 
@@ -324,3 +325,49 @@ draftsRouter.post('/:id/unpublish', (req: AuthenticatedRequest, res: Response) =
     res.status(500).json({ error: error.message || 'Failed to unpublish story' });
   }
 });
+
+/**
+ * POST /api/drafts/:id/episodes/:episodeIndex/illustrate
+ * Uses Gemini as Visual Director to craft cinematic prompt + FLUX rendering
+ */
+draftsRouter.post('/:id/episodes/:episodeIndex/illustrate', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const episodeIndex = parseInt(req.params.episodeIndex as string, 10) || 0;
+    const draft = storageService.getDraftById(id);
+    if (!draft) {
+      res.status(404).json({ error: 'Draft not found' });
+      return;
+    }
+    if (draft.userId !== req.user!.id) {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
+
+    const episode = draft.episodes[episodeIndex];
+    if (!episode) {
+      res.status(404).json({ error: 'Episode not found' });
+      return;
+    }
+
+    const sceneText = episode.content || episode.title || draft.title;
+    const art = await imageService.generateSceneArt(sceneText, `${draft.title} - ${episode.title}`, draft.genre);
+
+    episode.imageUrl = art.imageUrl;
+    episode.imagePrompt = art.imagePrompt;
+    episode.updatedAt = new Date().toISOString();
+
+    storageService.updateDraft(draft.id, { episodes: draft.episodes });
+
+    res.json({
+      success: true,
+      imageUrl: art.imageUrl,
+      imagePrompt: art.imagePrompt,
+      episode
+    });
+  } catch (error: any) {
+    console.error('[API illustrate episode error]:', error);
+    res.status(500).json({ error: error.message || 'Failed to generate episode art' });
+  }
+});
+

@@ -3,25 +3,25 @@
 @tailwind utilities;
 
 :root {
-  /* Light mode: paper #FAF6EC with indigo text #1B1F36 */
-  --color-bg: #FAF6EC;
+  /* Unified Crisp Light Mode - Clean White Frosted Surfaces */
+  --color-bg: #EAEFF5;
   --color-card: #FFFFFF;
-  --color-raised: #F0EAD8;
-  --color-text: #1B1F36;
-  --color-muted: #5E6482;
-  --color-accent: #D89112;
-  --color-border: rgba(27, 31, 54, 0.15);
+  --color-raised: #FFFFFF;
+  --color-text: #0F172A;
+  --color-muted: #475569;
+  --color-accent: #0F172A;
+  --color-border: rgba(148, 163, 184, 0.35);
 }
 
 .dark {
-  /* Dark-first theme tokens: background #0F1220, cards #1B1F36, raised #232845, text #F4EEDC, muted #9AA0BC, accent amber #F2B84B */
-  --color-bg: #0F1220;
-  --color-card: #1B1F36;
-  --color-raised: #232845;
-  --color-text: #F4EEDC;
-  --color-muted: #9AA0BC;
-  --color-accent: #F2B84B;
-  --color-border: rgba(154, 160, 188, 0.2);
+  /* Soft Ethereal Dark Mode - Translucent Slate, No Harsh Black Boxes */
+  --color-bg: #0F172A;
+  --color-card: rgba(30, 41, 59, 0.92);
+  --color-raised: rgba(51, 65, 85, 0.90);
+  --color-text: #F8FAFC;
+  --color-muted: #CBD5E1;
+  --color-accent: #38BDF8;
+  --color-border: rgba(148, 163, 184, 0.25);
 }
 
 @layer base {
@@ -31,7 +31,7 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   h1, h2, h3, h4, .font-story {

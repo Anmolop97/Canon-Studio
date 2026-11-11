@@ -10,6 +10,8 @@ export interface Episode {
   order: number;
   title: string;
   content: string;
+  imageUrl?: string;
+  imagePrompt?: string;
   createdAt: string;
   updatedAt: string;
 }
