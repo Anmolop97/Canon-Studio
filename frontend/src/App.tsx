@@ -118,7 +118,7 @@ export function App() {
   }
 
   return (
-    <div className="relative min-h-screen bg-studio-bg text-studio-text flex flex-col font-sans transition-colors duration-200 overflow-x-clip">
+    <div className="relative min-h-screen bg-studio-bg text-studio-text flex flex-col font-sans transition-colors duration-200 overflow-x-hidden overflow-y-auto">
       
       {/* Soft Ethereal Opening Dissolve Veil (Fades out gently on page open) */}
       <motion.div
