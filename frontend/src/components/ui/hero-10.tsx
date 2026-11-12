@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion, type Variants } from "motion/react";
 import { FaArrowRight, FaChevronDown, FaXmark } from "react-icons/fa6";
+import canonLogo from "../../assets/canon-logo.png";
 import storybookBackground from "../../assets/storybook-background.webp";
 
 export interface Hero10NavItem {
@@ -150,9 +151,10 @@ export function Hero10({
         >
           <a
             href="#"
-            className="inline-flex min-h-10 items-center font-serif text-[25px] leading-none font-medium tracking-[-0.035em] text-slate-800 transition-[opacity,transform] duration-200 ease-out hover:opacity-75 active:scale-[0.96]"
+            className="inline-flex min-h-10 items-center gap-2.5 font-serif text-[25px] leading-none font-medium tracking-[-0.035em] text-slate-800 transition-[opacity,transform] duration-200 ease-out hover:opacity-75 active:scale-[0.96]"
           >
-            {brandName}
+            <img src={canonLogo} alt="Canon Studio" className="w-8 h-8 object-contain drop-shadow-xs" />
+            <span>{brandName}</span>
           </a>
 
           <nav className="hidden items-center gap-1.5 lg:flex bg-slate-900/5 backdrop-blur-md p-1 rounded-full border border-slate-400/20">
@@ -211,9 +213,10 @@ export function Hero10({
               <div className="flex items-center justify-between pl-3">
                 <a
                   href="#"
-                  className="font-serif text-2xl font-medium tracking-[-0.035em] text-slate-900"
+                  className="inline-flex items-center gap-2 font-serif text-2xl font-medium tracking-[-0.035em] text-slate-900"
                 >
-                  {brandName}
+                  <img src={canonLogo} alt="Canon Studio" className="w-7 h-7 object-contain" />
+                  <span>{brandName}</span>
                 </a>
                 <button
                   type="button"
