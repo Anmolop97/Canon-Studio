@@ -18,7 +18,6 @@ import {
 } from 'lucide-react';
 import { VoiceNarratorButton } from './VoiceNarratorButton';
 import { StoryAudio } from './StoryAudio';
-import { StudioDeepDive } from './StudioDeepDive';
 import { Newsletter2 } from './ui/newsletter-2';
 
 interface TabWriteStoryProps {
@@ -805,13 +804,6 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
           )}
         </div>
       )}
-
-      {/* ────────────────────────────────────────────────────────────
-          MIDDLE: 3 Professional Functional Layers (Lore, Branching, Auditor)
-         ──────────────────────────────────────────────────────────── */}
-      <div className="mt-64 md:mt-80">
-        <StudioDeepDive />
-      </div>
 
       {/* ────────────────────────────────────────────────────────────
           END: Creator Support & Narrative Dispatch Section
