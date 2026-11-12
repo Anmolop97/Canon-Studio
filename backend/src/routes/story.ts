@@ -1,4 +1,6 @@
 import { Router, Request, Response } from 'express';
+import { requireAuth, AuthenticatedRequest } from './auth.js';
+
 import { geminiService } from '../services/geminiService.js';
 import { memoryTreeService } from '../services/memoryTree.js';
 import { cyberpunkUniverse } from '../data/defaultStoryBible.js';

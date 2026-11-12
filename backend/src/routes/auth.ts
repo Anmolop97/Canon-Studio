@@ -20,7 +20,11 @@ export interface AuthTokenPayload {
  * Secret key resolution with fallback
  */
 export function getAuthSecret(): string {
-  return process.env.AUTH_SECRET || process.env.JWT_SECRET || 'story-ai-hardened-session-secret-2026';
+  const secret = process.env.AUTH_SECRET || process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('Authentication secret not configured. Set AUTH_SECRET or JWT_SECRET environment variable.');
+  }
+  return secret;
 }
 
 /**
@@ -255,12 +259,5 @@ authRouter.get('/me', requireAuth, (req: AuthenticatedRequest, res: Response) =>
 /**
  * GET /api/auth/demo-accounts
  */
-authRouter.get('/demo-accounts', (req: Request, res: Response) => {
-  const users = storageService.getUsers().map(u => ({
-    id: u.id,
-    email: u.email,
-    displayName: u.displayName,
-    demoPassword: u.id.replace('user-', '') + '123'
-  }));
-  res.json(users);
-});
+// Demo accounts endpoint removed for security.
+
