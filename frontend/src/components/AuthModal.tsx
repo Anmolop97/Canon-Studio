@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { api } from '../api';
 import type { User } from '../types';
 import { X, LogIn, UserPlus, Sparkles, AlertTriangle } from 'lucide-react';
-import { motion, type Variants } from 'motion/react';
+import { motion, type Variants } from 'framer-motion';
 
 interface AuthModalProps {
   isOpen: boolean;

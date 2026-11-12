@@ -11,7 +11,7 @@ export const storyRouter = Router();
  * POST /api/generate-beat
  * Request body: { promptInstruction: string, activeNodeId?: string, tone?: string }
  */
-storyRouter.post('/generate-beat', async (req: Request, res: Response) => {
+storyRouter.post('/generate-beat', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { promptInstruction, activeNodeId, tone } = req.body;
 

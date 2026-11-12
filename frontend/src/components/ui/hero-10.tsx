@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AnimatePresence, motion, type Variants } from "motion/react";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { FaArrowRight, FaChevronDown, FaXmark } from "react-icons/fa6";
 
 export interface Hero10NavItem {

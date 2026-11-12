@@ -1,4 +1,4 @@
-import { motion, type Variants } from "motion/react";
+import { motion, type Variants } from "framer-motion";
 
 // Simple Google SVG Icon
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (

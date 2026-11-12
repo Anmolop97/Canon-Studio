@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Volume2, Sparkles } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from "framer-motion";
 
 interface VoiceNarratorButtonProps {
   className?: string;

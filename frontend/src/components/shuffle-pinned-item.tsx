@@ -8,12 +8,7 @@ import {
   useEffect,
   type FC,
 } from 'react';
-import {
-  motion,
-  AnimatePresence,
-  MotionConfig,
-  type Transition,
-} from 'motion/react';
+import { motion, AnimatePresence, MotionConfig, type Transition } from "framer-motion";
 import { Pin, ChevronsUpDown } from 'lucide-react';
 import { BsChatFill } from 'react-icons/bs';
 
