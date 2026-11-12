@@ -33,38 +33,7 @@ const MAX_DRAFT_BYTES = 1_000_000;
 const MAX_USER_DRAFT_BYTES = 10_000_000;
 
 // Pre-seeded initial data
-const SEED_USERS: User[] = [
-  {
-    id: 'user-anya',
-    email: 'anya@canonstory.studio',
-    displayName: 'Anya Sharma',
-    createdAt: '2026-09-01T10:00:00.000Z'
-  },
-  {
-    id: 'user-dev',
-    email: 'dev@canonstory.studio',
-    displayName: 'Devraj Sen',
-    createdAt: '2026-09-05T12:00:00.000Z'
-  },
-  {
-    id: 'user-guest',
-    email: 'guest@canonstory.studio',
-    displayName: 'Guest Writer',
-    createdAt: '2026-10-01T08:00:00.000Z'
-  },
-  {
-    id: 'user-anand',
-    email: 'anand@canonstory.studio',
-    displayName: 'Anand',
-    createdAt: '2026-11-11T00:00:00.000Z'
-  },
-  {
-    id: 'user-anmol',
-    email: 'anmol@canonstory.studio',
-    displayName: 'Anmol',
-    createdAt: '2026-11-11T00:00:00.000Z'
-  }
-];
+const SEED_USERS: User[] = [];
 
 const SEED_BOOKS: Book[] = [
   {
@@ -260,8 +229,32 @@ class StorageService {
   constructor() {
     this.ensureDataDir();
     this.db = this.loadDatabase();
-    this.migrateLegacyPasswords();
-    this.ensureLocalDemoUsers();
+    this.purgeAllDemoUsers();
+  }
+
+  /**
+   * Purge all demo identities and credentials across all environments.
+   * Only real, registered accounts are permitted.
+   */
+  private purgeAllDemoUsers(): void {
+    const demoIds = new Set(['user-anya', 'user-dev', 'user-guest', 'user-anand', 'user-anmol']);
+    const initialUserCount = this.db.users.length;
+    this.db.users = this.db.users.filter(u => !demoIds.has(u.id));
+
+    let passwordsPurged = 0;
+    if (this.db.userPasswords) {
+      for (const demoId of demoIds) {
+        if (this.db.userPasswords[demoId]) {
+          delete this.db.userPasswords[demoId];
+          passwordsPurged++;
+        }
+      }
+    }
+
+    if (this.db.users.length !== initialUserCount || passwordsPurged > 0) {
+      console.log(`[Storage] Purged ${initialUserCount - this.db.users.length} demo identities and credentials.`);
+      this.saveDatabase();
+    }
   }
 
   private ensureDataDir() {
@@ -277,68 +270,10 @@ class StorageService {
   }
 
   private createInitialDatabase(): DatabaseSchema {
-    if (process.env.NODE_ENV === 'production') {
-      return { users: [], userPasswords: {}, drafts: [], books: [], likes: [], ratings: [] };
-    }
     return {
-      users: SEED_USERS,
-      userPasswords: {
-        'user-anya': this.hashPassword('anya123'),
-        'user-dev': this.hashPassword('dev123'),
-        'user-guest': this.hashPassword('guest123'),
-        'user-anand': this.hashPassword('anandanand'),
-        'user-anmol': this.hashPassword('kakashi_op_97'),
-      },
-      drafts: [
-        {
-          id: 'draft-shadow',
-          userId: 'user-anya',
-          title: 'The Rain of Lower Veridia',
-          genre: 'Sci-fi',
-          blurb: 'In the submerged neon undercity, augmentations rust and memories are contraband. Jack Vance races against an atmospheric Ion Storm.',
-          episodes: SEED_BOOKS[0].episodes,
-          canonFacts: [
-            {
-              id: 'fact-1',
-              subject: 'Jack Vance',
-              quote: 'feeling the cold weight of his uncalibrated industrial prosthetic',
-              text: 'Jack Vance has an uncalibrated industrial prosthetic left arm and cannot wield two-handed firearms.',
-              episodeNumber: 1,
-              removable: true
-            },
-            {
-              id: 'fact-2',
-              subject: 'Atmospheric Physics',
-              quote: 'Can you decrypt the drive before the Ion Storm hits the upper grid?',
-              text: 'Ion Storms disable long-range RF/cellular wireless transmissions across Neo-Veridia.',
-              episodeNumber: 1,
-              removable: true
-            },
-            {
-              id: 'fact-3',
-              subject: 'Chimera Drive',
-              quote: 'It is an atmospheric scrub engine. It cleans the sky!',
-              text: 'The Chimera prototype is an atmospheric scrub engine designed to purify Veridia rain.',
-              episodeNumber: 3,
-              removable: true
-            }
-          ],
-          voiceNotes: [
-            {
-              character: 'Jack Vance',
-              style: 'Cynical, terse military phrasing; never apologizes or uses corporate pleasantries.'
-            },
-            {
-              character: 'Dr. Aria Chen',
-              style: 'Analytical, fast-paced technical cadence; uses biomechanical and computational terms.'
-            }
-          ],
-          publishedBookId: 'book-shadow-chronicles',
-          publishedAt: '2026-10-09T19:00:00.000Z',
-          createdAt: '2026-10-02T10:00:00.000Z',
-          updatedAt: '2026-10-09T19:00:00.000Z'
-        }
-      ],
+      users: [],
+      userPasswords: {},
+      drafts: [],
       books: SEED_BOOKS,
       likes: SEED_LIKES,
       ratings: SEED_RATINGS
@@ -364,71 +299,6 @@ class StorageService {
     const initialDb = this.createInitialDatabase();
     this.saveDatabase(initialDb);
     return initialDb;
-  }
-
-  private migrateLegacyPasswords(): void {
-    if (!this.db || !this.db.userPasswords) return;
-
-    const KNOWN_SEEDS: Record<string, { pass: string; legacyHash: string }> = {
-      'user-anya': {
-        pass: 'anya123',
-        legacyHash: '60dfe5e3a235a08d387d7148dbb69aace5d4db94ada3ea35f24def9473f4c47b'
-      },
-      'user-dev': {
-        pass: 'dev123',
-        legacyHash: '87274af01876341455b32d805946f272871bb42effa6604dccf28bb027afa82b'
-      },
-      'user-guest': {
-        pass: 'guest123',
-        legacyHash: '6b93ccba414ac1d0ae1e77f3fac560c748a6701ed6946735a49d463351518e16'
-      }
-    };
-
-    let upgraded = false;
-    for (const [userId, seedInfo] of Object.entries(KNOWN_SEEDS)) {
-      const currentHash = this.db.userPasswords[userId];
-      if (currentHash && !currentHash.startsWith('pbkdf2-sha512$') && !currentHash.includes(':')) {
-        this.db.userPasswords[userId] = this.hashPassword(seedInfo.pass);
-        upgraded = true;
-      }
-    }
-
-    if (upgraded) {
-      console.log('[Storage] Upgraded legacy seeded user passwords to salted PBKDF2');
-      this.saveDatabase();
-    }
-  }
-
-  /** Seed demo profiles for local development only; never create them in production. */
-  private ensureLocalDemoUsers(): void {
-    if (process.env.NODE_ENV === 'production') return;
-
-    const demoUsers = [
-      { id: 'user-anand', email: 'anand@canonstory.studio', displayName: 'Anand', password: 'anandanand' },
-      { id: 'user-anmol', email: 'anmol@canonstory.studio', displayName: 'Anmol', password: 'kakashi_op_97' },
-    ];
-    let changed = false;
-
-    for (const demo of demoUsers) {
-      let user = this.findUserByEmail(demo.email);
-      if (!user) {
-        user = {
-          id: demo.id,
-          email: demo.email,
-          displayName: demo.displayName,
-          createdAt: new Date().toISOString(),
-        };
-        this.db.users.push(user);
-        changed = true;
-      }
-
-      if (!this.db.userPasswords[user.id]) {
-        this.db.userPasswords[user.id] = this.hashPassword(demo.password);
-        changed = true;
-      }
-    }
-
-    if (changed) this.saveDatabase();
   }
 
   private saveDatabase(data: DatabaseSchema = this.db): void {

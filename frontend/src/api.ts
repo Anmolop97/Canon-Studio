@@ -62,10 +62,6 @@ class ApiClient {
   }
 
   // Auth
-  public async getDemoAccounts(): Promise<Array<{ id: string; email: string; displayName: string; demoPassword: string }>> {
-    return this.request('/auth/demo-accounts');
-  }
-
   public async login(email: string, password: string): Promise<{ user: User }> {
     return this.request<{ user: User }>('/auth/login', {
       method: 'POST',

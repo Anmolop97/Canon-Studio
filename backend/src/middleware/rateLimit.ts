@@ -202,4 +202,69 @@ export const treeMutationRateLimiterInstance = new SlidingWindowRateLimiter({
 });
 export const treeMutationRateLimiter = treeMutationRateLimiterInstance.middleware;
 
+// -----------------------------------------------------------------------------
+// OWASP Account-Level Login Throttling (Defense against credential stuffing)
+// -----------------------------------------------------------------------------
+interface FailedLoginState {
+  attempts: number;
+  lockUntil: number;
+}
+const failedLoginTracker = new Map<string, FailedLoginState>();
+
+export function recordFailedLogin(identity: string): void {
+  const key = identity.trim().toLowerCase();
+  const current = failedLoginTracker.get(key) || { attempts: 0, lockUntil: 0 };
+  current.attempts += 1;
+  // Exponential progressive delay after 5 failed attempts
+  if (current.attempts >= 5) {
+    const exponent = Math.min(current.attempts - 5, 6);
+    const lockoutMs = Math.min(60_000 * Math.pow(2, exponent), 30 * 60_000); // 1m up to 30m max
+    current.lockUntil = Date.now() + lockoutMs;
+  }
+  failedLoginTracker.set(key, current);
+}
+
+export function resetFailedLogin(identity: string): void {
+  failedLoginTracker.delete(identity.trim().toLowerCase());
+}
+
+export function checkLoginThrottled(identity: string): { throttled: boolean; retryAfterSec?: number } {
+  const current = failedLoginTracker.get(identity.trim().toLowerCase());
+  if (!current || current.lockUntil <= Date.now()) {
+    return { throttled: false };
+  }
+  const retryAfterSec = Math.max(1, Math.ceil((current.lockUntil - Date.now()) / 1000));
+  return { throttled: true, retryAfterSec };
+}
+
+// -----------------------------------------------------------------------------
+// Global Daily AI Quota / Spend Safeguard (Protects LLM provider budget)
+// -----------------------------------------------------------------------------
+const dailyAiTracker = {
+  count: 0,
+  resetAt: Date.now() + 24 * 60 * 60_000,
+};
+
+export function aiQuotaGuard(_req: Request, res: Response, next: NextFunction): void {
+  const now = Date.now();
+  if (now > dailyAiTracker.resetAt) {
+    dailyAiTracker.count = 0;
+    dailyAiTracker.resetAt = now + 24 * 60 * 60_000;
+  }
+
+  const maxDaily = Number.parseInt(process.env.AI_DAILY_QUOTA_MAX || '2000', 10);
+  if (dailyAiTracker.count >= maxDaily) {
+    const retryAfter = Math.max(1, Math.ceil((dailyAiTracker.resetAt - now) / 1000));
+    res.setHeader('Retry-After', retryAfter.toString());
+    res.status(429).json({
+      error: 'Global AI daily quota limit reached. Please retry tomorrow or contact administrator.',
+      retryAfter
+    });
+    return;
+  }
+
+  dailyAiTracker.count += 1;
+  next();
+}
+
 export default aiRateLimiter;

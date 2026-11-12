@@ -4,7 +4,13 @@ import crypto from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import { storageService } from '../services/storage.js';
 import { User } from '../types/canonStudio.js';
-import { loginRateLimiter, registerRateLimiter } from '../middleware/rateLimit.js';
+import {
+  loginRateLimiter,
+  registerRateLimiter,
+  checkLoginThrottled,
+  recordFailedLogin,
+  resetFailedLogin
+} from '../middleware/rateLimit.js';
 
 export const authRouter = Router();
 
@@ -28,8 +34,6 @@ function authCookieName(): string {
  * Secret key resolution with fallback
  */
 const developmentAuthSecret = crypto.randomBytes(32).toString('base64url');
-const DEMO_USER_IDS = new Set(['user-anya', 'user-dev', 'user-guest']);
-const isDemoDisabled = process.env.NODE_ENV === 'production';
 
 export function getAuthSecret(): string {
   const configuredSecret = process.env.AUTH_SECRET;
@@ -192,7 +196,7 @@ export function requireAuth(req: AuthenticatedRequest, res: Response, next: Next
   }
 
   const user = storageService.findUserById(payload.userId);
-  if (!user || (isDemoDisabled && DEMO_USER_IDS.has(user.id))) {
+  if (!user) {
     res.status(401).json({ error: 'Unauthorized: Invalid or expired token' });
     return;
   }
@@ -208,7 +212,7 @@ export function optionalAuth(req: AuthenticatedRequest, res: Response, next: Nex
     const payload = verifyToken(token);
     if (payload) {
       const user = storageService.findUserById(payload.userId);
-      if (user && !(isDemoDisabled && DEMO_USER_IDS.has(user.id))) {
+      if (user) {
         req.user = user;
         next();
         return;
@@ -277,16 +281,24 @@ authRouter.post('/login', loginRateLimiter, (req: Request, res: Response) => {
       return;
     }
 
-    const user = storageService.findUserByEmail(email.trim().toLowerCase());
-    if (isDemoDisabled && user && DEMO_USER_IDS.has(user.id)) {
-      res.status(401).json({ error: 'Invalid email or password.' });
+    const throttle = checkLoginThrottled(email);
+    if (throttle.throttled) {
+      res.setHeader('Retry-After', (throttle.retryAfterSec || 60).toString());
+      res.status(429).json({
+        error: `Account temporarily locked due to multiple failed attempts. Please wait ${throttle.retryAfterSec} seconds.`,
+        retryAfter: throttle.retryAfterSec
+      });
       return;
     }
+
+    const user = storageService.findUserByEmail(email.trim().toLowerCase());
     if (!user || !storageService.verifyPassword(user.id, password)) {
+      recordFailedLogin(email);
       res.status(401).json({ error: 'Invalid email or password.' });
       return;
     }
 
+    resetFailedLogin(email);
     const token = createAuthToken(user.id);
     setSessionCookie(res, token);
     res.json({
@@ -307,23 +319,4 @@ authRouter.get('/me', requireAuth, (req: AuthenticatedRequest, res: Response) =>
 authRouter.post('/logout', (_req: Request, res: Response) => {
   clearSessionCookie(res);
   res.status(204).end();
-});
-
-/**
- * GET /api/auth/demo-accounts
- */
-authRouter.get('/demo-accounts', (req: Request, res: Response) => {
-  if (isDemoDisabled) {
-    res.status(404).json({ error: 'Demo accounts are disabled in this environment.' });
-    return;
-  }
-  const users = [
-    { id: 'user-anya', email: 'anya@canonstory.studio', displayName: 'Anya Sharma', demoPassword: 'anya123' },
-    { id: 'user-dev', email: 'dev@canonstory.studio', displayName: 'Devraj Sen', demoPassword: 'dev123' },
-    { id: 'user-guest', email: 'guest@canonstory.studio', displayName: 'Guest Writer', demoPassword: 'guest123' },
-    { id: 'user-anand', email: 'anand@canonstory.studio', displayName: 'Anand', demoPassword: 'anandanand' },
-    { id: 'user-anmol', email: 'anmol@canonstory.studio', displayName: 'Anmol', demoPassword: 'kakashi_op_97' },
-  ];
-  res.setHeader('Cache-Control', 'no-store');
-  res.json(users);
 });

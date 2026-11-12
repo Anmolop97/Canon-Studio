@@ -15,7 +15,7 @@ import { booksRouter } from './routes/books.js';
 import { cyberpunkUniverse } from './data/defaultStoryBible.js';
 import { aiService } from './services/aiService.js';
 import { securityHeaders } from './middleware/security.js';
-import { aiRateLimiter, apiRateLimiter, limitAiRequestBody } from './middleware/rateLimit.js';
+import { aiQuotaGuard, aiRateLimiter, apiRateLimiter, limitAiRequestBody } from './middleware/rateLimit.js';
 import { validateAuthConfiguration } from './routes/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -23,6 +23,31 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 dotenv.config();
+
+/**
+ * Strict Environment Validator (Fail-Closed)
+ * Prevents security regressions from missing or misspelled NODE_ENV.
+ */
+export function validateEnvironment(): void {
+  const env = process.env.NODE_ENV;
+  const isCloudHosted = Boolean(process.env.RENDER || process.env.RAILWAY_ENVIRONMENT || process.env.FLY_APP_NAME);
+
+  if (isCloudHosted && env !== 'production') {
+    throw new Error(`[Security] Hosted cloud deployment detected, but NODE_ENV is '${env}'. In production environments, NODE_ENV must strictly be set to 'production'.`);
+  }
+
+  const validEnvironments = ['production', 'development', 'test'];
+  if (env && !validEnvironments.includes(env)) {
+    throw new Error(`[Security] Invalid NODE_ENV='${env}'. Expected one of: ${validEnvironments.join(', ')}.`);
+  }
+
+  if (env === 'production') {
+    const authSecret = process.env.AUTH_SECRET;
+    if (!authSecret || Buffer.byteLength(authSecret, 'utf8') < 32) {
+      throw new Error('[Security] Production mode requires AUTH_SECRET to contain at least 32 bytes of secure entropy.');
+    }
+  }
+}
 
 const app = express();
 app.disable('x-powered-by');
@@ -174,7 +199,7 @@ app.use([
   '/api/analyze-voice',
   '/api/story/generate-beat',
   '/api/generate-beat',
-], limitAiRequestBody, aiRateLimiter);
+], limitAiRequestBody, aiQuotaGuard, aiRateLimiter);
 
 // Mount Canon Story Studio Core Routes
 app.use('/api/auth', authRouter);
@@ -199,6 +224,7 @@ app.use((error: any, _req: Request, res: Response, next: NextFunction) => {
 
 // Start Server
 if (process.env.NODE_ENV !== 'test') {
+  validateEnvironment();
   validateAuthConfiguration();
   const server = app.listen(PORT, HOST, () => {
     console.log(`=================================================`);
