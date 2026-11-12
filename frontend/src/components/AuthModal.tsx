@@ -164,14 +164,14 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                 <input
                   type="password"
                   required
-                  minLength={isRegister ? 15 : undefined}
+                  minLength={isRegister ? 8 : undefined}
                   maxLength={128}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="w-full rounded-xl border border-[#D7C397] bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-[#101C19] dark:text-white placeholder:text-[#87977A] focus:outline-none focus:ring-2 focus:ring-[#101C19]"
                 />
-                {isRegister && <span className="text-[11px] text-studio-muted">Use at least 15 characters.</span>}
+                {isRegister && <span className="text-[11px] text-studio-muted">Use at least 8 characters.</span>}
               </motion.div>
 
               <motion.div variants={itemVariants} className="mt-2">

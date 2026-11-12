@@ -31,6 +31,65 @@ function authCookieName(): string {
 }
 
 /**
+ * Strict RFC 5322 compliant email regex and disposable domain blocklist
+ */
+const RFC_EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,24}$/;
+
+const DISPOSABLE_EMAIL_DOMAINS = new Set([
+  'mailinator.com',
+  'guerrillamail.com',
+  'guerrillamailblock.com',
+  'sharklasers.com',
+  'grr.la',
+  'tempmail.com',
+  'temp-mail.org',
+  '10minutemail.com',
+  '10minutemail.net',
+  'yopmail.com',
+  'yopmail.net',
+  'cool.fr.nf',
+  'jetable.fr.nf',
+  'trashmail.com',
+  'trashmail.net',
+  'trashmail.me',
+  'dispostable.com',
+  'fakeinbox.com',
+  'getnada.com',
+  'inboxkitten.com',
+  'throwawaymail.com',
+  'burnermail.io',
+  'nada.ltd',
+  'mohmal.com',
+  'crazymailing.com',
+  'dropmail.me',
+  'airmail.news',
+  'mytemp.email',
+  'tempr.email',
+  'discard.email',
+  'armyspy.com',
+  'cuvox.de',
+  'dayrep.com',
+  'fleckens.hu',
+  'gustr.com',
+  'jourrapide.com',
+  'rhyta.com',
+  'superrito.com',
+  'teleworm.us',
+  'tinmail.com'
+]);
+
+export function isDisposableEmail(email: string): boolean {
+  const parts = email.split('@');
+  if (parts.length !== 2) return false;
+  const domain = parts[1].toLowerCase().trim();
+  if (DISPOSABLE_EMAIL_DOMAINS.has(domain)) return true;
+  for (const blocked of DISPOSABLE_EMAIL_DOMAINS) {
+    if (domain === blocked || domain.endsWith('.' + blocked)) return true;
+  }
+  return false;
+}
+
+/**
  * Secret key resolution with fallback
  */
 const developmentAuthSecret = crypto.randomBytes(32).toString('base64url');
@@ -238,13 +297,18 @@ authRouter.post('/register', registerRateLimiter, (req: Request, res: Response) 
     const normalizedEmail = email.trim().toLowerCase();
     const normalizedName = displayName.trim();
     const passwordLength = Array.from(password).length;
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail) || normalizedEmail.length > 254) {
+    if (!RFC_EMAIL_REGEX.test(normalizedEmail) || normalizedEmail.length > 254) {
       res.status(400).json({ error: 'Enter a valid email address.' });
       return;
     }
 
-    if (passwordLength < 15 || passwordLength > 128 || Buffer.byteLength(password, 'utf8') > 1024) {
-      res.status(400).json({ error: 'Password must be 15 to 128 characters long.' });
+    if (isDisposableEmail(normalizedEmail)) {
+      res.status(400).json({ error: 'Disposable or temporary email addresses are not permitted. Please use a permanent email address.' });
+      return;
+    }
+
+    if (passwordLength < 8 || passwordLength > 128 || Buffer.byteLength(password, 'utf8') > 1024) {
+      res.status(400).json({ error: 'Password must be 8 to 128 characters long.' });
       return;
     }
 
