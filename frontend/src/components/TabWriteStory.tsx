@@ -808,7 +808,7 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
       {/* ────────────────────────────────────────────────────────────
           END: Creator Support & Narrative Dispatch Section
          ──────────────────────────────────────────────────────────── */}
-      <div className="mt-8 mb-6">
+      <div className="mt-48 md:mt-64 mb-16">
         <Newsletter2 />
       </div>
     </div>
