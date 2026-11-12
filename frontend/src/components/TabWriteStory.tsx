@@ -335,13 +335,20 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
     <div className={`w-full mx-auto px-4 ${currentStep === 0 ? 'max-w-5xl' : 'max-w-4xl py-6 md:py-10'}`}>
       
       {/* Wizard Full Viewport Wrapper (Guarantees zero peek of bottom footer in initial frame) */}
-      <div className={currentStep === 0 ? 'min-h-[calc(100vh-6rem)] flex flex-col justify-center py-8 md:py-12' : ''}>
+      <div className={currentStep === 0 ? 'min-h-[calc(100vh-6rem)] flex flex-col justify-start pt-4 sm:pt-6 md:pt-8 pb-16' : ''}>
         
         {/* Wizard Header Bar */}
-        <div className={currentStep === 0 ? 'mb-4 md:mb-5' : 'mb-6'}>
-          <div className="story-wizard-meta flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
-            <span>Write a story &bull; Guided AI Wizard</span>
-            {currentStep <= 7 && <span className="font-medium text-slate-600 dark:text-slate-400">Step {currentStep} of 7</span>}
+        <div className={currentStep === 0 ? 'mb-3 md:mb-4' : 'mb-6'}>
+          <div className="story-wizard-meta flex items-center justify-between text-xs mb-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-white/70 dark:border-slate-700/70 font-semibold text-slate-800 dark:text-slate-200 shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" strokeWidth={1.8} />
+              <span>Write a story &bull; Guided AI Wizard</span>
+            </span>
+            {currentStep <= 7 && (
+              <span className="px-3 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-white/70 dark:border-slate-700/70 font-medium text-slate-700 dark:text-slate-300 shadow-xs">
+                Step {currentStep} of 7
+              </span>
+            )}
           </div>
 
           {/* Selected chips bar */}
