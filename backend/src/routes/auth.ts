@@ -29,7 +29,7 @@ function authCookieName(): string {
  */
 const developmentAuthSecret = crypto.randomBytes(32).toString('base64url');
 const DEMO_USER_IDS = new Set(['user-anya', 'user-dev', 'user-guest']);
-const isDemoDisabled = process.env.ALLOW_DEMO_ACCOUNTS === 'false';
+const isDemoDisabled = process.env.NODE_ENV === 'production';
 
 export function getAuthSecret(): string {
   const configuredSecret = process.env.AUTH_SECRET;

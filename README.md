@@ -147,17 +147,6 @@ cd frontend && npm run dev
 
 ---
 
-## 🔑 Showcase 1-Click Accounts
-
-| Display Name | Email | Password | Role |
-|:---|:---|:---|:---|
-| **Anmol** | `anmol@canonstory.studio` | `kakashi_op_97` | Lead Creator |
-| **Anya Sharma** | `anya@canonstory.studio` | `anya123` | Sci-fi Author |
-| **Devraj Sen** | `dev@canonstory.studio` | `dev123` | Fantasy Author |
-| **Guest Writer** | `guest@canonstory.studio` | `guest123` | Community Member |
-
----
-
 ## 📡 Production API Reference
 
 | Endpoint | Method | Auth | Description |
