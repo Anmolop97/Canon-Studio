@@ -4,6 +4,7 @@ import { api } from '../api';
 import type { User } from '../types';
 import { X, LogIn, UserPlus, AlertTriangle } from 'lucide-react';
 import { motion, type Variants } from 'motion/react';
+import canonLogo from '../assets/canon-logo.png';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -106,6 +107,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
           >
             {/* Header / Brand */}
             <motion.div variants={itemVariants} className="mb-6">
+              <img src={canonLogo} alt="Canon Studio" className="w-11 h-11 object-contain mb-3 drop-shadow-xs" />
               <span className="text-xs font-bold tracking-widest uppercase text-[#58745C] dark:text-sky-400">
                 CANON STUDIO &bull; AUTHENTICATION
               </span>

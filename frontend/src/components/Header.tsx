@@ -4,6 +4,7 @@ import { Feather, Compass, PenTool, BookOpen, LogIn, LogOut, User as UserIcon, S
 import { PricingModal } from './PricingModal';
 import { ContinuousTabs } from './continuous-tabs';
 import Button26 from './button-26';
+import canonLogo from '../assets/canon-logo.png';
 
 export type StudioTab = 'wizard' | 'branching' | 'writer' | 'books';
 
@@ -41,9 +42,11 @@ export function Header({
           
           {/* Logo & Studio Working Title */}
           <div className="brand-area flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-[#FAF9F3]/90 border border-[#D7C397]/70 dark:bg-slate-800/80 dark:border-slate-700 flex items-center justify-center text-[#101C19] dark:text-[#D9C58B] font-serif font-bold text-lg flex-shrink-0 shadow-xs">
-              C
-            </div>
+            <img
+              src={canonLogo}
+              alt="Canon Studio Emblem"
+              className="w-9 h-9 object-contain drop-shadow-sm flex-shrink-0 transition-transform duration-300 hover:scale-105"
+            />
             <div>
               <span className="studio-brand-name font-serif font-bold text-base sm:text-lg tracking-tight block leading-tight">
                 Canon Studio
