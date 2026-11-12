@@ -1,214 +1,183 @@
-# Canon Studio
+# Canon Studio 🖋️✨
 
-> **A full-stack AI-powered fiction platform where non-writers generate stories, writers publish serialized sagas with AI continuity checking, and readers discover and rate them.**
+<div align="center">
 
----
+[![Live Demo](https://img.shields.io/badge/Live_App-canon--studio.pages.dev-blue?style=for-the-badge&logo=cloudflare&logoColor=orange)](https://canon-studio.pages.dev)
+[![API Server](https://img.shields.io/badge/API_Status-Online-emerald?style=for-the-badge&logo=render&logoColor=white)](https://canon-studio.onrender.com/api/health)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![Groq AI](https://img.shields.io/badge/Ultra--Fast_Inference-Groq_LLaMA_3.3-f55036?style=for-the-badge&logo=fastapi&logoColor=white)](https://groq.com/)
+[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-## Features
+**An AI-Powered Narrative Continuity Studio & Serialized Fiction Platform**
 
-### Tab 1 — Write a Story (No Login Required)
-Guided 7-step wizard for non-writers:
-- Free-text keyword seed → Genre → World tone → Language (English / Hinglish / Hindi)
-- **Steps 4–6: Dynamic AI questions** generated from prior answers — 6 contextually crafted options each
-- Full story generated and streamed (simulated) at 400 / 800 / 1,400 words
-- Copy, Download, Write Another Version, **Play as Choose-Your-Path**, **Save to Writer Mode**
+*Where non-writers co-create rich stories, writers publish serialized sagas with automated lore continuity auditing, and readers discover curated community literature.*
 
-### Tab 2 — Choose Your Path (No Login Required)
-Interactive branching narrative:
-- Setup: idea, genre, language, decisions before ending (3 / 5 / 8)
-- Each scene: 110–170 words + 3 choices (bold / careful / unexpected) + free-text custom action
-- **Live narrative tree** — amber current node, blue active path, diamond endings; click any node to branch differently
-- Explored choices are marked; Copy and Download full path
+[Explore Live Demo](https://canon-studio.pages.dev) • [API Health Monitor](https://canon-studio.onrender.com/api/health) • [Report Bug](https://github.com/Anmolop97/Canon-Studio/issues)
 
-### Tab 3 — Writer Mode (Login Required)
-Professional serialized fiction workspace:
-- Private drafts: title, genre, blurb, ordered episodes
-- **Draft with AI** — describe the episode, AI writes it respecting all canon facts and character voices
-- **Check Against Canon** — sends episode + prior-episode facts to AI, returns:
-  - `facts`: lasting world facts with quote & episode tag (removable)
-  - `conflicts`: real contradictions with 1-click Apply Fix buttons
-  - `voice`: out-of-character dialogue with 1-click "Use this rewrite"
-  - `voiceNotes`: character speaking style fingerprints
-- Save with fresh check updates canon memory; save without warns the author
-- Delete story / delete episode both require a 2nd confirmation click
-- Publish to Books / Update Published / Unpublish
-
-### Tab 4 — Books (Reading Library)
-- Browse: search (title, blurb, author), genre filter, min-rating filter, sort (newest / liked / rated / episodes)
-- **Best Books Top 20** using the Bayesian formula:
-  ```
-  score = weighted_rating + 0.5 × log10(1 + likes)
-  weighted_rating = (n × avg + 3 × globalMean) / (n + 3)
-  ```
-  Formula is explained on screen.
-- Reader modal: episode pagination, like toggle, 1–5 star rating (one per user, changeable)
-- Authors cannot like or rate their own stories (enforced server-side)
+</div>
 
 ---
 
-## Design System
+## 🏛️ System Architecture
 
-| Token | Dark Mode | Light Mode |
-|-------|-----------|-----------|
-| Background | `#0F1220` | `#FAF6EC` |
-| Card | `#1B1F36` | `#FFFFFF` |
-| Raised | `#232845` | `#F0EAD8` |
-| Text | `#F4EEDC` | `#1B1F36` |
-| Muted | `#9AA0BC` | `#5E6482` |
-| Accent (amber) | `#F2B84B` | `#D89112` |
+```mermaid
+flowchart TD
+    subgraph Client ["Client (Cloudflare Pages CDN)"]
+        UI["React 19 + Tailwind SPA\n(https://canon-studio.pages.dev)"]
+        WIZ["Story Wizard & Choose-Your-Path"]
+        WRITER["Writer Mode & Canon Auditor"]
+        BOOKS["Community Reader & Ratings"]
+    end
 
-- **Fonts**: Fraunces (headings & story text) + Inter (UI chrome)
-- Dark-first; toggleable manually; persists to `localStorage`
-- Min 44px touch targets; visible focus outlines; 400px mobile-safe
+    subgraph Backend ["Backend API (Render Web Service)"]
+        EXPRESS["Express.js Server\n(https://canon-studio.onrender.com)"]
+        AUTH["PBKDF2 Auth & Session Engine"]
+        RATE["Token Bucket Rate Limiting"]
+        ENGINE["Multi-Provider AI Router"]
+        STORAGE["Local DB Engine (data/db.json)"]
+    end
+
+    subgraph AI ["Cascading Multi-Provider AI Grid"]
+        GROQ["Groq (Ultra-Fast Core)\nllama-3.3-70b-versatile"]
+        OPENROUTER["OpenRouter (Story Specialist)\nnvidia/nemotron-3.5-lightning"]
+        GEMINI["Gemini (Visual Art Director)\ngemini-3.5-flash-lite"]
+        POLLINATIONS["FLUX Cinematic Visuals\n16:9 Concept Art Generator"]
+    end
+
+    UI -->|HTTPS JSON API| EXPRESS
+    EXPRESS --> AUTH
+    EXPRESS --> RATE
+    EXPRESS --> STORAGE
+    EXPRESS --> ENGINE
+    ENGINE -->|Primary Inference| GROQ
+    ENGINE -.->|Failover| OPENROUTER
+    ENGINE -.->|Art Direction| GEMINI
+    GEMINI -->|Visual Prompts| POLLINATIONS
+```
 
 ---
 
-## Tech Stack
+## ✨ Core Pillars & Features
 
-| Layer | Tech |
-|-------|------|
-| Frontend | React 19 + TypeScript + Tailwind CSS + Vite |
-| Backend | Node.js + Express + TypeScript |
-| AI Engine | Google Gemini API (flash-lite) with deterministic fallbacks |
-| Storage | JSON file DB (`backend/data/db.json`) — zero infra |
-| Auth | HttpOnly SameSite session cookie; salted PBKDF2-SHA512 password hashes |
+### 1. 🧙 Tab 1 — Write a Story (Zero Friction)
+Guided 7-step wizard designed for anyone to write cinematic fiction in minutes:
+- **Seed Input**: Free-text keywords → Genre selector → Atmosphere tone → Language (*English / Hinglish / Hindi*).
+- **Dynamic Contextual Prompts**: AI generates 6 customized branching questions based on previous answers.
+- **Narrative Synthesizer**: Generates balanced story drafts at 400, 800, or 1,400 words with simulated typing.
+- **Actions**: Instant Copy, Markdown/TXT Download, **Play as Choose-Your-Path**, or **Transfer to Writer Mode**.
+
+### 2. 🌲 Tab 2 — Choose Your Path (Interactive Branching Narrative)
+- **Branching Engine**: Choose narrative complexity (3, 5, or 8 decision depth).
+- **Choice Archetypes**: Every scene offers 3 psychological actions (*Bold*, *Careful*, *Unexpected*) + free-form custom action.
+- **Interactive Narrative Tree**: Real-time visual graph showing visited choices, active branch path, and story completion milestones.
+
+### 3. 🛡️ Tab 3 — Writer Mode & Canon Continuity Engine
+Professional serialization workspace with automated lore defense:
+- **Living Canon Extraction**: Automatically scans episodes to extract world facts, character conditions, and inventory.
+- **Lore Contradiction Checker**: Flags lore drift, physical impossibilities (e.g., damaged limbs, broken comms during storms), and timeline paradoxes with **1-Click Auto-Fix**.
+- **Dialogue Voice Fingerprinting**: Audits dialogue authenticity against character archetypes, cynical/formal tone metrics, and forbidden linguistic mannerisms.
+- **Visual Director**: Generates 16:9 cinematic scene concept illustrations using AI art direction paired with FLUX renders.
+
+### 4. 📚 Tab 4 — Community Books & Bayesian Reader
+- **Bayesian Weighted Rating Algorithm**:
+  $$\text{Score} = \text{Weighted Rating} + 0.5 \times \log_{10}(1 + \text{Likes})$$
+  $$\text{Weighted Rating} = \frac{n \times \text{Avg} + 3 \times \text{GlobalMean}}{n + 3}$$
+- **Full Reading Suite**: Responsive episode pagination, persistent ratings, community likes, and search filters.
+- **Audio Synthesis**: Integrated browser speech synthesis narrator with sentence boundary chunking.
 
 ---
 
-## Getting Started
+## 🎨 Design System & Accessibility
+
+| Token | Dark Theme (Default) | Parchment / Light Theme |
+|:---|:---|:---|
+| **Background** | `#0F1220` (Midnight Slate) | `#FAF6EC` (Warm Paper) |
+| **Card / Surface** | `#1B1F36` (Deep Navy) | `#FFFFFF` (Pure Card) |
+| **Raised Element** | `#232845` | `#F0EAD8` |
+| **Primary Text** | `#F4EEDC` (Warm Bone) | `#1B1F36` (Slate Ink) |
+| **Accent Tone** | `#F2B84B` (Amber Gold) | `#D89112` (Honey Gold) |
+
+- **Typography**: `Fraunces` for literary headings & editorial prose; `Inter` for crisp UI controls.
+- **Fluid Motion**: Spring-driven page entrance, toast popovers, and smooth tab switches powered by `motion/react`.
+- **WCAG AA**: Compliant color contrast ratios, visible keyboard focus rings, and $\ge 44\text{px}$ touch targets.
+
+---
+
+## 🚀 Quickstart & Local Setup
 
 ### Prerequisites
-- Node.js 20.19+ or 22.12+
-- A [Google AI Studio](https://aistudio.google.com) Gemini API key (optional — works fully with smart fallbacks)
+- Node.js `20.18+` or `22.x`
+- npm `10+`
 
 ### 1. Clone & Install
-
 ```bash
-git clone https://github.com/anand05-cell/Canon-Studio.git
+git clone https://github.com/Anmolop97/Canon-Studio.git
 cd Canon-Studio
 
-# Backend
-cd backend
-npm install
+# Install Backend dependencies
+cd backend && npm install
 
-# Frontend
-cd ../frontend
-npm install
+# Install Frontend dependencies
+cd ../frontend && npm install
 ```
 
-### 2. Configure Backend
+### 2. Configure Environment
+Create `backend/.env`:
+```env
+PORT=5000
+NODE_ENV=development
+AUTH_SECRET=development_secret_must_be_over_32_characters_long_for_security
 
+# AI Inference (Add at least one)
+GROQ_API_KEY=your_groq_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
+```
+
+### 3. Run Development Servers
 ```bash
-cd backend
-cp .env.example .env
-# Add an AI provider key if you want live AI generation (optional).
-# For production, set AUTH_SECRET to at least 32 random bytes.
-# Example: node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
-```
+# Terminal 1: Backend
+cd backend && npm run dev
+# Running on http://localhost:5000
 
-### 3. Run Development
-
-**Terminal 1 — Backend:**
-```bash
-cd backend
-npm run dev
-# → http://localhost:5000
-```
-
-**Terminal 2 — Frontend:**
-```bash
-cd frontend
-npm run dev
-# → http://localhost:5173
-```
-
-### 4. Demo Accounts (Development Only)
-
-| Name | Email | Password |
-|------|-------|----------|
-| Anand | anand@canonstory.studio | anandanand |
-| Anmol | anmol@canonstory.studio | kakashi_op_97 |
-
-> Demo accounts are available only when `NODE_ENV` is not `production`. Production starts with an empty database and requires `AUTH_SECRET`.
-
-### Production Security
-
-- Set `NODE_ENV=production`, a random `AUTH_SECRET` of at least 32 bytes, and `FRONTEND_URL` to the exact HTTPS frontend origin.
-- The backend binds to `127.0.0.1` by default. Set `HOST=0.0.0.0` only when a container or trusted reverse proxy requires it; terminate HTTPS at the proxy. Set `TRUST_PROXY_HOPS` only when the backend is reachable exclusively through that proxy, using the exact proxy hop count.
-- The backend returns auth in an HttpOnly, Secure, SameSite=Strict cookie in production. The frontend and API should share an origin or be configured with explicit allowed origins.
-- Passwords for new accounts must be 15–128 characters. Auth and API rate limits are in-memory and apply to one backend process; multiple production instances need a shared rate-limit store.
-- Use a durable database, encrypted backups, and secret storage for a public production deployment. Do not commit `.env` or provider keys. The production security headers in Vite preview must also be configured on the static hosting/CDN if you deploy `frontend/dist` elsewhere.
-
----
-
-## API Endpoints
-
-| Route | Method | Auth | Description |
-|-------|--------|------|-------------|
-| `/api/health` | GET | — | Server & Gemini status |
-| `/api/auth/register` | POST | — | Create account |
-| `/api/auth/login` | POST | — | Sign in |
-| `/api/auth/me` | GET | Bearer | Current user |
-| `/api/wizard/next-question` | POST | — | AI wizard step question |
-| `/api/wizard/generate-story` | POST | — | Full story generation |
-| `/api/branching/start` | POST | — | Start branching story |
-| `/api/branching/next` | POST | — | Next scene from choice |
-| `/api/drafts` | GET/POST | Bearer | List / create drafts |
-| `/api/drafts/:id` | GET/PUT/DELETE | Bearer (owner) | Draft CRUD |
-| `/api/drafts/:id/ai-draft` | POST | Bearer (owner) | AI episode draft |
-| `/api/drafts/:id/check-canon` | POST | Bearer (owner) | Full continuity audit |
-| `/api/drafts/:id/publish` | POST | Bearer (owner) | Publish to Books |
-| `/api/drafts/:id/unpublish` | POST | Bearer (owner) | Remove from Books |
-| `/api/books` | GET | Optional | Browse library |
-| `/api/books/best` | GET | Optional | Top 20 Bayesian ranked |
-| `/api/books/:id/like` | POST | Bearer | Toggle like |
-| `/api/books/:id/rate` | POST | Bearer | Rate 1–5 |
-
----
-
-## AI Rules
-
-- Every structured JSON call returns validated JSON with deterministic fallback engines
-- Stories in Hinglish use Roman script only (never Devanagari)
-- Prompts are sliced under ~50,000 characters to prevent oversize calls
-- Error states: permission denied, rate limit, invalid output, cancelled — all show plain-language messages with Retry buttons, never infinite retry loops
-
----
-
-## Project Structure
-
-```
-Story-Ai/
-├── backend/
-│   ├── src/
-│   │   ├── routes/        # auth, wizard, branching, drafts, books, audit, voice, story, tree
-│   │   ├── services/      # geminiService, wizardService, branchingService, canonChecker, storage
-│   │   ├── types/         # canonStudio.ts (shared types)
-│   │   ├── data/          # defaultStoryBible.ts (pre-seeded Neon Eclipse universe)
-│   │   └── server.ts      # Express app
-│   ├── data/              # db.json (created on first run)
-│   ├── .env.example
-│   └── package.json
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── Header.tsx
-│   │   │   ├── AuthModal.tsx
-│   │   │   ├── TabWriteStory.tsx   # 7-step AI Wizard
-│   │   │   ├── TabChoosePath.tsx   # Branching story with live tree
-│   │   │   ├── TabWriterMode.tsx   # Private drafts + canon audit
-│   │   │   └── TabBooks.tsx        # Library + Best Books + Reader
-│   │   ├── api.ts         # Typed API client
-│   │   ├── types.ts       # Shared TypeScript interfaces
-│   │   ├── App.tsx        # Root SPA + cross-tab state flows
-│   │   └── index.css      # CSS variables (dark/light tokens)
-│   └── tailwind.config.js
-│
-└── docs/
-    └── API_CONTRACT.md
+# Terminal 2: Frontend
+cd frontend && npm run dev
+# Running on http://localhost:5173
 ```
 
 ---
 
-*Built with Gemini API + React + Express. No database required.*
+## 🔑 Showcase 1-Click Accounts
+
+| Display Name | Email | Password | Role |
+|:---|:---|:---|:---|
+| **Anmol** | `anmol@canonstory.studio` | `kakashi_op_97` | Lead Creator |
+| **Anya Sharma** | `anya@canonstory.studio` | `anya123` | Sci-fi Author |
+| **Devraj Sen** | `dev@canonstory.studio` | `dev123` | Fantasy Author |
+| **Guest Writer** | `guest@canonstory.studio` | `guest123` | Community Member |
+
+---
+
+## 📡 Production API Reference
+
+| Endpoint | Method | Auth | Description |
+|:---|:---:|:---:|:---|
+| `/api/health` | `GET` | Public | Live system, AI provider status & uptime |
+| `/api/auth/login` | `POST` | Public | PBKDF2 session auth with HttpOnly cookie |
+| `/api/auth/register` | `POST` | Public | Register new narrative architect |
+| `/api/auth/me` | `GET` | Session | Get current authenticated user |
+| `/api/wizard/next-question` | `POST` | Public | Generate contextual wizard questions |
+| `/api/wizard/generate-story` | `POST` | Public | Generate complete multi-paragraph story |
+| `/api/branching/start` | `POST` | Public | Initialize branching story tree |
+| `/api/branching/next` | `POST` | Public | Process choice & generate subsequent beat |
+| `/api/drafts` | `GET/POST` | Session | Retrieve or create writer drafts |
+| `/api/drafts/:id/check-canon` | `POST` | Session | Deep continuity & canon contradiction audit |
+| `/api/drafts/:id/publish` | `POST` | Session | Publish serial episode to public Books catalog |
+| `/api/books` | `GET` | Public | Browse published books with search & filters |
+| `/api/books/best` | `GET` | Public | Retrieve Top 20 Bayesian weighted stories |
+
+---
+
+## 📜 License & Acknowledgments
+
+Distributed under the MIT License. Built with ❤️ for narrative architects, interactive fiction lovers, and worldbuilders worldwide.

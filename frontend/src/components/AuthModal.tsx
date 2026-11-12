@@ -134,30 +134,30 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
             </motion.div>
 
             {/* Quick 1-Click Demo Profiles */}
-            {!import.meta.env.PROD && <motion.div variants={itemVariants} className="mb-5 p-3.5 rounded-2xl bg-[#F4F0E5] dark:bg-slate-800 border border-[#D7C397]">
+            <motion.div variants={itemVariants} className="mb-5 p-3.5 rounded-2xl bg-[#F4F0E5] dark:bg-slate-800 border border-[#D7C397]">
               <div className="text-[11px] font-bold uppercase tracking-wider text-[#263F35] dark:text-slate-300 mb-2 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-[#C1A66B]" />
-                <span>Instant 1-Click Demo Logins</span>
+                <span>Instant 1-Click Showcase Logins</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleDemoLogin('anand@canonstory.studio', 'anandanand')}
-                  className="px-3 py-2 text-xs font-semibold bg-[#FAF9F3] hover:bg-[#E9E2CE] text-[#101C19] border border-[#D7C397] rounded-xl transition-all text-left shadow-xs cursor-pointer"
-                >
-                  <span className="block font-bold text-[#101C19]">Anand</span>
-                  <span className="text-[10px] text-[#58745C]">Demo account</span>
-                </button>
                 <button
                   type="button"
                   onClick={() => handleDemoLogin('anmol@canonstory.studio', 'kakashi_op_97')}
                   className="px-3 py-2 text-xs font-semibold bg-[#FAF9F3] hover:bg-[#E9E2CE] text-[#101C19] border border-[#D7C397] rounded-xl transition-all text-left shadow-xs cursor-pointer"
                 >
                   <span className="block font-bold text-[#101C19]">Anmol</span>
-                  <span className="text-[10px] text-[#58745C]">Demo account</span>
+                  <span className="text-[10px] text-[#58745C]">Showcase Creator</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDemoLogin('anya@canonstory.studio', 'anya123')}
+                  className="px-3 py-2 text-xs font-semibold bg-[#FAF9F3] hover:bg-[#E9E2CE] text-[#101C19] border border-[#D7C397] rounded-xl transition-all text-left shadow-xs cursor-pointer"
+                >
+                  <span className="block font-bold text-[#101C19]">Anya Sharma</span>
+                  <span className="text-[10px] text-[#58745C]">Lead Sci-fi Author</span>
                 </button>
               </div>
-            </motion.div>}
+            </motion.div>
 
             {error && (
               <motion.div variants={itemVariants} className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-2 text-xs sm:text-sm text-red-600 dark:text-red-400">

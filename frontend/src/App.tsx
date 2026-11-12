@@ -6,6 +6,7 @@ import { TabChoosePath } from './components/TabChoosePath';
 import { TabWriterMode } from './components/TabWriterMode';
 import { TabBooks } from './components/TabBooks';
 import { AuthModal } from './components/AuthModal';
+import { ToastContainer, toast } from './components/ui/Toast';
 import ErrorPage from './components/ui/error-3';
 import { api } from './api';
 import type { User } from './types';
@@ -84,10 +85,12 @@ export function App() {
   const handleLogout = () => {
     api.logout();
     setCurrentUser(null);
+    toast.info('Signed out successfully.');
   };
 
   const handleAuthSuccess = (user: User) => {
     setCurrentUser(user);
+    toast.success(`Welcome, ${user.displayName}!`);
     // If user was attempting to save a draft to writer mode, proceed to writer tab
     if (preloadedDraft) {
       setActiveTab('writer');
@@ -271,6 +274,9 @@ export function App() {
           </section>
         </div>
       )}
+
+      {/* Global Toast Notifications */}
+      <ToastContainer />
     </div>
   );
 }

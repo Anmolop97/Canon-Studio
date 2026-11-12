@@ -29,6 +29,7 @@ function authCookieName(): string {
  */
 const developmentAuthSecret = crypto.randomBytes(32).toString('base64url');
 const DEMO_USER_IDS = new Set(['user-anya', 'user-dev', 'user-guest']);
+const isDemoDisabled = process.env.ALLOW_DEMO_ACCOUNTS === 'false';
 
 export function getAuthSecret(): string {
   const configuredSecret = process.env.AUTH_SECRET;
@@ -191,7 +192,7 @@ export function requireAuth(req: AuthenticatedRequest, res: Response, next: Next
   }
 
   const user = storageService.findUserById(payload.userId);
-  if (!user || (process.env.NODE_ENV === 'production' && DEMO_USER_IDS.has(user.id))) {
+  if (!user || (isDemoDisabled && DEMO_USER_IDS.has(user.id))) {
     res.status(401).json({ error: 'Unauthorized: Invalid or expired token' });
     return;
   }
@@ -207,7 +208,7 @@ export function optionalAuth(req: AuthenticatedRequest, res: Response, next: Nex
     const payload = verifyToken(token);
     if (payload) {
       const user = storageService.findUserById(payload.userId);
-      if (user && !(process.env.NODE_ENV === 'production' && DEMO_USER_IDS.has(user.id))) {
+      if (user && !(isDemoDisabled && DEMO_USER_IDS.has(user.id))) {
         req.user = user;
         next();
         return;
@@ -277,7 +278,7 @@ authRouter.post('/login', loginRateLimiter, (req: Request, res: Response) => {
     }
 
     const user = storageService.findUserByEmail(email.trim().toLowerCase());
-    if (process.env.NODE_ENV === 'production' && user && DEMO_USER_IDS.has(user.id)) {
+    if (isDemoDisabled && user && DEMO_USER_IDS.has(user.id)) {
       res.status(401).json({ error: 'Invalid email or password.' });
       return;
     }
@@ -312,8 +313,8 @@ authRouter.post('/logout', (_req: Request, res: Response) => {
  * GET /api/auth/demo-accounts
  */
 authRouter.get('/demo-accounts', (req: Request, res: Response) => {
-  if (process.env.NODE_ENV === 'production') {
-    res.status(404).json({ error: 'Not found' });
+  if (isDemoDisabled) {
+    res.status(404).json({ error: 'Demo accounts are disabled in this environment.' });
     return;
   }
   const users = [

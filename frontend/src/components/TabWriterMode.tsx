@@ -19,6 +19,7 @@ import {
   Download
 } from 'lucide-react';
 import { VoiceNarratorButton } from './VoiceNarratorButton';
+import { toast } from './ui/Toast';
 
 interface TabWriterModeProps {
   currentUser: User | null;
@@ -153,8 +154,10 @@ export function TabWriterMode({ currentUser, onOpenAuth, preloadedDraft }: TabWr
       });
       setDrafts(prev => [newDraft, ...prev]);
       selectDraft(newDraft);
+      toast.success('New draft initialized!');
     } catch (err) {
       console.error('Failed to create draft:', err);
+      toast.error('Failed to create draft.');
     }
   };
 
@@ -241,8 +244,10 @@ export function TabWriterMode({ currentUser, onOpenAuth, preloadedDraft }: TabWr
       } else {
         setSelectedDraftId(null);
       }
+      toast.info('Draft deleted.');
     } catch (err) {
       console.error('Failed to delete draft:', err);
+      toast.error('Failed to delete draft.');
     } finally {
       setConfirmDeleteDraft(false);
     }
@@ -263,8 +268,14 @@ export function TabWriterMode({ currentUser, onOpenAuth, preloadedDraft }: TabWr
       );
       setAuditResult(result);
       setHasFreshCheck(true);
+      if (result && result.conflicts && result.conflicts.length > 0) {
+        toast.error(`Canon Drift: ${result.conflicts.length} consistency warning(s) detected.`);
+      } else {
+        toast.success('Canon Verified: 100% consistent with story bible!');
+      }
     } catch (err: any) {
       console.error('Canon audit failed:', err);
+      toast.error('Canon audit request failed.');
     } finally {
       setIsAuditing(false);
     }
@@ -331,9 +342,11 @@ export function TabWriterMode({ currentUser, onOpenAuth, preloadedDraft }: TabWr
             : d
         )
       );
+      toast.success('Episode saved successfully!');
     } catch (err) {
       console.error('Failed to save draft:', err);
       setSaveNotice('Failed to save episode. Please retry.');
+      toast.error('Failed to save episode.');
     } finally {
       setSavingDraft(false);
     }
