@@ -67,7 +67,12 @@
 }
 
 @layer base {
-  html { background: var(--color-bg); scroll-behavior: smooth; }
+  html {
+    background: #1a251b;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
   body {
     background-color: var(--color-bg);
     color: var(--color-text);
@@ -267,21 +272,15 @@ main .story-seed-card input { background: rgba(247,246,235,.34) !important; colo
 }
 ::selection { background: rgba(184,145,69,.3); color: #263528; }
 
-/* Custom flat scrollbars */
+/* Clean edge-to-edge scrollbar handling without unsightly gutter artifacts */
+html, body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-bg);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-raised);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-muted);
+  display: none;
+  width: 0px;
+  height: 0px;
+  background: transparent;
 }
