@@ -13,7 +13,6 @@ import {
   PenTool,
   Square,
   AlertCircle,
-  BookOpen,
   Sparkles
 } from 'lucide-react';
 import { VoiceNarratorButton } from './VoiceNarratorButton';
@@ -337,9 +336,9 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
       
       {/* Wizard Header Bar */}
       <div className={currentStep === 0 ? 'mb-3 md:mb-4' : 'mb-6'}>
-        <div className="story-wizard-meta flex items-center justify-between text-xs font-bold uppercase tracking-wider mb-2">
-          <span>Write a Story &bull; Guided AI Wizard</span>
-          {currentStep <= 7 && <span>Step {currentStep} of 7</span>}
+        <div className="story-wizard-meta flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          <span>Write a story &bull; Guided AI Wizard</span>
+          {currentStep <= 7 && <span className="font-medium text-slate-600 dark:text-slate-400">Step {currentStep} of 7</span>}
         </div>
 
         {/* Selected chips bar */}
@@ -402,8 +401,8 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
             </div>
           </form>
 
-          <div className="mb-0">
-            <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
+          <div className="mb-6">
+            <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 mb-2.5">
               Or pick an idea to explore:
             </div>
             <div className="flex flex-wrap gap-2">
@@ -420,28 +419,13 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
             </div>
           </div>
 
-          <div className="story-inspiration my-7 md:my-9 flex items-center gap-4 rounded-xl px-4 py-4 md:px-5 md:py-5">
-            <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#DCE1D0]/70 dark:bg-emerald-900/40 text-[#58745C] dark:text-emerald-200">
-              <BookOpen className="h-6 w-6" strokeWidth={1.5} />
-              <Sparkles className="absolute -right-1 -top-1 h-4 w-4 text-[#B8954B]" strokeWidth={1.5} />
-            </div>
-            <div className="min-w-0">
-              <h3 className="font-serif text-base sm:text-lg font-semibold text-[#263F35] dark:text-[#E9E2CE]">
-                Every great world begins with an idea.
-              </h3>
-              <p className="mt-1 max-w-2xl text-xs sm:text-sm leading-relaxed text-[#687563] dark:text-slate-300">
-                Create vivid characters, imagine new worlds, and shape unforgettable stories—one small idea at a time.
-              </p>
-            </div>
-          </div>
-
-          <div className="border-t border-slate-200 dark:border-slate-800 pt-4 flex justify-between items-center">
+          <div className="border-t border-slate-200/80 dark:border-slate-800 pt-4 flex justify-between items-center">
             <button
               type="button"
               onClick={handleNoIdea}
-              className="story-surprise-button px-3.5 py-2 text-xs sm:text-sm font-semibold flex items-center gap-2 min-h-[44px] transition-all cursor-pointer"
+              className="px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-slate-100/90 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-2 min-h-[44px] transition-all cursor-pointer shadow-xs active:scale-[0.98]"
             >
-              <Sparkles className="h-4 w-4 shrink-0 text-[#B8954B]" strokeWidth={1.7} />
+              <Sparkles className="h-4 w-4 shrink-0 text-amber-500" strokeWidth={1.7} />
               <span>I have no idea yet (Surprise me)</span>
             </button>
           </div>

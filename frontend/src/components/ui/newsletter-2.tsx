@@ -42,7 +42,7 @@ export const Newsletter2: React.FC<Newsletter2Props> = ({
           {/* Left Info: Header & Support Channels */}
           <div className="flex flex-col space-y-2 text-center lg:text-left max-w-xl">
             <div className="inline-flex items-center justify-center lg:justify-start gap-2 text-xs font-semibold text-[#58745C] dark:text-sky-300">
-              <span className="w-2 h-2 rounded-full bg-[#58745C] animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400" />
               <span>Active Creator Support &bull; Discord Writing Room</span>
             </div>
 
@@ -93,7 +93,7 @@ export const Newsletter2: React.FC<Newsletter2Props> = ({
                 </div>
                 <Button
                   type="submit"
-                  className="h-12 px-7 rounded-full font-bold text-xs sm:text-sm bg-[#101C19] hover:bg-[#263F35] text-[#E9E2CE] dark:bg-sky-500 dark:hover:bg-sky-400 dark:text-slate-950 transition-all shadow-md active:scale-[0.97] cursor-pointer flex-shrink-0 w-full sm:w-auto"
+                  className="h-12 px-7 rounded-full font-semibold text-xs sm:text-sm bg-[#101C19] hover:bg-[#1C3026] text-white dark:bg-sky-500 dark:hover:bg-sky-400 dark:text-slate-950 transition-all shadow-md active:scale-[0.97] cursor-pointer flex-shrink-0 w-full sm:w-auto"
                 >
                   {buttonText}
                 </Button>
