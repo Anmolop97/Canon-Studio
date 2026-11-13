@@ -75,8 +75,8 @@ branchingRouter.post('/export-journey', (req: Request, res: Response) => {
  * Body: { sceneText: string, title?: string, genre?: string }
  */
 branchingRouter.post('/illustrate-scene', async (req: Request, res: Response) => {
+  const { sceneText, title, genre } = (req.body || {}) as { sceneText?: string; title?: string; genre?: string };
   try {
-    const { sceneText, title, genre } = req.body;
     if (!sceneText) {
       res.status(400).json({ error: 'sceneText is required' });
       return;

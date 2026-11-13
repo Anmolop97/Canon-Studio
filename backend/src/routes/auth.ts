@@ -392,29 +392,37 @@ authRouter.post('/judge-access', (req: Request, res: Response) => {
       storageService.createDraft(user.id, {
         title: 'Neon Eclipse: The Chronos Cipher',
         genre: 'Sci-fi',
-        logline: 'An elite data-courier navigates the vertical stratums of New Kyoto while hunted by an AI syndicate.',
-        worldRules: [
-          'Cybernetic enhancements require neural coolant stabilization every 48 hours',
-          'Comm beacons fail during atmospheric ion storms',
-          'The Obsidian Tower requires biometric airlock clearance'
-        ],
-        characters: [
+        blurb: 'An elite data-courier navigates the vertical stratums of New Kyoto while hunted by an AI syndicate.',
+        canonFacts: [
           {
-            id: 'char-1',
-            name: 'Kaelen Voss',
-            role: 'Protagonist / Courier',
-            traits: 'Cynical, fast reflexes, damaged left arm neural prosthesis',
-            archetype: 'cynical-antihero'
+            id: 'fact-1',
+            subject: 'Cybernetics',
+            quote: 'neural coolant stabilization every 48 hours',
+            text: 'Cybernetic enhancements require neural coolant stabilization every 48 hours',
+            episodeNumber: 1
+          },
+          {
+            id: 'fact-2',
+            subject: 'Atmosphere',
+            quote: 'Comm beacons fail during ion storms',
+            text: 'Comm beacons fail during atmospheric ion storms',
+            episodeNumber: 1
+          }
+        ],
+        voiceNotes: [
+          {
+            character: 'Kaelen Voss',
+            style: 'Cynical antihero with terse, gritty delivery and clipped technical slang'
           }
         ],
         episodes: [
           {
             id: 'ep-1',
-            episodeNumber: 1,
+            order: 1,
             title: 'Downpour in Sector 7',
             content: 'The rain in Sector 7 carried the metallic tang of ozone and industrial grease. Kaelen Voss adjusted the collar of his weathered trenchcoat, his cybernetic left arm sparking faintly where the casing was fractured.\n\n"Comm beacon is dead," he muttered, glancing up at the sky. A heavy ion storm was brewing above the neon-drenched spires, cutting off all wireless signals just as the Syndicate enforcers entered the alleyway.',
-            summary: 'Kaelen arrives in Sector 7 during an ion storm with a fractured cybernetic arm.',
-            wordCount: 78
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
           }
         ]
       });
