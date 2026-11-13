@@ -153,7 +153,7 @@ export function Hero10({
             href="#"
             className="inline-flex min-h-10 items-center gap-2.5 font-serif text-[25px] leading-none font-medium tracking-[-0.035em] text-slate-800 transition-[opacity,transform] duration-200 ease-out hover:opacity-75 active:scale-[0.96]"
           >
-            <img src={canonLogo} alt="Canon Studio" className="w-8 h-8 object-contain drop-shadow-xs" />
+            <img src={canonLogo} alt="Canon Studio" className="w-11 h-11 object-contain drop-shadow-md" />
             <span>{brandName}</span>
           </a>
 

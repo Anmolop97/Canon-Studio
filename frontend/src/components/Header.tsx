@@ -41,20 +41,20 @@ export function Header({
   return (
     <header className="studio-glass-header sticky top-0 z-50 w-full bg-transparent border-b transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
-        <div className="flex items-center justify-between h-16 gap-2">
+        <div className="flex items-center justify-between h-20 gap-3">
           
           {/* Logo & Studio Working Title */}
-          <div className="brand-area flex items-center gap-3">
+          <div className="brand-area flex items-center gap-3.5">
             <img
               src={canonLogo}
               alt="Canon Studio Emblem"
-              className="w-9 h-9 object-contain drop-shadow-sm flex-shrink-0 transition-transform duration-300 hover:scale-105"
+              className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-md flex-shrink-0 transition-transform duration-300 hover:scale-105"
             />
             <div>
-              <span className="studio-brand-name font-serif font-bold text-base sm:text-lg tracking-tight block leading-tight">
+              <span className="studio-brand-name font-serif font-bold text-lg sm:text-xl tracking-tight block leading-tight">
                 Canon Studio
               </span>
-              <span className="studio-brand-subtitle text-[10px] uppercase tracking-widest block font-sans font-semibold">
+              <span className="studio-brand-subtitle text-[11px] uppercase tracking-widest block font-sans font-semibold">
                 Narrative &amp; Continuity
               </span>
             </div>
