@@ -35,6 +35,8 @@ interface PathNode {
   content: string;
   isEnding: boolean;
   options: BranchOption[];
+  activeLoreAnchors?: Array<{ id: string; label: string; detail: string }>;
+  styleTone?: string;
   choiceTaken?: string;
   parentId?: string | null;
 }
@@ -85,6 +87,9 @@ export function TabChoosePath({
         genre,
         realism,
         language,
+        characterSheet: idea,
+        worldLore: [],
+        styleTone: `${genre} · ${realism} · cinematic, character-led prose`,
         maxDecisions
       });
 
@@ -92,9 +97,11 @@ export function TabChoosePath({
       const node: PathNode = {
         id: scene1.id,
         sceneNumber: 1,
-        content: scene1.content,
+        content: scene1.sceneContent || scene1.content,
         isEnding: false,
         options: scene1.options,
+        activeLoreAnchors: scene1.activeLoreAnchors,
+        styleTone: scene1.styleTone,
         parentId: null
       };
 
@@ -143,16 +150,23 @@ export function TabChoosePath({
         decisionIndex,
         maxDecisions,
         genre,
-        language
+        language,
+        idea,
+        realism,
+        characterSheet: idea,
+        worldLore: [],
+        styleTone: `${genre} · ${realism} · cinematic, character-led prose`
       });
 
       const newNodeId = `scene-${nextScene.sceneNumber}-${Date.now().toString(36)}`;
       const newNode: PathNode = {
         id: newNodeId,
         sceneNumber: nextScene.sceneNumber,
-        content: nextScene.content,
+        content: nextScene.sceneContent || nextScene.content,
         isEnding: nextScene.isEnding,
         options: nextScene.options,
+        activeLoreAnchors: nextScene.activeLoreAnchors,
+        styleTone: nextScene.styleTone,
         choiceTaken: chosenText,
         parentId: currentNodeId
       };
@@ -494,6 +508,24 @@ export function TabChoosePath({
               <div className="font-serif text-base sm:text-lg text-studio-text leading-relaxed whitespace-pre-line mb-6">
                 {currentNode.content}
               </div>
+
+              {(currentNode.styleTone || currentNode.activeLoreAnchors?.length) && (
+                <aside className="mb-6 rounded-lg border border-studio-border bg-studio-raised/50 px-4 py-3" aria-label="AI adaptation context">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="text-[11px] font-bold uppercase tracking-wider text-studio-accent">Adapted to your story</h3>
+                    {currentNode.styleTone && <span className="text-xs text-studio-muted">Tone: {currentNode.styleTone}</span>}
+                  </div>
+                  {currentNode.activeLoreAnchors && currentNode.activeLoreAnchors.length > 0 && (
+                    <ul className="mt-2 flex flex-wrap gap-1.5">
+                      {currentNode.activeLoreAnchors.map(anchor => (
+                        <li key={anchor.id} title={anchor.detail} className="rounded-full border border-studio-border px-2.5 py-1 text-[10px] text-studio-muted">
+                          {anchor.label}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </aside>
+              )}
 
               {/* End of story resolution or Decision choices */}
               {currentNode.isEnding ? (

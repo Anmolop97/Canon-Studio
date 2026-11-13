@@ -94,6 +94,9 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
     content: string;
     wordCount: number;
     readingTimeMinutes: number;
+    sceneContent: string;
+    activeLoreAnchors: Array<{ id: string; label: string; detail: string }>;
+    styleTone: string;
   } | null>(null);
   const [streamedContent, setStreamedContent] = useState('');
   const [copied, setCopied] = useState(false);
@@ -227,7 +230,10 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
         step4Answer,
         step5Answer,
         step6Answer,
-        targetLength: selectedLength
+        targetLength: selectedLength,
+        characterSheet: step4Answer,
+        worldLore: step5Answer ? [step5Answer] : [],
+        styleTone: `${selectedGenre || 'Literary'} · ${selectedRealism || 'creator-defined atmosphere'} · character-led prose`
       };
 
       const result = await api.generateWizardStory(answersPayload);
@@ -742,6 +748,24 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
             <div className="prose prose-invert max-w-none text-studio-text font-serif text-base sm:text-lg leading-relaxed whitespace-pre-line space-y-4 mb-8">
               {streamedContent}
             </div>
+          )}
+
+          {generatedStory && !isGenerating && (
+            <aside className="mb-6 rounded-lg border border-studio-border bg-studio-raised/50 px-4 py-3" aria-label="AI adaptation context">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-[11px] font-bold uppercase tracking-wider text-studio-accent">Adapted to your story</h3>
+                <span className="text-xs text-studio-muted">Tone: {generatedStory.styleTone}</span>
+              </div>
+              {generatedStory.activeLoreAnchors.length > 0 && (
+                <ul className="mt-2 flex flex-wrap gap-1.5">
+                  {generatedStory.activeLoreAnchors.map(anchor => (
+                    <li key={anchor.id} title={anchor.detail} className="rounded-full border border-studio-border px-2.5 py-1 text-[10px] text-studio-muted">
+                      {anchor.label}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </aside>
           )}
 
 

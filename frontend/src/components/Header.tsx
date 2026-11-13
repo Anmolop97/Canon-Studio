@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import type { User } from '../types';
-import { Feather, Compass, PenTool, BookOpen, LogIn, LogOut, User as UserIcon, Sparkles } from 'lucide-react';
+import { Feather, Compass, PenTool, BookOpen, LogIn, LogOut, User as UserIcon, Sparkles, Workflow } from 'lucide-react';
+import { FaGithub } from 'react-icons/fa6';
 import { PricingModal } from './PricingModal';
 import { ContinuousTabs } from './continuous-tabs';
 import Button26 from './button-26';
@@ -16,6 +17,7 @@ interface HeaderProps {
   onLogout: () => void;
   isDarkMode: boolean;
   onToggleTheme: () => void;
+  onOpenArchitecture: () => void;
 }
 
 export function Header({
@@ -25,7 +27,8 @@ export function Header({
   onOpenAuth,
   onLogout,
   isDarkMode,
-  onToggleTheme
+  onToggleTheme,
+  onOpenArchitecture
 }: HeaderProps) {
   const [isPricingOpen, setIsPricingOpen] = useState(false);
   const navItems: Array<{ id: StudioTab; label: string; icon: ReactNode }> = [
@@ -71,8 +74,27 @@ export function Header({
             />
           </div>
 
-          {/* Right Controls: Pricing, Theme Toggle & User Auth */}
+          {/* Right Controls: project links, Pricing, Theme Toggle & User Auth */}
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onOpenArchitecture}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-[#D7C397]/60 bg-[#FAF9F3]/70 px-2.5 py-2 text-xs font-semibold text-[#58745C] transition-colors hover:bg-[#FAF9F3] dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-300 min-h-[42px]"
+            >
+              <Workflow className="h-3.5 w-3.5" />
+              <span>How it works</span>
+            </button>
+            <a
+              href="https://github.com/Anmolop97/Canon-Studio"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Canon Studio on GitHub (opens in a new tab)"
+              title="View the Canon Studio repository on GitHub"
+              className="inline-flex h-[42px] w-[42px] items-center justify-center rounded-xl border border-[#D7C397]/60 bg-[#FAF9F3]/70 text-[#263F35] transition-colors hover:bg-[#FAF9F3] dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-300"
+            >
+              <FaGithub className="h-4 w-4" aria-hidden="true" />
+            </a>
+
             {/* Pricing Modal Button */}
             <button
               onClick={() => setIsPricingOpen(true)}

@@ -142,6 +142,9 @@ export interface BranchScene {
   id: string;
   sceneNumber: number;
   content: string; // 110-170 words
+  sceneContent?: string;
+  activeLoreAnchors?: Array<{ id: string; label: string; detail: string }>;
+  styleTone?: string;
   isEnding: boolean;
   options: BranchOption[];
   parentId?: string | null;

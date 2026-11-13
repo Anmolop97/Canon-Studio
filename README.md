@@ -1,172 +1,172 @@
-# Canon Studio 🖋️✨
+# Canon Studio
 
-<div align="center">
+**An adaptive AI narrative studio for stories that remember their characters, world rules, and tone.**
 
-[![Live Demo](https://img.shields.io/badge/Live_App-canon--studio.pages.dev-blue?style=for-the-badge&logo=cloudflare&logoColor=orange)](https://canon-studio.pages.dev)
-[![API Server](https://img.shields.io/badge/API_Status-Online-emerald?style=for-the-badge&logo=render&logoColor=white)](https://canon-studio.onrender.com/api/health)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
-[![Groq AI](https://img.shields.io/badge/Ultra--Fast_Inference-Groq_LLaMA_3.3-f55036?style=for-the-badge&logo=fastapi&logoColor=white)](https://groq.com/)
-[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[Live app](https://canon-studio.pages.dev) · [API health](https://canon-studio.onrender.com/api/health) · [GitHub repository](https://github.com/Anmolop97/Canon-Studio)
 
-**An AI-Powered Narrative Continuity Studio & Serialized Fiction Platform**
+Canon Studio combines a guided story wizard, branching interactive fiction, a continuity-aware writing workspace, and a community library. Its adaptation layer assembles relevant character and lore memory into each generation prompt and returns the active anchors for readers to inspect.
 
-*Where non-writers co-create rich stories, writers publish serialized sagas with automated lore continuity auditing, and readers discover curated community literature.*
-
-[Explore Live Demo](https://canon-studio.pages.dev) • [API Health Monitor](https://canon-studio.onrender.com/api/health) • [Report Bug](https://github.com/Anmolop97/Canon-Studio/issues)
-
-</div>
-
----
-
-## 🏛️ System Architecture
+## Architecture
 
 ```mermaid
-flowchart TD
-    subgraph Client ["Client (Cloudflare Pages CDN)"]
-        UI["React 19 + Tailwind SPA\n(https://canon-studio.pages.dev)"]
-        WIZ["Story Wizard & Choose-Your-Path"]
-        WRITER["Writer Mode & Canon Auditor"]
-        BOOKS["Community Reader & Ratings"]
-    end
-
-    subgraph Backend ["Backend API (Render Web Service)"]
-        EXPRESS["Express.js Server\n(https://canon-studio.onrender.com)"]
-        AUTH["PBKDF2 Auth & Session Engine"]
-        RATE["Token Bucket Rate Limiting"]
-        ENGINE["Multi-Provider AI Router"]
-        STORAGE["Local DB Engine (data/db.json)"]
-    end
-
-    subgraph AI ["Cascading Multi-Provider AI Grid"]
-        GROQ["Groq (Ultra-Fast Core)\nllama-3.3-70b-versatile"]
-        OPENROUTER["OpenRouter (Story Specialist)\nnvidia/nemotron-3.5-lightning"]
-        GEMINI["Gemini (Visual Art Director)\ngemini-3.5-flash-lite"]
-        POLLINATIONS["FLUX Cinematic Visuals\n16:9 Concept Art Generator"]
-    end
-
-    UI -->|HTTPS JSON API| EXPRESS
-    EXPRESS --> AUTH
-    EXPRESS --> RATE
-    EXPRESS --> STORAGE
-    EXPRESS --> ENGINE
-    ENGINE -->|Primary Inference| GROQ
-    ENGINE -.->|Failover| OPENROUTER
-    ENGINE -.->|Art Direction| GEMINI
-    GEMINI -->|Visual Prompts| POLLINATIONS
+flowchart LR
+  Creator[Creator / Reader] --> Pages[Cloudflare Pages<br/>React + TypeScript SPA]
+  Pages -->|HTTPS JSON + secure session cookie| API[Render<br/>Express + TypeScript API]
+  API --> Auth[Auth + request validation]
+  API --> Adapt[Adaptation Memory<br/>character sheet + lore anchors + tone]
+  Adapt --> Router[Multi-provider AI router]
+  API <--> DB[(Persistent JSON store<br/>Render disk / DATA_DIR)]
+  Router -->|Primary / fallback| Groq[Groq API]
+  Router -. fallback .-> OpenRouter[OpenRouter API]
+  Router -. optional .-> Gemini[Gemini API]
+  API -->|AI image prompt + render URL| Images[Pollinations image service]
+  Pages -->|Browser SpeechSynthesis| TTS[Device voices<br/>no hosted TTS API]
+  Adapt -->|story + sceneContent + activeLoreAnchors + styleTone| Pages
 ```
 
----
+### Request lifecycle
 
-## ✨ Core Pillars & Features
+1. React sends creator choices to the Render API over HTTPS.
+2. The API validates the request and applies request and AI limits.
+3. Adaptation Memory resolves an active character sheet, creator-provided setting and rules, relevant built-in canon when applicable, prior scene text, language, and style tone.
+4. The provider router calls a configured LLM and falls back across configured providers when one fails. Deterministic narrative fallbacks remain available when no provider is configured.
+5. The API returns the story or scene with adaptation metadata. The UI displays the tone and lore anchors used for that generation.
+6. Narration uses browser SpeechSynthesis. Illustration uses an AI-created image prompt and Pollinations image rendering.
 
-### 1. 🧙 Tab 1 — Write a Story (Zero Friction)
-Guided 7-step wizard designed for anyone to write cinematic fiction in minutes:
-- **Seed Input**: Free-text keywords → Genre selector → Atmosphere tone → Language (*English / Hinglish / Hindi*).
-- **Dynamic Contextual Prompts**: AI generates 6 customized branching questions based on previous answers.
-- **Narrative Synthesizer**: Generates balanced story drafts at 400, 800, or 1,400 words with simulated typing.
-- **Actions**: Instant Copy, Markdown/TXT Download, **Play as Choose-Your-Path**, or **Transfer to Writer Mode**.
+## Adaptation Integration
 
-### 2. 🌲 Tab 2 — Choose Your Path (Interactive Branching Narrative)
-- **Branching Engine**: Choose narrative complexity (3, 5, or 8 decision depth).
-- **Choice Archetypes**: Every scene offers 3 psychological actions (*Bold*, *Careful*, *Unexpected*) + free-form custom action.
-- **Interactive Narrative Tree**: Real-time visual graph showing visited choices, active branch path, and story completion milestones.
+The adaptation layer lives in `backend/src/services/adaptationMemory.ts` and is used by the guided wizard and branching story generation.
 
-### 3. 🛡️ Tab 3 — Writer Mode & Canon Continuity Engine
-Professional serialization workspace with automated lore defense:
-- **Living Canon Extraction**: Automatically scans episodes to extract world facts, character conditions, and inventory.
-- **Lore Contradiction Checker**: Flags lore drift, physical impossibilities (e.g., damaged limbs, broken comms during storms), and timeline paradoxes with **1-Click Auto-Fix**.
-- **Dialogue Voice Fingerprinting**: Audits dialogue authenticity against character archetypes, cynical/formal tone metrics, and forbidden linguistic mannerisms.
-- **Visual Director**: Generates 16:9 cinematic scene concept illustrations using AI art direction paired with FLUX renders.
+- **Character memory:** wizard protagonist choices become an active character sheet. Branching stories use the creator's premise as the protagonist identity source. Known Canon Studio characters can resolve to their archetype, mannerisms, signature phrases, and forbidden patterns.
+- **World and canon memory:** creator-supplied setting/lore and rules become prompt constraints. The resolver selects relevant rules from the built-in `Neon Eclipse` story bible when the premise matches them. Otherwise it includes the creator's world context and a continuity rule that preserves established facts and consequences.
+- **Style conditioning:** genre, realism/atmosphere, and optional `styleTone` are assembled into an explicit system-prompt instruction.
+- **Multilingual prompting:** English, Hindi in Devanagari, and Hinglish in Roman script are explicitly requested in the story-generation prompt.
+- **Branch memory:** later scenes receive the story so far and the selected action alongside adaptation inputs, preserving continuity across choices.
+- **Inspectable results:** generation responses include `sceneContent`, `activeLoreAnchors` (each anchor has `id`, `label`, and `detail`), and `styleTone`. The existing `content` field remains for compatibility.
 
-### 4. 📚 Tab 4 — Community Books & Bayesian Reader
-- **Bayesian Weighted Rating Algorithm**:
-  $$\text{Score} = \text{Weighted Rating} + 0.5 \times \log_{10}(1 + \text{Likes})$$
-  $$\text{Weighted Rating} = \frac{n \times \text{Avg} + 3 \times \text{GlobalMean}}{n + 3}$$
-- **Full Reading Suite**: Responsive episode pagination, persistent ratings, community likes, and search filters.
-- **Audio Synthesis**: Integrated browser speech synthesis narrator with sentence boundary chunking.
+Example metadata:
 
----
+```json
+{
+  "sceneContent": "The generated scene text...",
+  "activeLoreAnchors": [
+    { "id": "active-protagonist", "label": "Active character sheet", "detail": "..." },
+    { "id": "continuity-1", "label": "Active world setting", "detail": "..." }
+  ],
+  "styleTone": "Sci-fi · grounded speculative · cinematic, character-led prose"
+}
+```
 
-## 🎨 Design System & Accessibility
+## Technology Stack
 
-| Token | Dark Theme (Default) | Parchment / Light Theme |
-|:---|:---|:---|
-| **Background** | `#0F1220` (Midnight Slate) | `#FAF6EC` (Warm Paper) |
-| **Card / Surface** | `#1B1F36` (Deep Navy) | `#FFFFFF` (Pure Card) |
-| **Raised Element** | `#232845` | `#F0EAD8` |
-| **Primary Text** | `#F4EEDC` (Warm Bone) | `#1B1F36` (Slate Ink) |
-| **Accent Tone** | `#F2B84B` (Amber Gold) | `#D89112` (Honey Gold) |
+| Layer | Technologies |
+| --- | --- |
+| Web client | React 19, TypeScript, Vite, Tailwind CSS, Motion |
+| API | Node.js, Express 4, TypeScript |
+| Identity | PBKDF2-SHA512 password hashes, signed session token in HttpOnly cookie |
+| Data | JSON file store; use persistent disk and `DATA_DIR` in production |
+| Text generation | Groq, OpenRouter, Gemini (configured providers form a failover chain) |
+| Image generation | AI prompt direction plus Pollinations image rendering |
+| Narration | Browser SpeechSynthesis |
+| Hosting | Cloudflare Pages frontend, Render backend |
 
-- **Typography**: `Fraunces` for literary headings & editorial prose; `Inter` for crisp UI controls.
-- **Fluid Motion**: Spring-driven page entrance, toast popovers, and smooth tab switches powered by `motion/react`.
-- **WCAG AA**: Compliant color contrast ratios, visible keyboard focus rings, and $\ge 44\text{px}$ touch targets.
+## Environment Variables
 
----
+Use a hosting provider's secret manager or a local `backend/.env`. **Never commit real provider credentials.**
 
-## 🚀 Quickstart & Local Setup
+| Variable | Required | Description |
+| --- | --- | --- |
+| `NODE_ENV` | Deployment | `production`, `development`, or `test`; hosted deployments require `production`. |
+| `AUTH_SECRET` | Production | Random secret with at least 32 bytes of entropy. |
+| `GROQ_API_KEY` | Optional | Groq provider credential. At least one LLM provider key is needed for live AI. |
+| `GROQ_MODEL` | Optional | Groq model override. |
+| `OPENROUTER_API_KEY` | Optional | OpenRouter fallback credential. |
+| `OPENROUTER_MODEL` | Optional | OpenRouter model override. |
+| `GEMINI_API_KEY` | Optional | Gemini fallback / visual prompt credential. |
+| `GEMINI_MODEL` | Optional | Gemini model override. |
+| `PORT` | Optional | Backend port; defaults to `5000`. |
+| `HOST` | Optional | Bind address; defaults to `0.0.0.0`. |
+| `FRONTEND_URL` | Recommended | Comma-separated allowed frontend origins. |
+| `ALLOWED_ORIGINS` | Optional | Additional comma-separated allowed origins. |
+| `TRUST_PROXY_HOPS` | Deployment-specific | Trusted reverse-proxy hop count for client IP handling. |
+| `RATE_LIMIT_AI_MAX` | Optional | AI request limit per client/window; defaults to `10`. |
+| `RATE_LIMIT_AI_WINDOW_MS` | Optional | AI rate-limit window in milliseconds; defaults to `60000`. |
+| `AI_DAILY_QUOTA_MAX` | Optional | Per-process daily AI request ceiling; defaults to `2000`. |
+| `DATA_DIR` | Production recommended | Persistent directory for `db.json` on the backend host. |
+| `COOKIE_SAMESITE` | Optional | Cookie `SameSite` override; production defaults to `None` for cross-origin Pages/API. |
+| `VITE_API_BASE` | Optional | Frontend API base URL; production defaults to the hosted Render API. |
 
-### Prerequisites
-- Node.js `20.18+` or `22.x`
-- npm `10+`
+## Local Development
 
-### 1. Clone & Install
+Prerequisites: Node.js 20.18+ or 22.x and npm 10+.
+
 ```bash
 git clone https://github.com/Anmolop97/Canon-Studio.git
 cd Canon-Studio
-
-# Install Backend dependencies
 cd backend && npm install
-
-# Install Frontend dependencies
 cd ../frontend && npm install
 ```
 
-### 2. Configure Environment
 Create `backend/.env`:
+
 ```env
 PORT=5000
+HOST=127.0.0.1
 NODE_ENV=development
-AUTH_SECRET=development_secret_must_be_over_32_characters_long_for_security
-
-# AI Inference (Add at least one)
+AUTH_SECRET=local-development-secret-with-at-least-32-characters
 GROQ_API_KEY=your_groq_api_key_here
-GEMINI_API_KEY=your_gemini_api_key_here
+# Optional:
+# OPENROUTER_API_KEY=your_openrouter_api_key_here
+# GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
-### 3. Run Development Servers
+Run each app in a separate terminal:
+
 ```bash
-# Terminal 1: Backend
 cd backend && npm run dev
-# Running on http://localhost:5000
-
-# Terminal 2: Frontend
-cd frontend && npm run dev
-# Running on http://localhost:5173
 ```
 
----
+```bash
+cd frontend && npm run dev
+```
 
-## 📡 Production API Reference
+Build both applications:
 
-| Endpoint | Method | Auth | Description |
-|:---|:---:|:---:|:---|
-| `/api/health` | `GET` | Public | Live system, AI provider status & uptime |
-| `/api/auth/login` | `POST` | Public | PBKDF2 session auth with HttpOnly cookie |
-| `/api/auth/register` | `POST` | Public | Register new narrative architect |
-| `/api/auth/me` | `GET` | Session | Get current authenticated user |
-| `/api/wizard/next-question` | `POST` | Public | Generate contextual wizard questions |
-| `/api/wizard/generate-story` | `POST` | Public | Generate complete multi-paragraph story |
-| `/api/branching/start` | `POST` | Public | Initialize branching story tree |
-| `/api/branching/next` | `POST` | Public | Process choice & generate subsequent beat |
-| `/api/drafts` | `GET/POST` | Session | Retrieve or create writer drafts |
-| `/api/drafts/:id/check-canon` | `POST` | Session | Deep continuity & canon contradiction audit |
-| `/api/drafts/:id/publish` | `POST` | Session | Publish serial episode to public Books catalog |
-| `/api/books` | `GET` | Public | Browse published books with search & filters |
-| `/api/books/best` | `GET` | Public | Retrieve Top 20 Bayesian weighted stories |
+```bash
+cd backend && npm run build
+cd ../frontend && npm run build
+```
 
----
+## API Endpoints
 
-## 📜 License & Acknowledgments
+All endpoints are under `/api`. AI generation endpoints are public and rate-limited; draft endpoints require the signed-in user's session cookie.
 
-Distributed under the MIT License. Built with ❤️ for narrative architects, interactive fiction lovers, and worldbuilders worldwide.
+| Endpoint | Method | Purpose |
+| --- | --- | --- |
+| `/health` | GET | API and configured-provider status |
+| `/auth/register`, `/auth/login` | POST | Create an account or start a session |
+| `/auth/me` | GET | Read current session user |
+| `/auth/logout` | POST | Clear session cookie |
+| `/wizard/next-question` | POST | Generate a contextual wizard question |
+| `/wizard/generate-story` | POST | Generate a story with adaptation metadata |
+| `/choose-path/generate-scene` | POST | Start or continue a branching story with lore metadata |
+| `/branching/start`, `/branching/next` | POST | Backward-compatible branching routes |
+| `/branching/export-journey` | POST | Export an interactive journey |
+| `/branching/illustrate-scene` | POST | Generate scene artwork |
+| `/drafts` | GET, POST | List or create the signed-in user's drafts |
+| `/drafts/:id` | GET, PUT, DELETE | Read or change an owned draft |
+| `/drafts/:id/ai-draft` | POST | Generate an episode draft |
+| `/drafts/:id/check-canon` | POST | Audit draft continuity |
+| `/drafts/:id/publish`, `/drafts/:id/unpublish` | POST | Publish or unpublish a draft |
+| `/books`, `/books/best`, `/books/:id` | GET | Browse, rank, and read published books |
+| `/books/:id/like`, `/books/:id/rate` | POST | Like or rate a published book |
+| `/audit-lore`, `/analyze-voice`, `/story/generate-beat` | POST | Lore, voice, and scene-generation compatibility routes |
+| `/story-tree` | GET | Inspect the built-in story tree |
+
+For `/choose-path/generate-scene`, send setup fields on the first request. For a continuation, send `storySoFar`, `chosenOptionText`, `decisionIndex`, and the same premise/style fields. `maxDecisions` must be `3`, `5`, or `8`.
+
+## Project Links
+
+- [Live application](https://canon-studio.pages.dev)
+- [API health](https://canon-studio.onrender.com/api/health)
+- [GitHub repository](https://github.com/Anmolop97/Canon-Studio)

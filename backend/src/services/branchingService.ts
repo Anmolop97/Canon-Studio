@@ -1,8 +1,9 @@
 ﻿import crypto from 'crypto';
 import { BranchScene, BranchOption } from '../types/canonStudio.js';
 import { aiService } from './aiService.js';
+import { AdaptationInput, LoreAnchor, buildAdaptationContext, formatAdaptationContext } from './adaptationMemory.js';
 
-export interface BranchingSetup {
+export interface BranchingSetup extends AdaptationInput {
   idea?: string;
   genre?: string;
   realism?: string;
@@ -10,7 +11,7 @@ export interface BranchingSetup {
   maxDecisions: number; // 3, 5, or 8
 }
 
-export interface NextSceneRequest {
+export interface NextSceneRequest extends AdaptationInput {
   storySoFar: string[];
   chosenOptionText: string;
   decisionIndex: number; // current decision count (1-based)
@@ -20,11 +21,28 @@ export interface NextSceneRequest {
   historyChoices?: string[];
 }
 
+export interface AdaptedBranchScene extends BranchScene {
+  sceneContent: string;
+  activeLoreAnchors: LoreAnchor[];
+  styleTone: string;
+}
+
 export class BranchingService {
   /**
    * Generates Scene 1 (110-170 words) + 3 distinct choices (bold, careful, unexpected)
    */
-  public async startStory(setup: BranchingSetup): Promise<BranchScene> {
+  public async startStory(setup: BranchingSetup): Promise<AdaptedBranchScene> {
+    const adaptationContext = buildAdaptationContext(setup);
+    const scene = await this.generateStartStory(setup, adaptationContext);
+    return {
+      ...scene,
+      sceneContent: scene.content,
+      activeLoreAnchors: adaptationContext.activeLoreAnchors,
+      styleTone: adaptationContext.styleTone
+    };
+  }
+
+  private async generateStartStory(setup: BranchingSetup, adaptationContext: ReturnType<typeof buildAdaptationContext>): Promise<BranchScene> {
     const lang = setup.language || 'English';
     const isHinglish = lang.toLowerCase().includes('hinglish');
     const isHindi = lang.toLowerCase().includes('hindi') && !isHinglish;
@@ -39,6 +57,7 @@ export class BranchingService {
     const systemInstruction = `You are the lead branching narrative designer for Canon Story Studio.
 Generate Scene 1 of an interactive story.
 Word count constraint: EXACTLY between 110 and 170 words.
+${formatAdaptationContext(adaptationContext)}
 ${languageRule}
 
 Then generate EXACTLY 3 distinct choices that branch in different narrative directions:
@@ -101,7 +120,23 @@ Craft Scene 1 now with its 3 choices. Return ONLY the JSON.`;
   /**
    * Generates the next scene based on the chosen path
    */
-  public async nextScene(req: NextSceneRequest): Promise<BranchScene> {
+  public async nextScene(req: NextSceneRequest): Promise<AdaptedBranchScene> {
+    const adaptationContext = buildAdaptationContext({
+      ...req,
+      idea: req.idea || (Array.isArray(req.storySoFar) ? req.storySoFar.slice(0, 2).join('\n') : ''),
+      characterSheet: req.characterSheet || req.idea,
+      styleTone: req.styleTone || req.realism
+    });
+    const scene = await this.generateNextScene(req, adaptationContext);
+    return {
+      ...scene,
+      sceneContent: scene.content,
+      activeLoreAnchors: adaptationContext.activeLoreAnchors,
+      styleTone: adaptationContext.styleTone
+    };
+  }
+
+  private async generateNextScene(req: NextSceneRequest, adaptationContext: ReturnType<typeof buildAdaptationContext>): Promise<BranchScene> {
     const isFinal = req.decisionIndex >= req.maxDecisions;
     const lang = req.language || 'English';
     const isHinglish = lang.toLowerCase().includes('hinglish');
@@ -121,6 +156,7 @@ Craft Scene 1 now with its 3 choices. Return ONLY the JSON.`;
       const systemInstruction = `You are the lead branching narrative designer for Canon Story Studio.
 Write the CLIMACTIC FINAL SCENE (ending) of the interactive story.
 Word count constraint: EXACTLY between 110 and 170 words.
+${formatAdaptationContext(adaptationContext)}
 ${languageRule}
 
 Reflect the writer's cumulative choices throughout this journey. Deliver a satisfying, memorable resolution.
@@ -166,6 +202,7 @@ Write the final scene now. Return ONLY the JSON.`;
     const systemInstruction = `You are the lead branching narrative designer for Canon Story Studio.
 Generate the next scene following the player's chosen action.
 Word count constraint: EXACTLY between 110 and 170 words.
+${formatAdaptationContext(adaptationContext)}
 ${languageRule}
 
 Then generate EXACTLY 3 distinct choices:

@@ -9,6 +9,7 @@ import { storyRouter } from './routes/story.js';
 import { treeRouter } from './routes/tree.js';
 import { authRouter } from './routes/auth.js';
 import { wizardRouter } from './routes/wizard.js';
+import { choosePathRouter } from './routes/choosePath.js';
 import { branchingRouter } from './routes/branching.js';
 import { draftsRouter } from './routes/drafts.js';
 import { booksRouter } from './routes/books.js';
@@ -191,6 +192,7 @@ app.use([
   '/api/wizard/generate-story',
   '/api/branching/start',
   '/api/branching/next',
+  '/api/choose-path/generate-scene',
   '/api/branching/illustrate-scene',
   '/api/drafts/:id/ai-draft',
   '/api/drafts/:id/check-canon',
@@ -204,6 +206,7 @@ app.use([
 // Mount Canon Story Studio Core Routes
 app.use('/api/auth', authRouter);
 app.use('/api/wizard', wizardRouter);
+app.use('/api/choose-path', choosePathRouter);
 app.use('/api/branching', branchingRouter);
 app.use('/api/drafts', draftsRouter);
 app.use('/api/books', booksRouter);

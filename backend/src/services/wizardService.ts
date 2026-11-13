@@ -1,7 +1,8 @@
 import { WizardQuestionResponse } from '../types/canonStudio.js';
 import { aiService } from './aiService.js';
+import { AdaptationInput, LoreAnchor, buildAdaptationContext, formatAdaptationContext } from './adaptationMemory.js';
 
-export interface WizardAnswers {
+export interface WizardAnswers extends AdaptationInput {
   keywords?: string;
   genre?: string;
   realism?: string;
@@ -163,9 +164,25 @@ Return ONLY valid JSON.`;
   public async generateFullStory(answers: WizardAnswers): Promise<{
     title: string;
     content: string;
+    sceneContent: string;
     wordCount: number;
     readingTimeMinutes: number;
+    activeLoreAnchors: LoreAnchor[];
+    styleTone: string;
   }> {
+    const adaptationContext = buildAdaptationContext({
+      ...answers,
+      idea: answers.keywords,
+      characterSheet: answers.characterSheet || answers.step4Answer,
+      worldLore: answers.worldLore || answers.step5Answer,
+      styleTone: answers.styleTone || answers.realism
+    });
+    const withAdaptation = (story: { title: string; content: string; wordCount: number; readingTimeMinutes: number }) => ({
+      ...story,
+      sceneContent: story.content,
+      activeLoreAnchors: adaptationContext.activeLoreAnchors,
+      styleTone: adaptationContext.styleTone
+    });
     const targetWords = parseInt(answers.targetLength || '800', 10);
     const lang = answers.language || 'English';
     const isHinglish = lang.toLowerCase().includes('hinglish');
@@ -181,6 +198,8 @@ Return ONLY valid JSON.`;
     const systemInstruction = `You are a master storyteller for Canon Story Studio.
 Write a complete, gripping, beautifully paced story based on the writer's inputs.
 Target word count: approximately ${targetWords} words (between ${Math.round(targetWords * 0.85)} and ${Math.round(targetWords * 1.15)} words).
+
+${formatAdaptationContext(adaptationContext)}
 
 ${languageRule}
 
@@ -206,14 +225,14 @@ Generate the full story now with its Title header.`;
       try {
         const text = await aiService.generateText(prompt, systemInstruction);
         if (text && text.trim().length > 100) {
-          return this.parseStoryOutput(text);
+          return withAdaptation(this.parseStoryOutput(text));
         }
       } catch (err) {
         console.warn('[WizardService] AI story generation failed, using rich narrative fallback:', err);
       }
     }
 
-    return this.generateFallbackStory(answers, targetWords, isHinglish, isHindi);
+    return withAdaptation(this.generateFallbackStory(answers, targetWords, isHinglish, isHindi));
   }
 
   private parseStoryOutput(raw: string): {

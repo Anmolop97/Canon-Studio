@@ -6,17 +6,21 @@ import { TabChoosePath } from './components/TabChoosePath';
 import { TabWriterMode } from './components/TabWriterMode';
 import { TabBooks } from './components/TabBooks';
 import { AuthModal } from './components/AuthModal';
+import { ArchitectureDialog } from './components/ArchitectureDialog';
 import { ToastContainer, toast } from './components/ui/Toast';
 import ErrorPage from './components/ui/error-3';
 import { api } from './api';
 import type { User } from './types';
 import storybookLandscape from './assets/storybook-background.webp';
+import { Workflow } from 'lucide-react';
+import { FaGithub } from 'react-icons/fa6';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<StudioTab>('wizard');
   const [_wizardStep, setWizardStep] = useState<number>(0);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isArchitectureOpen, setIsArchitectureOpen] = useState(false);
   const [showError404, setShowError404] = useState(false);
   const [apiLimitNotice, setApiLimitNotice] = useState<{ retryAfterSeconds: number | null } | null>(null);
 
@@ -180,6 +184,7 @@ export function App() {
           onLogout={handleLogout}
           isDarkMode={isDarkMode}
           onToggleTheme={handleToggleTheme}
+          onOpenArchitecture={() => setIsArchitectureOpen(true)}
         />
       </motion.div>
 
@@ -239,12 +244,28 @@ export function App() {
         </AnimatePresence>
       </motion.main>
 
+      <footer className="relative z-10 border-t border-[#D7C397]/40 bg-[#FAF9F3]/70 px-4 py-5 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/60">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 text-xs text-[#68756a] dark:text-slate-400">
+          <span>Canon Studio · Stories shaped by your world</span>
+          <div className="flex items-center gap-1">
+            <button type="button" onClick={() => setIsArchitectureOpen(true)} className="inline-flex min-h-10 items-center gap-1.5 rounded-lg px-3 font-semibold hover:bg-black/5 dark:hover:bg-white/10">
+              <Workflow className="h-3.5 w-3.5" /> Architecture / Docs
+            </button>
+            <a href="https://github.com/Anmolop97/Canon-Studio" target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center gap-1.5 rounded-lg px-3 font-semibold hover:bg-black/5 dark:hover:bg-white/10" aria-label="Canon Studio GitHub repository (opens in a new tab)">
+              <FaGithub className="h-3.5 w-3.5" aria-hidden="true" /> GitHub
+            </a>
+          </div>
+        </div>
+      </footer>
+
       {/* Authentication Modal */}
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         onSuccess={handleAuthSuccess}
       />
+
+      <ArchitectureDialog isOpen={isArchitectureOpen} onClose={() => setIsArchitectureOpen(false)} />
 
       {apiLimitNotice !== null && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={() => setApiLimitNotice(null)}>

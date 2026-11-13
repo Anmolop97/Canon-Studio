@@ -123,6 +123,9 @@ export interface BranchScene {
   id: string;
   sceneNumber: number;
   content: string;
+  sceneContent?: string;
+  activeLoreAnchors?: Array<{ id: string; label: string; detail: string }>;
+  styleTone?: string;
   isEnding: boolean;
   options: BranchOption[];
   parentId?: string | null;

@@ -42,13 +42,10 @@ export const ContinuousPagination: FC<ContinuousPaginationProps> = ({
     defaultPage = 1,
 }) => {
     const [active, setActive] = useState<number>(defaultPage);
-    let isDark = false;
-    try {
-        const theme = useTheme();
-        isDark = theme?.resolvedTheme === "dark";
-    } catch {
-        isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
-    }
+    const theme = useTheme();
+    const isDark = theme?.resolvedTheme === "dark" || (
+        !theme?.resolvedTheme && typeof document !== "undefined" && document.documentElement.classList.contains("dark")
+    );
 
     const paginate = (page: number) => {
         if (page < 1 || page > totalPages) return;

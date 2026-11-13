@@ -95,8 +95,11 @@ class ApiClient {
   public async generateWizardStory(answers: any): Promise<{
     title: string;
     content: string;
+    sceneContent: string;
     wordCount: number;
     readingTimeMinutes: number;
+    activeLoreAnchors: Array<{ id: string; label: string; detail: string }>;
+    styleTone: string;
   }> {
     return this.request('/wizard/generate-story', {
       method: 'POST',
@@ -110,9 +113,13 @@ class ApiClient {
     genre?: string;
     realism?: string;
     language?: string;
+    characterSheet?: string;
+    worldLore?: string | string[];
+    canonRules?: string[];
+    styleTone?: string;
     maxDecisions: number;
   }): Promise<BranchScene> {
-    return this.request<BranchScene>('/branching/start', {
+    return this.request<BranchScene>('/choose-path/generate-scene', {
       method: 'POST',
       body: JSON.stringify(setup)
     });
@@ -125,8 +132,14 @@ class ApiClient {
     maxDecisions: number;
     genre?: string;
     language?: string;
+    idea?: string;
+    realism?: string;
+    characterSheet?: string;
+    worldLore?: string | string[];
+    canonRules?: string[];
+    styleTone?: string;
   }): Promise<BranchScene> {
-    return this.request<BranchScene>('/branching/next', {
+    return this.request<BranchScene>('/choose-path/generate-scene', {
       method: 'POST',
       body: JSON.stringify(data)
     });
