@@ -228,6 +228,7 @@ export function App() {
               <TabWriterMode
                 currentUser={currentUser}
                 onOpenAuth={() => setIsAuthModalOpen(true)}
+                onAuthSuccess={handleAuthSuccess}
                 preloadedDraft={preloadedDraft}
                 onNavigateTab={setActiveTab}
               />

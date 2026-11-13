@@ -374,6 +374,63 @@ authRouter.post('/login', loginRateLimiter, (req: Request, res: Response) => {
 });
 
 /**
+ * POST /api/auth/judge-access
+ * Instant 1-click evaluation access for hackathon judges & reviewers.
+ * Generates an authenticated reviewer session with pre-seeded showcase saga drafts.
+ */
+authRouter.post('/judge-access', (req: Request, res: Response) => {
+  try {
+    const judgeEmail = 'evaluator.judge@canon-studio.dev';
+    let user = storageService.findUserByEmail(judgeEmail);
+    if (!user) {
+      user = storageService.createUser(judgeEmail, 'HackathonJudgePass2026!', 'Evaluator / Hackathon Judge');
+    }
+
+    // Ensure judge has a showcase draft ready for immediate testing
+    const existingDrafts = storageService.getDraftsByUser(user.id);
+    if (existingDrafts.length === 0) {
+      storageService.createDraft(user.id, {
+        title: 'Neon Eclipse: The Chronos Cipher',
+        genre: 'Sci-fi',
+        logline: 'An elite data-courier navigates the vertical stratums of New Kyoto while hunted by an AI syndicate.',
+        worldRules: [
+          'Cybernetic enhancements require neural coolant stabilization every 48 hours',
+          'Comm beacons fail during atmospheric ion storms',
+          'The Obsidian Tower requires biometric airlock clearance'
+        ],
+        characters: [
+          {
+            id: 'char-1',
+            name: 'Kaelen Voss',
+            role: 'Protagonist / Courier',
+            traits: 'Cynical, fast reflexes, damaged left arm neural prosthesis',
+            archetype: 'cynical-antihero'
+          }
+        ],
+        episodes: [
+          {
+            id: 'ep-1',
+            episodeNumber: 1,
+            title: 'Downpour in Sector 7',
+            content: 'The rain in Sector 7 carried the metallic tang of ozone and industrial grease. Kaelen Voss adjusted the collar of his weathered trenchcoat, his cybernetic left arm sparking faintly where the casing was fractured.\n\n"Comm beacon is dead," he muttered, glancing up at the sky. A heavy ion storm was brewing above the neon-drenched spires, cutting off all wireless signals just as the Syndicate enforcers entered the alleyway.',
+            summary: 'Kaelen arrives in Sector 7 during an ion storm with a fractured cybernetic arm.',
+            wordCount: 78
+          }
+        ]
+      });
+    }
+
+    const token = createAuthToken(user.id);
+    setSessionCookie(res, token);
+    res.json({
+      user: safeUser(user)
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: publicErrorMessage(error, 'Failed to initialize judge access session') });
+  }
+});
+
+/**
  * GET /api/auth/me
  */
 authRouter.get('/me', requireAuth, (req: AuthenticatedRequest, res: Response) => {

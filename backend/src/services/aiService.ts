@@ -68,11 +68,11 @@ class AIService {
   // ---------------------------------------------------------------------------
   // TEXT GENERATION (Primary: Groq -> Fallback: OpenRouter -> Gemini)
   // ---------------------------------------------------------------------------
-  public async generateText(prompt: string, systemInstruction?: string): Promise<string> {
+  public async generateText(prompt: string, systemInstruction?: string, maxTokens?: number): Promise<string> {
     // 1. Try Groq (Primary Ultra-Fast Inference)
     if (this.isGroqConfigured()) {
       try {
-        return await this._groqText(prompt, systemInstruction);
+        return await this._groqText(prompt, systemInstruction, maxTokens);
       } catch (err) {
         console.warn('[AIService] Groq text failed, trying OpenRouter fallback:', (err as Error).message);
       }
@@ -81,7 +81,7 @@ class AIService {
     // 2. Try OpenRouter (Story Specialist)
     if (this.isOpenRouterConfigured()) {
       try {
-        return await this._openrouterText(prompt, systemInstruction);
+        return await this._openrouterText(prompt, systemInstruction, maxTokens);
       } catch (err) {
         console.warn('[AIService] OpenRouter story text failed, trying Gemini fallback:', (err as Error).message);
       }
@@ -182,7 +182,7 @@ Scene:
   // ---------------------------------------------------------------------------
   // OPENROUTER — Gateway Endpoint
   // ---------------------------------------------------------------------------
-  private async _openrouterText(prompt: string, systemInstruction?: string): Promise<string> {
+  private async _openrouterText(prompt: string, systemInstruction?: string, maxTokens = 4096): Promise<string> {
     const messages: { role: string; content: string }[] = [];
     if (systemInstruction) {
       messages.push({ role: 'system', content: systemInstruction });
@@ -202,7 +202,7 @@ Scene:
         model: this.openrouterModel,
         messages,
         temperature: 0.7,
-        max_tokens: 4096
+        max_tokens: maxTokens
       })
     });
 
@@ -325,7 +325,7 @@ Scene:
   // ---------------------------------------------------------------------------
   // GROQ — OpenAI-compatible chat endpoint
   // ---------------------------------------------------------------------------
-  private async _groqText(prompt: string, systemInstruction?: string): Promise<string> {
+  private async _groqText(prompt: string, systemInstruction?: string, maxTokens = 4096): Promise<string> {
     const messages: { role: string; content: string }[] = [];
     if (systemInstruction) {
       messages.push({ role: 'system', content: systemInstruction });
@@ -343,7 +343,7 @@ Scene:
         model: this.groqModel,
         messages,
         temperature: 0.7,
-        max_tokens: 4096
+        max_tokens: maxTokens
       })
     });
 

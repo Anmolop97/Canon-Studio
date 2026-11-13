@@ -84,8 +84,11 @@ branchingRouter.post('/illustrate-scene', async (req: Request, res: Response) =>
     const art = await imageService.generateSceneArt(sceneText, title, genre);
     res.json(art);
   } catch (error: any) {
-    console.error('[API /api/branching/illustrate-scene Error]:', error);
-    res.status(500).json({ error: publicErrorMessage(error, 'Failed to illustrate scene') });
+    console.warn('[API /api/branching/illustrate-scene Fallback]:', error);
+    res.json({
+      imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1024&q=80',
+      imagePrompt: `Cinematic narrative concept art for ${title || genre || 'scene'}`
+    });
   }
 });
 

@@ -2,7 +2,7 @@ import { useState, useEffect, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { api } from '../api';
 import type { User } from '../types';
-import { X, LogIn, UserPlus, AlertTriangle } from 'lucide-react';
+import { X, LogIn, UserPlus, AlertTriangle, Sparkles } from 'lucide-react';
 import { motion, type Variants } from 'motion/react';
 import canonLogo from '../assets/canon-logo.png';
 
@@ -51,6 +51,20 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
       }
     } catch (err: any) {
       setError(err.message || 'Authentication failed. Please check details.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleJudgeDemo = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await api.judgeDemoLogin();
+      onSuccess(res.user);
+      onClose();
+    } catch (err: any) {
+      setError(err.message || 'Judge demo login failed');
     } finally {
       setLoading(false);
     }
@@ -127,6 +141,22 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                 <span>{error}</span>
               </motion.div>
             )}
+
+            <div className="mb-4">
+              <button
+                type="button"
+                onClick={handleJudgeDemo}
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold py-2.5 px-4 rounded-xl transition-all text-xs flex items-center justify-center gap-2 shadow-md border border-amber-400/30 cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+                <span>⚡ Instant Judge / Evaluator Demo Access</span>
+              </button>
+              <div className="relative my-3 text-center">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#D7C397]/60 dark:border-slate-700"></div></div>
+                <span className="relative bg-[#FAF9F3] dark:bg-slate-900 px-2 text-[11px] text-[#87977A]">or continue with credentials</span>
+              </div>
+            </div>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
               {isRegister && (

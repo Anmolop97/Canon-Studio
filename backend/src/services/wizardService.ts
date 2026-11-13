@@ -195,9 +195,12 @@ Return ONLY valid JSON.`;
       languageRule = 'CRITICAL REQUIREMENT: Write in natural, evocative Hindi in standard Devanagari script.';
     }
 
+    const maxAllowedTokens = Math.min(3000, Math.max(550, Math.round(targetWords * 1.6)));
+
     const systemInstruction = `You are a master storyteller for Canon Story Studio.
 Write a complete, gripping, beautifully paced story based on the writer's inputs.
-Target word count: approximately ${targetWords} words (between ${Math.round(targetWords * 0.85)} and ${Math.round(targetWords * 1.15)} words).
+CRITICAL LENGTH REQUIREMENT: Target word count is EXACTLY approximately ${targetWords} words.
+Do NOT write an overlong draft. Conclude and resolve the narrative completely within ~${targetWords} words (strict upper limit: ${Math.round(targetWords * 1.15)} words).
 
 ${formatAdaptationContext(adaptationContext)}
 
@@ -217,13 +220,13 @@ Do NOT include preamble, commentary, or meta text.`;
 - Protagonist Choice: ${answers.step4Answer || 'A determined investigator'}
 - Setting / Arena: ${answers.step5Answer || 'A rain-slicked city district'}
 - Twist / Obstacle: ${answers.step6Answer || 'A sudden betrayal from the shadows'}
-- Target Length: ~${targetWords} words
+- Target Length: ~${targetWords} words (respect this limit strictly)
 
 Generate the full story now with its Title header.`;
 
     if (aiService.isConfigured()) {
       try {
-        const text = await aiService.generateText(prompt, systemInstruction);
+        const text = await aiService.generateText(prompt, systemInstruction, maxAllowedTokens);
         if (text && text.trim().length > 100) {
           return withAdaptation(this.parseStoryOutput(text));
         }

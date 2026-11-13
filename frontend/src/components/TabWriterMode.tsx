@@ -24,16 +24,33 @@ import { toast } from './ui/Toast';
 interface TabWriterModeProps {
   currentUser: User | null;
   onOpenAuth: () => void;
+  onAuthSuccess?: (user: User) => void;
   preloadedDraft?: { title: string; genre: string; content: string; imageUrl?: string; imagePrompt?: string } | null;
   onNavigateTab?: (tab: 'wizard' | 'branching' | 'writer' | 'books') => void;
 }
 
-export function TabWriterMode({ currentUser, onOpenAuth, preloadedDraft }: TabWriterModeProps) {
+export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloadedDraft }: TabWriterModeProps) {
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [selectedDraftId, setSelectedDraftId] = useState<string | null>(null);
   const [selectedEpisodeIndex, setSelectedEpisodeIndex] = useState<number>(0);
   const [loadingDrafts, setLoadingDrafts] = useState<boolean>(false);
   const [savingDraft, setSavingDraft] = useState<boolean>(false);
+  const [isDemoLoggingIn, setIsDemoLoggingIn] = useState<boolean>(false);
+
+  const handleJudgeDemoAccess = async () => {
+    setIsDemoLoggingIn(true);
+    try {
+      const res = await api.judgeDemoLogin();
+      toast.success('Logged in with Instant Judge Demo profile!');
+      if (onAuthSuccess) {
+        onAuthSuccess(res.user);
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to enter demo mode');
+    } finally {
+      setIsDemoLoggingIn(false);
+    }
+  };
 
   // Active editor fields
   const [activeTitle, setActiveTitle] = useState('');
@@ -496,14 +513,24 @@ export function TabWriterMode({ currentUser, onOpenAuth, preloadedDraft }: TabWr
             Sign In to Writer Mode
           </h2>
           <p className="text-sm text-[#263F35] dark:text-slate-300 mb-6 leading-relaxed">
-            Writer Mode provides private workspace drafts, multi-episode serialization, and deep AI-powered canon continuity checking. Sign in or pick a demo profile to start writing.
+            Writer Mode provides private workspace drafts, multi-episode serialization, and deep AI-powered canon continuity checking.
           </p>
-          <button
-            onClick={onOpenAuth}
-            className="w-full bg-[#101C19] hover:bg-[#263F35] text-[#E9E2CE] font-bold py-3 px-6 rounded-xl transition-all text-sm min-h-[44px] cursor-pointer shadow-md"
-          >
-            Sign in to Write
-          </button>
+          <div className="space-y-3">
+            <button
+              onClick={handleJudgeDemoAccess}
+              disabled={isDemoLoggingIn}
+              className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold py-3.5 px-6 rounded-xl transition-all text-sm min-h-[44px] cursor-pointer shadow-lg flex items-center justify-center gap-2 border border-amber-400/40"
+            >
+              <Sparkles className="w-4 h-4 text-amber-200" />
+              <span>{isDemoLoggingIn ? 'Preparing Judge Workspace...' : '⚡ Instant Judge / Evaluator Demo Access (1-Click)'}</span>
+            </button>
+            <button
+              onClick={onOpenAuth}
+              className="w-full bg-[#FAF9F3] dark:bg-slate-800 hover:bg-[#F4F0E5] dark:hover:bg-slate-700 text-[#101C19] dark:text-slate-200 font-semibold py-2.5 px-6 rounded-xl border border-[#D7C397] dark:border-slate-700 transition-all text-xs min-h-[40px] cursor-pointer"
+            >
+              Sign in with existing credentials
+            </button>
+          </div>
         </div>
       </div>
     );

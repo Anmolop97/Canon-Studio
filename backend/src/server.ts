@@ -159,7 +159,7 @@ app.get('/api/story-bible', (req: Request, res: Response) => {
   res.json(cyberpunkUniverse);
 });
 
-// Context Caching & Token Economics Monitor
+// Context Caching & Token Economics Monitor (Theoretical Architecture Benchmark)
 app.get('/api/context-cache-stats', (req: Request, res: Response) => {
   const cachedBibleTokens = 148500;
   const standardCostPer1k = 0.000125;
@@ -172,6 +172,8 @@ app.get('/api/context-cache-stats', (req: Request, res: Response) => {
   const latencyWithCacheMs = 450;
 
   res.json({
+    mode: 'illustrative_architecture_benchmark',
+    description: 'Theoretical economic model based on Gemini 1.5 Pro Context Caching rates vs standard inference',
     contextCachingActive: true,
     cachedTtlSeconds: 3600,
     cachedTokens: cachedBibleTokens,

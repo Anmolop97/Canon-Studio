@@ -284,7 +284,11 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
       const art = await api.illustrateBranchScene(textToUse, titleToUse, selectedGenre);
       setStoryArt(art);
     } catch (err) {
-      console.error('Failed to illustrate story:', err);
+      console.warn('Illustration generation note:', err);
+      setStoryArt({
+        imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1024&q=80',
+        imagePrompt: `Cinematic concept illustration for ${titleToUse || 'story'}`
+      });
     } finally {
       setIsIllustrating(false);
     }

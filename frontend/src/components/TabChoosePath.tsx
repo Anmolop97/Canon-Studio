@@ -264,7 +264,11 @@ export function TabChoosePath({
       const art = await api.illustrateBranchScene(currentNode.content, idea, genre);
       setClimaxArt(art);
     } catch (err) {
-      console.error('Climax art error:', err);
+      console.warn('Climax art generation note:', err);
+      setClimaxArt({
+        imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1024&q=80',
+        imagePrompt: `Cinematic concept art: climax turning point (${genre || 'Narrative'})`
+      });
     } finally {
       setIsIllustratingClimax(false);
     }

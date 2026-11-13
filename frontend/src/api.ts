@@ -80,6 +80,12 @@ class ApiClient {
     return this.request<{ user: User }>('/auth/me');
   }
 
+  public async judgeDemoLogin(): Promise<{ user: User }> {
+    return this.request<{ user: User }>('/auth/judge-access', {
+      method: 'POST'
+    });
+  }
+
   public logout(): void {
     void this.request('/auth/logout', { method: 'POST' }).catch(() => undefined);
   }
