@@ -139,7 +139,7 @@ export function Hero10({
         </>
       )}
 
-      <div className="relative z-10 mx-auto flex min-h-[760px] w-full max-w-[1440px] flex-col px-5 py-5 sm:min-h-screen sm:px-10 lg:px-[74px]">
+      <div className="relative z-10 mx-auto flex min-h-0 sm:min-h-[640px] lg:min-h-[760px] w-full max-w-[1440px] flex-col px-3.5 py-4 sm:min-h-screen sm:px-10 lg:px-[74px]">
         {!hideHeader && (
           <>
             <motion.header
@@ -286,14 +286,14 @@ export function Hero10({
 
           <motion.h1
             variants={contentItem}
-            className="mt-4 max-w-5xl font-serif text-[clamp(2.75rem,4.5vw,5.5rem)] leading-[0.94] font-medium tracking-[-0.06em] text-balance whitespace-pre-line text-slate-900 dark:text-white drop-shadow-sm 2xl:max-w-7xl"
+            className="mt-3 sm:mt-4 max-w-5xl font-serif text-2xl sm:text-4xl md:text-5xl lg:text-[clamp(2.75rem,4.5vw,5.5rem)] leading-[1.08] sm:leading-[0.94] font-medium tracking-tight sm:tracking-[-0.06em] text-balance whitespace-pre-line text-slate-900 dark:text-white drop-shadow-sm 2xl:max-w-7xl"
           >
             {title}
           </motion.h1>
 
           <motion.p
             variants={contentItem}
-            className="mask-l-form-90% mask-r-form-90% mt-4 max-w-[620px] bg-transparent mask-b-from-90% text-[clamp(0.95rem,1.25vw,1.1rem)] leading-[1.42] font-normal text-pretty whitespace-pre-line text-slate-700 dark:text-zinc-200 drop-shadow-[0_1px_8px_rgba(255,250,232,0.72)] dark:drop-shadow-[0_1px_8px_rgba(15,23,18,0.8)]"
+            className="mask-l-form-90% mask-r-form-90% mt-3 sm:mt-4 max-w-[620px] bg-transparent mask-b-from-90% text-xs sm:text-sm md:text-[clamp(0.95rem,1.25vw,1.1rem)] leading-relaxed font-normal text-pretty whitespace-pre-line text-slate-700 dark:text-zinc-200 drop-shadow-[0_1px_8px_rgba(255,250,232,0.72)] dark:drop-shadow-[0_1px_8px_rgba(15,23,18,0.8)]"
           >
             {description}
           </motion.p>

@@ -342,10 +342,10 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
   ].filter(Boolean) as Array<{ label: string }>;
 
   return (
-    <div className={`w-full mx-auto px-4 ${currentStep === 0 ? 'max-w-5xl' : 'max-w-4xl py-6 md:py-10'}`}>
+    <div className={`w-full mx-auto px-3 sm:px-4 ${currentStep === 0 ? 'max-w-5xl' : 'max-w-4xl py-4 sm:py-6 md:py-10'}`}>
       
       {/* Wizard Full Viewport Wrapper (Guarantees zero peek of bottom footer in initial frame) */}
-      <div className={currentStep === 0 ? 'min-h-[calc(100vh-6rem)] flex flex-col justify-start pt-4 sm:pt-6 md:pt-8 pb-16' : ''}>
+      <div className={currentStep === 0 ? 'min-h-[calc(100vh-6rem)] flex flex-col justify-start pt-3 sm:pt-6 md:pt-8 pb-12 sm:pb-16' : ''}>
         
         {/* Wizard Header Bar */}
         <div className={currentStep === 0 ? 'mb-3 md:mb-4' : 'mb-6'}>
@@ -393,27 +393,27 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
 
         {/* --- STEP 0: FREE-TEXT KEYWORDS --- */}
         {currentStep === 0 && (
-          <div className="story-seed-card flex flex-col bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-white/60 dark:border-slate-700/80 rounded-3xl p-8 sm:p-10 md:p-12 shadow-[0_25px_60px_rgba(15,23,42,0.12)] dark:shadow-2xl animate-in fade-in duration-200">
-            <h2 className="text-3xl sm:text-4xl lg:text-[2.6rem] font-serif font-bold text-slate-900 dark:text-white mb-3 tracking-tight leading-tight">
+          <div className="story-seed-card flex flex-col bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-white/60 dark:border-slate-700/80 rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-12 shadow-[0_25px_60px_rgba(15,23,42,0.12)] dark:shadow-2xl animate-in fade-in duration-200">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] font-serif font-bold text-slate-900 dark:text-white mb-2 sm:mb-3 tracking-tight leading-tight">
               What story do you want to tell today?
             </h2>
-            <p className="text-sm sm:text-base font-medium text-slate-600 dark:text-slate-300 mb-7 leading-relaxed max-w-2xl">
+            <p className="text-xs sm:text-base font-medium text-slate-600 dark:text-slate-300 mb-5 sm:mb-7 leading-relaxed max-w-2xl">
               Enter a few keywords, a premise, or click an idea chip below to get started.
             </p>
 
-            <form onSubmit={handleKeywordSubmit} className="mb-7">
-              <div className="flex flex-col sm:flex-row gap-3">
+            <form onSubmit={handleKeywordSubmit} className="mb-5 sm:mb-7">
+              <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
                 <input
                   type="text"
                   value={customKeywordInput}
                   onChange={(e) => setCustomKeywordInput(e.target.value)}
                   placeholder="e.g. A runaway clone seeking the architect of her memories"
-                  className="flex-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-5 py-3.5 text-sm sm:text-base text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-slate-900 dark:focus:border-sky-400 focus:ring-1 focus:ring-slate-900 dark:focus:ring-sky-400 shadow-xs min-h-[50px]"
+                  className="flex-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 sm:px-5 py-3 sm:py-3.5 text-sm sm:text-base text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-slate-900 dark:focus:border-sky-400 focus:ring-1 focus:ring-slate-900 dark:focus:ring-sky-400 shadow-xs min-h-[46px] sm:min-h-[50px]"
                 />
                 <button
                   type="submit"
                   disabled={!customKeywordInput.trim()}
-                  className="bg-slate-950 hover:bg-slate-800 dark:bg-sky-500 dark:hover:bg-sky-400 text-white dark:text-slate-950 font-semibold text-sm sm:text-base px-8 py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[50px] cursor-pointer active:scale-[0.98]"
+                  className="bg-slate-950 hover:bg-slate-800 dark:bg-sky-500 dark:hover:bg-sky-400 text-white dark:text-slate-950 font-semibold text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[46px] sm:min-h-[50px] cursor-pointer active:scale-[0.98]"
                 >
                   <span>Continue</span>
                   <ArrowRight className="w-4 h-4" />
@@ -421,17 +421,17 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
               </div>
             </form>
 
-            <div className="mb-7">
-              <div className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 mb-3">
+            <div className="mb-5 sm:mb-7">
+              <div className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2.5 sm:mb-3">
                 Or pick an idea to explore:
               </div>
-              <div className="flex flex-wrap gap-2.5">
+              <div className="flex flex-wrap gap-2 sm:gap-2.5">
                 {KEYWORD_EXAMPLES.map((example) => (
                   <button
                     key={example}
                     type="button"
                     onClick={() => handleKeywordSelect(example)}
-                    className="px-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200/90 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 text-slate-800 dark:text-slate-200 font-medium rounded-xl transition-all text-left min-h-[46px] flex items-center shadow-xs cursor-pointer active:scale-[0.98]"
+                    className="px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200/90 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 text-slate-800 dark:text-slate-200 font-medium rounded-xl transition-all text-left min-h-[42px] sm:min-h-[46px] flex items-center shadow-xs cursor-pointer active:scale-[0.98]"
                   >
                     {example}
                   </button>
@@ -439,11 +439,11 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
               </div>
             </div>
 
-            <div className="border-t border-slate-200/80 dark:border-slate-800 pt-5 flex justify-between items-center">
+            <div className="border-t border-slate-200/80 dark:border-slate-800 pt-4 sm:pt-5 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
               <button
                 type="button"
                 onClick={handleNoIdea}
-                className="px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl bg-slate-100/90 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-2 min-h-[46px] transition-all cursor-pointer shadow-xs active:scale-[0.98]"
+                className="w-full sm:w-auto px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl bg-slate-100/90 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center justify-center gap-2 min-h-[44px] sm:min-h-[46px] transition-all cursor-pointer shadow-xs active:scale-[0.98]"
               >
                 <Sparkles className="h-4 w-4 shrink-0 text-amber-500" strokeWidth={1.7} />
                 <span>I have no idea yet (Surprise me)</span>
@@ -672,11 +672,11 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
               </h2>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
               {isGenerating ? (
                 <button
                   onClick={handleStop}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-red-900/40 hover:bg-red-900/60 text-red-200 border border-status-contradiction rounded text-xs font-semibold min-h-[44px]"
+                  className="flex items-center gap-1.5 px-4 py-2 bg-red-900/40 hover:bg-red-900/60 text-red-200 border border-status-contradiction rounded-xl text-xs font-semibold min-h-[44px]"
                 >
                   <Square className="w-3.5 h-3.5 fill-current" />
                   <span>Stop</span>
@@ -687,7 +687,7 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
                   <button
                     onClick={() => handleIllustrateStory()}
                     disabled={isIllustrating}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-studio-raised hover:bg-studio-accent/20 border border-studio-border rounded text-xs font-semibold text-studio-accent min-h-[44px] transition-colors"
+                    className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-studio-raised hover:bg-studio-accent/20 border border-studio-border rounded-xl text-xs font-semibold text-studio-accent min-h-[38px] sm:min-h-[44px] transition-colors"
                     title="Generate 16:9 Concept Art with Gemini + FLUX"
                   >
                     {isIllustrating ? (
@@ -695,11 +695,11 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
                     ) : (
                       <span>🎨</span>
                     )}
-                    <span>{isIllustrating ? 'Illustrating...' : storyArt ? 'Re-Illustrate' : 'Illustrate Scene'}</span>
+                    <span>{isIllustrating ? 'Illustrating...' : storyArt ? 'Re-Illustrate' : 'Illustrate'}</span>
                   </button>
                   <button
                     onClick={handleCopy}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-studio-raised hover:bg-studio-raised/80 border border-studio-border rounded text-xs text-studio-text min-h-[44px]"
+                    className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-studio-raised hover:bg-studio-raised/80 border border-studio-border rounded-xl text-xs text-studio-text min-h-[38px] sm:min-h-[44px]"
                     title="Copy full story to clipboard"
                   >
                     {copied ? <Check className="w-3.5 h-3.5 text-status-consistent" /> : <Copy className="w-3.5 h-3.5" />}
@@ -707,11 +707,11 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
                   </button>
                   <button
                     onClick={handleDownload}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-studio-raised hover:bg-studio-raised/80 border border-studio-border rounded text-xs text-studio-text min-h-[44px]"
+                    className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-studio-raised hover:bg-studio-raised/80 border border-studio-border rounded-xl text-xs text-studio-text min-h-[38px] sm:min-h-[44px]"
                     title="Save story as text file"
                   >
                     <Download className="w-3.5 h-3.5" />
-                    <span>Save as text</span>
+                    <span>.txt</span>
                   </button>
                 </>
               )}
@@ -862,47 +862,47 @@ function WizardBottomControls({
   return (
     <div className="border-t border-studio-border pt-4 space-y-3">
       {showCustom && (
-        <form onSubmit={onCustomSubmit} className="flex gap-2">
+        <form onSubmit={onCustomSubmit} className="flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             value={customText}
             onChange={(e) => onCustomTextChange(e.target.value)}
             placeholder="Type your custom answer here..."
-            className="flex-1 bg-studio-bg border border-studio-border rounded px-3 py-2 text-sm text-studio-text focus:border-studio-accent focus:ring-1 focus:ring-studio-accent min-h-[44px]"
+            className="flex-1 bg-studio-bg border border-studio-border rounded-xl px-3 py-2 text-sm text-studio-text focus:border-studio-accent focus:ring-1 focus:ring-studio-accent min-h-[44px]"
           />
           <button
             type="submit"
             disabled={!customText.trim()}
-            className="px-4 py-2 bg-studio-accent hover:bg-studio-accent/90 disabled:opacity-50 text-studio-bg text-xs font-bold rounded min-h-[44px]"
+            className="px-4 py-2 bg-studio-accent hover:bg-studio-accent/90 disabled:opacity-50 text-studio-bg text-xs font-bold rounded-xl min-h-[44px] w-full sm:w-auto"
           >
             Apply
           </button>
         </form>
       )}
 
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-studio-muted hover:text-studio-text bg-studio-raised border border-studio-border rounded min-h-[44px]"
+          className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-studio-muted hover:text-studio-text bg-studio-raised border border-studio-border rounded-xl min-h-[38px] sm:min-h-[44px]"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back</span>
         </button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <button
             type="button"
             onClick={onToggleCustom}
-            className="px-3 py-2 text-xs font-semibold text-studio-muted hover:text-studio-text bg-studio-raised border border-studio-border rounded min-h-[44px]"
+            className="px-2.5 sm:px-3 py-2 text-xs font-semibold text-studio-muted hover:text-studio-text bg-studio-raised border border-studio-border rounded-xl min-h-[38px] sm:min-h-[44px]"
           >
-            {showCustom ? 'Hide custom' : 'Or type your own'}
+            {showCustom ? 'Hide custom' : 'Custom'}
           </button>
 
           <button
             type="button"
             onClick={onSurprise}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-studio-accent bg-studio-raised hover:bg-studio-accent/15 border border-studio-border hover:border-studio-accent rounded min-h-[44px]"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-xs font-semibold text-studio-accent bg-studio-raised hover:bg-studio-accent/15 border border-studio-border hover:border-studio-accent rounded-xl min-h-[38px] sm:min-h-[44px]"
           >
             <Shuffle className="w-3.5 h-3.5" />
             <span>Surprise me</span>

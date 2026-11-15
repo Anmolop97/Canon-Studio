@@ -120,13 +120,25 @@ main button[class*="bg-[#101C19]"], main button[class*="bg-studio-accent"], main
   border-color: transparent !important;
   box-shadow: 0 5px 14px rgba(41,55,43,.18);
 }
-main input, main textarea, main select {
+main input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), main select {
   background-color: rgba(255,252,241,.72) !important;
   color: var(--studio-text) !important;
   border-color: var(--studio-border) !important;
   border-radius: 999px;
 }
-.dark main input, .dark main textarea, .dark main select { background-color: rgba(22,32,25,.84) !important; }
+main textarea {
+  background-color: rgba(255,252,241,.72) !important;
+  color: var(--studio-text) !important;
+  border-color: var(--studio-border) !important;
+  border-radius: 16px !important;
+}
+.dark main input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), .dark main select {
+  background-color: rgba(22,32,25,.84) !important;
+}
+.dark main textarea {
+  background-color: rgba(22,32,25,.84) !important;
+  border-radius: 16px !important;
+}
 main [class*="rounded-2xl"], main [class*="rounded-xl"], main [class*="rounded-lg"] {
   box-shadow: 0 14px 38px rgba(51,61,39,.10);
 }
@@ -269,6 +281,17 @@ main .story-seed-card input { background: rgba(247,246,235,.34) !important; colo
 .dark .story-seed-card .story-surprise-button:hover { background: rgba(25,39,30,.78); }
 @media (max-width: 640px) {
   .story-seed-card::before { top: 10px; right: 10px; width: 48px; height: 46px; opacity: .24; }
+  main input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), main select {
+    border-radius: 14px !important;
+  }
+  main textarea {
+    border-radius: 14px !important;
+  }
+  /* Prevent horizontal blowout from any long titles or words */
+  h1, h2, h3, h4, p {
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
 }
 ::selection { background: rgba(184,145,69,.3); color: #263528; }
 

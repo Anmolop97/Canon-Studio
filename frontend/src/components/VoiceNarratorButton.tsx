@@ -25,7 +25,7 @@ export function VoiceNarratorButton({ className = "", compact = false }: VoiceNa
         <span className="relative flex items-center justify-center size-5 rounded-lg bg-indigo-50 dark:bg-sky-950/60 text-indigo-600 dark:text-sky-400 transition-colors shrink-0">
           <Volume2 className="size-3.5 transition-transform duration-200 group-hover:scale-110" />
         </span>
-        {!compact && <span>AI Voice Narrator</span>}
+        {!compact && <span className="hidden sm:inline">AI Voice Narrator</span>}
         <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-300/60 dark:border-amber-800/60 shrink-0">
           Soon
         </span>

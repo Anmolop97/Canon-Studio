@@ -97,7 +97,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
     >
       <div 
         data-lenis-prevent
-        className="w-full max-w-4xl bg-[#FAF9F3] dark:bg-slate-900 border border-[#D7C397] dark:border-slate-700 rounded-3xl shadow-2xl overflow-hidden relative text-[#101C19] dark:text-white flex flex-col lg:flex-row my-auto"
+        className="w-full max-w-4xl bg-[#FAF9F3] dark:bg-slate-900 border border-[#D7C397] dark:border-slate-700 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden relative text-[#101C19] dark:text-white flex flex-col lg:flex-row my-auto"
         role="dialog"
         aria-modal="true"
         aria-labelledby="auth-modal-title"
@@ -105,14 +105,14 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-2 text-[#58745C] hover:text-[#101C19] rounded-full bg-[#F4F0E5] dark:bg-slate-800 border border-[#D7C397] dark:border-slate-700 transition-colors cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center"
+          className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 z-20 p-2 text-[#58745C] hover:text-[#101C19] rounded-full bg-[#F4F0E5] dark:bg-slate-800 border border-[#D7C397] dark:border-slate-700 transition-colors cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center"
           aria-label="Close modal"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Left Form Column */}
-        <div className="flex-1 p-6 sm:p-10 flex flex-col justify-center">
+        <div className="flex-1 p-4 sm:p-10 flex flex-col justify-center">
           <motion.div
             variants={containerVariants}
             initial="hidden"

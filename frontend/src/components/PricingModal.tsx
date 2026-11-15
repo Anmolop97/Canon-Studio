@@ -84,11 +84,11 @@ export function PricingModal({ isOpen, onClose }: PricingModalProps) {
     >
       <div 
         data-lenis-prevent
-        className="relative w-full max-w-6xl max-h-[92vh] overflow-y-auto bg-[#FAF9F3] dark:bg-slate-900 border border-[#D7C397] dark:border-slate-700 rounded-3xl p-5 sm:p-10 shadow-2xl text-[#101C19] dark:text-white my-auto"
+        className="relative w-full max-w-6xl max-h-[92vh] overflow-y-auto bg-[#FAF9F3] dark:bg-slate-900 border border-[#D7C397] dark:border-slate-700 rounded-2xl sm:rounded-3xl p-4 sm:p-10 shadow-2xl text-[#101C19] dark:text-white my-auto"
       >
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 z-20 p-2.5 rounded-full text-studio-muted hover:text-studio-text hover:bg-studio-raised transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+          className="absolute right-3 top-3 sm:right-4 sm:top-4 z-20 p-2 rounded-full text-studio-muted hover:text-studio-text hover:bg-studio-raised transition-colors cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center"
           aria-label="Close pricing modal"
         >
           <X className="w-5 h-5" />

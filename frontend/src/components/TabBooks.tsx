@@ -183,10 +183,10 @@ export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
         </div>
 
         {/* View Switcher: Browse vs Best Books Top 20 */}
-        <div className="flex items-center gap-1 bg-[#F4F0E5] dark:bg-slate-900 border border-[#D7C397] dark:border-slate-700 rounded-xl p-1">
+        <div className="flex items-center gap-1 bg-[#F4F0E5] dark:bg-slate-900 border border-[#D7C397] dark:border-slate-700 rounded-xl p-1 w-full sm:w-auto">
           <button
             onClick={() => setViewMode('browse')}
-            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg transition-all min-h-[44px] cursor-pointer ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-bold rounded-lg transition-all min-h-[40px] sm:min-h-[44px] cursor-pointer ${
               viewMode === 'browse'
                 ? 'bg-[#101C19] text-[#E9E2CE] dark:bg-sky-500 dark:text-slate-950 shadow-xs'
                 : 'text-[#263F35] dark:text-slate-300 hover:text-[#101C19]'
@@ -197,7 +197,7 @@ export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
           </button>
           <button
             onClick={() => setViewMode('best')}
-            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg transition-all min-h-[44px] cursor-pointer ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-bold rounded-lg transition-all min-h-[40px] sm:min-h-[44px] cursor-pointer ${
               viewMode === 'best'
                 ? 'bg-[#101C19] text-[#E9E2CE] dark:bg-sky-500 dark:text-slate-950 shadow-xs'
                 : 'text-[#263F35] dark:text-slate-300 hover:text-[#101C19]'
@@ -408,24 +408,33 @@ export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
           <div className="w-full max-w-3xl bg-studio-card border border-studio-border rounded-lg shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-studio-text relative">
             
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-studio-border flex items-center justify-between">
-              <div>
-                <span className="text-xs text-studio-accent uppercase tracking-wider font-semibold">
+            <div className="p-3.5 sm:p-5 border-b border-studio-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative">
+              <div className="pr-10 sm:pr-0">
+                <span className="text-[11px] sm:text-xs text-studio-accent uppercase tracking-wider font-semibold">
                   {readingBook.genre} &bull; Episode {activeEpisodeIndex + 1} of {readingBook.episodes.length}
                 </span>
-                <h2 className="text-xl sm:text-2xl font-serif font-bold text-studio-text">
+                <h2 className="text-lg sm:text-2xl font-serif font-bold text-studio-text leading-tight">
                   {readingBook.title}
                 </h2>
-                <div className="text-xs text-studio-muted">
+                <div className="text-xs text-studio-muted mt-0.5">
                   Written by {readingBook.authorName}
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              {/* Close Button top-right on mobile */}
+              <button
+                onClick={() => setReadingBook(null)}
+                className="sm:hidden absolute top-3.5 right-3.5 p-2 text-studio-muted hover:text-studio-text rounded-lg min-h-[40px] min-w-[40px] flex items-center justify-center"
+                aria-label="Close reader"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-start sm:justify-end">
                 <VoiceNarratorButton />
                 {/* Export Options for Reader */}
-                <div className="flex items-center gap-1 bg-studio-bg border border-studio-border rounded p-1">
-                  <span className="text-[11px] text-studio-muted font-medium px-1.5 flex items-center gap-1">
+                <div className="flex items-center gap-1 bg-studio-bg border border-studio-border rounded-lg p-1">
+                  <span className="text-[11px] text-studio-muted font-medium px-1 flex items-center gap-1">
                     <Download className="w-3.5 h-3.5 text-studio-accent" />
                     <span className="hidden sm:inline">Export:</span>
                   </span>
@@ -433,7 +442,7 @@ export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
                     onClick={() => handleExportBook(readingBook.id, 'fountain')}
                     disabled={isExporting}
                     title="Export Screenplay (.fountain)"
-                    className="px-2 py-1 text-[11px] bg-studio-raised hover:bg-studio-accent hover:text-studio-bg text-studio-text rounded font-mono font-medium transition-colors min-h-[36px]"
+                    className="px-2 py-1 text-[11px] bg-studio-raised hover:bg-studio-accent hover:text-studio-bg text-studio-text rounded font-mono font-medium transition-colors min-h-[32px] sm:min-h-[36px]"
                   >
                     .fountain
                   </button>
@@ -441,7 +450,7 @@ export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
                     onClick={() => handleExportBook(readingBook.id, 'markdown')}
                     disabled={isExporting}
                     title="Export Markdown (.md)"
-                    className="px-2 py-1 text-[11px] bg-studio-raised hover:bg-studio-accent hover:text-studio-bg text-studio-text rounded font-mono font-medium transition-colors min-h-[36px]"
+                    className="px-2 py-1 text-[11px] bg-studio-raised hover:bg-studio-accent hover:text-studio-bg text-studio-text rounded font-mono font-medium transition-colors min-h-[32px] sm:min-h-[36px]"
                   >
                     .md
                   </button>
@@ -449,7 +458,7 @@ export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
                     onClick={() => handleExportBook(readingBook.id, 'txt')}
                     disabled={isExporting}
                     title="Export Plain Text (.txt)"
-                    className="px-2 py-1 text-[11px] bg-studio-raised hover:bg-studio-accent hover:text-studio-bg text-studio-text rounded font-mono font-medium transition-colors min-h-[36px]"
+                    className="px-2 py-1 text-[11px] bg-studio-raised hover:bg-studio-accent hover:text-studio-bg text-studio-text rounded font-mono font-medium transition-colors min-h-[32px] sm:min-h-[36px]"
                   >
                     .txt
                   </button>
@@ -457,7 +466,7 @@ export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
 
                 <button
                   onClick={() => setReadingBook(null)}
-                  className="p-2 text-studio-muted hover:text-studio-text rounded min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  className="hidden sm:flex p-2 text-studio-muted hover:text-studio-text rounded min-h-[44px] min-w-[44px] items-center justify-center"
                   aria-label="Close reader"
                 >
                   <X className="w-5 h-5" />
@@ -495,41 +504,41 @@ export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
             </div>
 
             {/* Reader Footer Controls: Episode Pagination, Like, Rating */}
-            <div className="p-4 sm:p-5 border-t border-studio-border bg-studio-raised space-y-3">
+            <div className="p-3.5 sm:p-5 border-t border-studio-border bg-studio-raised space-y-3">
               {readerFeedback && (
                 <div className="text-xs text-studio-accent text-center font-medium">
                   {readerFeedback}
                 </div>
               )}
 
-              <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                 {/* Episode Pagination */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between w-full sm:w-auto gap-2">
                   <button
                     disabled={activeEpisodeIndex === 0}
                     onClick={() => setActiveEpisodeIndex(prev => Math.max(0, prev - 1))}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-studio-card disabled:opacity-40 border border-studio-border text-xs rounded min-h-[44px]"
+                    className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 bg-studio-card disabled:opacity-40 border border-studio-border text-xs rounded-xl min-h-[40px] sm:min-h-[44px]"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
                     <span>Previous</span>
                   </button>
 
-                  <span className="text-xs text-studio-muted px-2">
+                  <span className="text-xs text-studio-muted px-2 font-medium shrink-0">
                     {activeEpisodeIndex + 1} / {readingBook.episodes.length}
                   </span>
 
                   <button
                     disabled={activeEpisodeIndex >= readingBook.episodes.length - 1}
                     onClick={() => setActiveEpisodeIndex(prev => Math.min(readingBook.episodes.length - 1, prev + 1))}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-studio-card disabled:opacity-40 border border-studio-border text-xs rounded min-h-[44px]"
+                    className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 bg-studio-card disabled:opacity-40 border border-studio-border text-xs rounded-xl min-h-[40px] sm:min-h-[44px]"
                   >
-                    <span>Next Episode</span>
+                    <span>Next</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
                 {/* Social Actions: Like & Rate */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center justify-between w-full sm:w-auto gap-3">
                   {/* Like Button */}
                   {currentUser && readingBook.authorId === currentUser.id ? (
                     <span className="text-[11px] text-studio-muted italic" title="Authors cannot like their own story">
@@ -538,7 +547,7 @@ export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
                   ) : (
                     <button
                       onClick={() => handleToggleLike(readingBook.id)}
-                      className={`flex items-center gap-1.5 px-3 py-2 rounded border text-xs font-semibold transition-colors min-h-[44px] ${
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold transition-colors min-h-[40px] sm:min-h-[44px] ${
                         readingBook.userHasLiked
                           ? 'bg-red-950/40 border-red-500 text-red-400'
                           : 'bg-studio-card border-studio-border text-studio-text hover:border-red-500'
@@ -556,13 +565,13 @@ export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
 
                   {/* 1-5 Star Rating */}
                   {currentUser && readingBook.authorId === currentUser.id ? null : (
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5 sm:gap-1">
                       <span className="text-[11px] text-studio-muted mr-1 hidden sm:inline">Rate:</span>
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
                           key={star}
                           onClick={() => handleRateBook(readingBook.id, star)}
-                          className="p-1.5 text-studio-muted hover:text-studio-accent transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+                          className="p-1 sm:p-1.5 text-studio-muted hover:text-studio-accent transition-colors min-h-[36px] min-w-[32px] sm:min-w-[36px] flex items-center justify-center"
                           title={currentUser ? `Rate ${star} stars` : 'Sign in to rate'}
                         >
                           <Star

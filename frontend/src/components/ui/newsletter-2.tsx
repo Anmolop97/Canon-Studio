@@ -36,7 +36,7 @@ export const Newsletter2: React.FC<Newsletter2Props> = ({
   return (
     <section className="w-full py-8">
       {/* Curved Capsule Ribbon Silhouette (Enchanted Forest: Warm Cream + Gold Border + Forest Green Action) */}
-      <div className="relative overflow-hidden rounded-3xl lg:rounded-full border border-[#D7C397] dark:border-slate-800 bg-[#F4F0E5]/95 dark:bg-slate-900/90 backdrop-blur-xl px-6 sm:px-10 py-6 sm:py-7 shadow-xl">
+      <div className="relative overflow-hidden rounded-3xl lg:rounded-full border border-[#D7C397] dark:border-slate-800 bg-[#F4F0E5]/95 dark:bg-slate-900/90 backdrop-blur-xl px-4 sm:px-10 py-5 sm:py-7 shadow-xl">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
           
           {/* Left Info: Header & Support Channels */}
@@ -81,7 +81,7 @@ export const Newsletter2: React.FC<Newsletter2Props> = ({
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-2.5 w-full">
-                <div className="relative flex-1 w-full min-w-[260px]">
+                <div className="relative flex-1 w-full min-w-0">
                   <Input
                     type="email"
                     value={email}

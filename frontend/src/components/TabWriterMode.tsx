@@ -564,15 +564,15 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-6 space-y-6">
       
       {/* Top Workspace Header (Enchanted Forest) */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#D7C397]/60 pb-4">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 border-b border-[#D7C397]/60 pb-4">
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <select
             value={selectedDraftId || ''}
             onChange={(e) => {
               const d = drafts.find(x => x.id === e.target.value);
               if (d) selectDraft(d);
             }}
-            className="bg-[#FAF9F3] dark:bg-slate-900 border border-[#D7C397] dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-serif font-bold text-[#101C19] dark:text-white focus:border-[#101C19] min-h-[44px] max-w-[240px] truncate shadow-xs"
+            className="bg-[#FAF9F3] dark:bg-slate-900 border border-[#D7C397] dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-serif font-bold text-[#101C19] dark:text-white focus:border-[#101C19] min-h-[44px] flex-1 sm:flex-initial max-w-full sm:max-w-[240px] truncate shadow-xs"
           >
             {drafts.map(d => (
               <option key={d.id} value={d.id}>
@@ -583,7 +583,7 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
 
           <button
             onClick={handleNewDraft}
-            className="flex items-center gap-1.5 px-3 py-2 bg-[#FAF9F3] hover:bg-[#F4F0E5] border border-[#D7C397] text-xs text-[#101C19] rounded-xl font-bold min-h-[44px] transition-all shadow-xs cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 bg-[#FAF9F3] hover:bg-[#F4F0E5] border border-[#D7C397] text-xs text-[#101C19] rounded-xl font-bold min-h-[44px] transition-all shadow-xs cursor-pointer shrink-0"
             title="Create a new serialized saga draft"
           >
             <Plus className="w-3.5 h-3.5 text-[#58745C]" />
@@ -592,10 +592,10 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
         </div>
 
         {/* Publishing & Delete Draft Buttons */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
           <VoiceNarratorButton />
           {/* Screenplay & Bible Export Group */}
-          <div className="flex items-center gap-1 bg-studio-raised border border-studio-border rounded p-1">
+          <div className="flex items-center gap-1 bg-studio-raised border border-studio-border rounded-xl p-1">
             <span className="text-[11px] text-studio-muted font-medium px-1.5 flex items-center gap-1">
               <Download className="w-3.5 h-3.5 text-studio-accent" />
               <span className="hidden sm:inline">Export:</span>
@@ -604,7 +604,7 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
               onClick={() => handleExportDraft('fountain')}
               disabled={isExporting}
               title="Export as Industry Standard Screenplay (.fountain)"
-              className="px-2 py-1 text-[11px] bg-studio-card hover:bg-studio-accent hover:text-studio-bg text-studio-text rounded font-mono font-medium transition-colors min-h-[36px]"
+              className="px-2 py-1 text-[11px] bg-studio-card hover:bg-studio-accent hover:text-studio-bg text-studio-text rounded-lg font-mono font-medium transition-colors min-h-[36px]"
             >
               .fountain
             </button>
@@ -612,7 +612,7 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
               onClick={() => handleExportDraft('markdown')}
               disabled={isExporting}
               title="Export Story Bible, Episodes & Canon Facts (.md)"
-              className="px-2 py-1 text-[11px] bg-studio-card hover:bg-studio-accent hover:text-studio-bg text-studio-text rounded font-mono font-medium transition-colors min-h-[36px]"
+              className="px-2 py-1 text-[11px] bg-studio-card hover:bg-studio-accent hover:text-studio-bg text-studio-text rounded-lg font-mono font-medium transition-colors min-h-[36px]"
             >
               .md
             </button>
@@ -620,7 +620,7 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
               onClick={() => handleExportDraft('txt')}
               disabled={isExporting}
               title="Export Plain Text (.txt)"
-              className="px-2 py-1 text-[11px] bg-studio-card hover:bg-studio-accent hover:text-studio-bg text-studio-text rounded font-mono font-medium transition-colors min-h-[36px]"
+              className="px-2 py-1 text-[11px] bg-studio-card hover:bg-studio-accent hover:text-studio-bg text-studio-text rounded-lg font-mono font-medium transition-colors min-h-[36px]"
             >
               .txt
             </button>
@@ -634,13 +634,13 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
               </span>
               <button
                 onClick={handlePublish}
-                className="px-3 py-1.5 bg-studio-raised border border-studio-border text-xs text-studio-text rounded min-h-[44px]"
+                className="px-3 py-1.5 bg-studio-raised border border-studio-border text-xs text-studio-text rounded-xl min-h-[44px]"
               >
                 Update Published
               </button>
               <button
                 onClick={handleUnpublish}
-                className="px-3 py-1.5 bg-studio-raised border border-studio-border text-xs text-studio-muted hover:text-red-400 rounded min-h-[44px]"
+                className="px-3 py-1.5 bg-studio-raised border border-studio-border text-xs text-studio-muted hover:text-red-400 rounded-xl min-h-[44px]"
               >
                 Unpublish
               </button>
@@ -648,7 +648,7 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
           ) : (
             <button
               onClick={handlePublish}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-studio-accent hover:bg-studio-accent/90 text-studio-bg font-bold text-xs rounded min-h-[44px]"
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-studio-accent hover:bg-studio-accent/90 text-studio-bg font-bold text-xs rounded-xl min-h-[44px]"
             >
               <Globe className="w-3.5 h-3.5" />
               <span>Publish to Books</span>
@@ -658,7 +658,7 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
           {/* Delete Story Draft (2 clicks) */}
           <button
             onClick={handleDeleteDraft}
-            className={`flex items-center gap-1 px-3 py-2 text-xs rounded border transition-colors min-h-[44px] ${
+            className={`flex items-center gap-1 px-3 py-2 text-xs rounded-xl border transition-colors min-h-[44px] ${
               confirmDeleteDraft
                 ? 'bg-status-contradiction text-white border-status-contradiction font-bold'
                 : 'bg-studio-raised border-studio-border text-studio-muted hover:text-red-400'
@@ -777,21 +777,21 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
         {/* LEFT: EPISODE EDITOR (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
           <div className="bg-studio-card border border-studio-border rounded-lg p-5">
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 mb-3">
               <input
                 type="text"
                 value={currentEpisode.title}
                 onChange={(e) => handleEpisodeTitleChange(e.target.value)}
                 placeholder="Episode Title (e.g. Episode 1: Acid on Carbon)"
-                className="flex-1 bg-studio-bg border border-studio-border rounded px-3 py-2 text-sm font-serif font-bold text-studio-text focus:border-studio-accent min-h-[44px]"
+                className="w-full sm:flex-1 bg-studio-bg border border-studio-border rounded-xl px-3 py-2 text-sm font-serif font-bold text-studio-text focus:border-studio-accent min-h-[44px]"
               />
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                 <button
                   type="button"
                   disabled={isIllustrating || !currentEpisode.content?.trim()}
                   onClick={handleIllustrateEpisode}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-studio-raised hover:bg-studio-accent/20 border border-studio-border text-xs font-semibold text-studio-accent rounded min-h-[44px] disabled:opacity-50 transition-colors"
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 bg-studio-raised hover:bg-studio-accent/20 border border-studio-border text-xs font-semibold text-studio-accent rounded-xl min-h-[40px] sm:min-h-[44px] disabled:opacity-50 transition-colors"
                   title="Generate 16:9 Concept Art with Gemini Art Director + FLUX"
                 >
                   {isIllustrating ? (
@@ -799,13 +799,13 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
                   ) : (
                     <Sparkles className="w-3.5 h-3.5 text-purple-400" />
                   )}
-                  <span>{isIllustrating ? 'Illustrating...' : currentEpisode.imageUrl ? 'Re-Illustrate' : '🎨 Illustrate Scene'}</span>
+                  <span>{isIllustrating ? 'Illustrating...' : currentEpisode.imageUrl ? 'Re-Illustrate' : '🎨 Illustrate'}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setShowAiDraftModal(true)}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-studio-raised hover:bg-studio-accent/20 border border-studio-border text-xs font-semibold text-studio-accent rounded min-h-[44px]"
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 bg-studio-raised hover:bg-studio-accent/20 border border-studio-border text-xs font-semibold text-studio-accent rounded-xl min-h-[40px] sm:min-h-[44px]"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Draft with AI</span>
@@ -860,26 +860,26 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
                 {currentEpisode.content.split(/\s+/).filter(Boolean).length} words
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
                 <button
                   type="button"
                   disabled={isAuditing || !currentEpisode.content.trim()}
                   onClick={handleCheckCanon}
-                  className="flex items-center gap-1.5 px-4 py-2.5 bg-studio-raised hover:bg-studio-raised/80 disabled:opacity-50 border border-studio-border text-xs font-bold text-studio-text rounded transition-colors min-h-[44px] cursor-pointer"
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 bg-studio-raised hover:bg-studio-raised/80 disabled:opacity-50 border border-studio-border text-xs font-bold text-studio-text rounded-xl transition-colors min-h-[44px] cursor-pointer"
                 >
                   {isAuditing ? (
                     <RefreshCw className="w-3.5 h-3.5 animate-spin text-studio-accent" />
                   ) : (
                     <ShieldCheck className="w-4 h-4 text-studio-accent" />
                   )}
-                  <span>Check against canon</span>
+                  <span>Check canon</span>
                 </button>
 
                 <button
                   type="button"
                   disabled={savingDraft}
                   onClick={handleSaveDraft}
-                  className="flex items-center gap-1.5 px-5 py-2.5 bg-studio-accent hover:bg-studio-accent/90 disabled:opacity-50 text-studio-bg font-bold text-xs rounded transition-colors min-h-[44px] cursor-pointer"
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-5 py-2.5 bg-studio-accent hover:bg-studio-accent/90 disabled:opacity-50 text-studio-bg font-bold text-xs rounded-xl transition-colors min-h-[44px] cursor-pointer"
                 >
                   <Save className="w-3.5 h-3.5" />
                   <span>{savingDraft ? 'Saving...' : 'Save Episode'}</span>
@@ -942,14 +942,14 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
                       <div className="text-[11px] text-studio-muted">
                         Earlier quote (Ep {conf.earlierEpisode}): &ldquo;{conf.earlierQuote}&rdquo;
                       </div>
-                      <div className="pt-1 flex items-center justify-between">
-                        <span className="text-[11px] text-studio-accent italic">
+                      <div className="pt-1 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                        <span className="text-[11px] text-studio-accent italic break-words">
                           Fix: &ldquo;{conf.fixSuggestion}&rdquo;
                         </span>
                         <button
                           type="button"
                           onClick={() => handleApplyFix(conf)}
-                          className="px-2.5 py-1 bg-studio-accent text-studio-bg font-bold rounded text-[11px] min-h-[36px]"
+                          className="px-2.5 py-1 bg-studio-accent text-studio-bg font-bold rounded-lg text-[11px] min-h-[36px] w-full sm:w-auto shrink-0"
                         >
                           Apply Fix
                         </button>
@@ -968,7 +968,7 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
                   </div>
 
                   {auditResult.voice.map(v => (
-                    <div key={v.id} className="p-3 bg-amber-950/20 border border-status-warning/40 rounded text-xs space-y-2">
+                    <div key={v.id} className="p-3 bg-amber-950/20 border border-status-warning/40 rounded-xl text-xs space-y-2">
                       <div className="font-semibold text-studio-accent">
                         Character: {v.character}
                       </div>
@@ -978,14 +978,14 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
                       <div className="text-[11px] text-amber-200">
                         {v.issue}
                       </div>
-                      <div className="pt-1 flex items-center justify-between">
-                        <span className="text-[11px] text-studio-text italic">
+                      <div className="pt-1 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                        <span className="text-[11px] text-studio-text italic break-words">
                           Rewrite: &ldquo;{v.rewrite}&rdquo;
                         </span>
                         <button
                           type="button"
                           onClick={() => handleApplyVoiceRewrite(v)}
-                          className="px-2.5 py-1 bg-studio-accent text-studio-bg font-bold rounded text-[11px] min-h-[36px]"
+                          className="px-2.5 py-1 bg-studio-accent text-studio-bg font-bold rounded-lg text-[11px] min-h-[36px] w-full sm:w-auto shrink-0"
                         >
                           Use this rewrite
                         </button>

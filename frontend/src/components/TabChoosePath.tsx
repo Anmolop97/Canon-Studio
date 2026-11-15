@@ -305,7 +305,7 @@ export function TabChoosePath({
         description={"Every choice branches the story tree into uncharted territory.\nMake tactical decisions and illustrate the climax in 16:9 cinematic concept art."}
         usersText="Over 20k active users"
       >
-        <div className="bg-[#f8f1df]/48 dark:bg-[#1d2921]/48 backdrop-blur-2xl border border-white/55 dark:border-white/15 shadow-[0_24px_70px_rgba(41,55,43,0.2),inset_0_1px_0_rgba(255,255,255,0.62)] rounded-[28px] p-6 sm:p-8 text-left max-w-2xl w-full mx-auto text-[#101C19] dark:text-white space-y-5 transition-all">
+        <div className="bg-[#f8f1df]/48 dark:bg-[#1d2921]/48 backdrop-blur-2xl border border-white/55 dark:border-white/15 shadow-[0_24px_70px_rgba(41,55,43,0.2),inset_0_1px_0_rgba(255,255,255,0.62)] rounded-2xl sm:rounded-[28px] p-4 sm:p-8 text-left max-w-2xl w-full mx-auto text-[#101C19] dark:text-white space-y-4 sm:space-y-5 transition-all">
           {errorMessage && (
             <div className="p-3 bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800 rounded-xl text-xs text-red-700 dark:text-red-300 flex items-center justify-between">
               <span>{errorMessage}</span>
@@ -326,7 +326,7 @@ export function TabChoosePath({
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-xs font-bold text-[#58745C] dark:text-sky-400 uppercase tracking-wider mb-2">
                 Genre
@@ -369,21 +369,21 @@ export function TabChoosePath({
             <label className="block text-xs font-bold text-[#58745C] dark:text-sky-400 uppercase tracking-wider mb-2">
               Decisions Before Climactic Ending
             </label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
               {[3, 5, 8].map((num) => (
                 <button
                   key={num}
                   type="button"
                   onClick={() => setMaxDecisions(num)}
-                  className={`py-2.5 px-3 rounded-xl border text-center transition-all cursor-pointer ${
+                  className={`py-2 px-1 sm:py-2.5 sm:px-3 rounded-xl border text-center transition-all cursor-pointer ${
                     maxDecisions === num
                       ? 'bg-[#101C19] text-[#E9E2CE] border-[#101C19] shadow-sm font-bold'
                       : 'bg-[#FAF9F3] border-[#D7C397] text-[#101C19] hover:bg-[#E9E2CE]'
                   }`}
                 >
-                  <div className="text-sm font-serif font-bold">{num} Decisions</div>
-                  <div className="text-[10px] opacity-80">
-                    {num === 3 ? '~500 words' : num === 5 ? '~900 words' : '~1,400 words'}
+                  <div className="text-xs sm:text-sm font-serif font-bold whitespace-nowrap">{num} Choices</div>
+                  <div className="text-[9px] sm:text-[10px] opacity-80 whitespace-nowrap">
+                    {num === 3 ? '~500w' : num === 5 ? '~900w' : '~1.4kw'}
                   </div>
                 </button>
               ))}
@@ -425,26 +425,26 @@ export function TabChoosePath({
         </div>
 
         {inGame && (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             <button
               onClick={handleCopyPath}
-              className="flex items-center gap-1.5 px-3 py-2 bg-studio-card hover:bg-studio-raised border border-studio-border text-studio-text rounded text-xs min-h-[44px]"
+              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-studio-card hover:bg-studio-raised border border-studio-border text-studio-text rounded-xl text-xs min-h-[38px] sm:min-h-[44px]"
               title="Copy active narrative path"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-status-consistent" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copied ? 'Copied' : 'Copy this path'}</span>
+              <span>{copied ? 'Copied' : 'Copy'}</span>
             </button>
             <button
               onClick={handleExportJourney}
-              className="flex items-center gap-1.5 px-3 py-2 bg-studio-card hover:bg-studio-raised border border-studio-border text-studio-text rounded text-xs min-h-[44px]"
+              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-studio-card hover:bg-studio-raised border border-studio-border text-studio-text rounded-xl text-xs min-h-[38px] sm:min-h-[44px]"
               title="Export Branching Journey Log as Markdown"
             >
               <Download className="w-3.5 h-3.5 text-studio-accent" />
-              <span>Export Log (.md)</span>
+              <span>Export (.md)</span>
             </button>
             <button
               onClick={handleDownloadPath}
-              className="flex items-center gap-1.5 px-3 py-2 bg-studio-card hover:bg-studio-raised border border-studio-border text-studio-text rounded text-xs min-h-[44px]"
+              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 bg-studio-card hover:bg-studio-raised border border-studio-border text-studio-text rounded-xl text-xs min-h-[38px] sm:min-h-[44px]"
               title="Save path as text file"
             >
               <Download className="w-3.5 h-3.5" />
@@ -452,7 +452,7 @@ export function TabChoosePath({
             </button>
             <button
               onClick={() => setInGame(false)}
-              className="flex items-center gap-1.5 px-3 py-2 bg-studio-raised hover:bg-studio-accent/20 border border-studio-border text-xs text-studio-muted hover:text-studio-text rounded min-h-[44px]"
+              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-studio-raised hover:bg-studio-accent/20 border border-studio-border text-xs text-studio-muted hover:text-studio-text rounded-xl min-h-[38px] sm:min-h-[44px]"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>New Setup</span>
@@ -556,12 +556,12 @@ export function TabChoosePath({
                     </div>
                   )}
 
-                  <div className="flex flex-wrap justify-center gap-3 pt-2">
+                  <div className="flex flex-wrap justify-center gap-2 sm:gap-3 pt-2">
                     {!climaxArt && (
                       <button
                         onClick={handleIllustrateClimax}
                         disabled={isIllustratingClimax}
-                        className="px-4 py-2 bg-studio-raised hover:bg-studio-accent/20 border border-studio-border text-studio-accent font-bold text-xs rounded min-h-[44px] flex items-center gap-1.5"
+                        className="w-full sm:w-auto px-4 py-2 bg-studio-raised hover:bg-studio-accent/20 border border-studio-border text-studio-accent font-bold text-xs rounded-xl min-h-[44px] flex items-center justify-center gap-1.5"
                       >
                         {isIllustratingClimax ? (
                           <div className="w-3.5 h-3.5 border-2 border-studio-accent border-t-transparent rounded-full animate-spin" />
@@ -573,20 +573,20 @@ export function TabChoosePath({
                     )}
                     <button
                       onClick={handleExportJourney}
-                      className="px-4 py-2 bg-studio-accent text-studio-bg font-bold text-xs rounded min-h-[44px] flex items-center gap-1.5"
+                      className="w-full sm:w-auto px-4 py-2 bg-studio-accent text-studio-bg font-bold text-xs rounded-xl min-h-[44px] flex items-center justify-center gap-1.5"
                     >
                       <Download className="w-4 h-4" />
                       <span>Export Journey (.md)</span>
                     </button>
                     <button
                       onClick={handleCopyPath}
-                      className="px-4 py-2 bg-studio-raised border border-studio-border text-studio-text font-bold text-xs rounded min-h-[44px]"
+                      className="w-full sm:w-auto px-4 py-2 bg-studio-raised border border-studio-border text-studio-text font-bold text-xs rounded-xl min-h-[44px]"
                     >
                       Copy Full Story
                     </button>
                     <button
                       onClick={() => setInGame(false)}
-                      className="px-4 py-2 bg-studio-raised border border-studio-border text-studio-text text-xs rounded min-h-[44px]"
+                      className="w-full sm:w-auto px-4 py-2 bg-studio-raised border border-studio-border text-studio-text text-xs rounded-xl min-h-[44px]"
                     >
                       Start New Journey
                     </button>
@@ -607,18 +607,18 @@ export function TabChoosePath({
                           key={opt.id}
                           disabled={loadingNext}
                           onClick={() => handleSelectOption(opt.text)}
-                          className={`w-full p-4 rounded border text-left transition-all min-h-[56px] flex items-start gap-3 ${
+                          className={`w-full p-3 sm:p-4 rounded-xl border text-left transition-all min-h-[56px] flex items-start gap-2.5 sm:gap-3 ${
                             isExplored
                               ? 'bg-studio-raised/40 border-studio-border/60 text-studio-muted'
                               : 'bg-studio-raised hover:bg-studio-raised/80 hover:border-studio-accent border-studio-border text-studio-text'
                           }`}
                         >
-                          <div className="mt-0.5 p-1 bg-studio-card border border-studio-border rounded flex-shrink-0">
+                          <div className="mt-0.5 p-1 bg-studio-card border border-studio-border rounded-lg flex-shrink-0">
                             {getOptionIcon(opt.type)}
                           </div>
-                          <div className="flex-1">
+                          <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="text-xs font-semibold uppercase tracking-wider text-studio-accent">
+                              <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-studio-accent">
                                 [{opt.type}]
                               </span>
                               {isExplored && (
@@ -627,7 +627,7 @@ export function TabChoosePath({
                                 </span>
                               )}
                             </div>
-                            <div className="text-sm font-medium mt-0.5">
+                            <div className="text-xs sm:text-sm font-medium mt-0.5 break-words">
                               {opt.text}
                             </div>
                           </div>
@@ -638,23 +638,23 @@ export function TabChoosePath({
                   </div>
 
                   {/* Free-text "Or do something else" Box */}
-                  <div className="p-3 bg-studio-raised border border-studio-border rounded-md">
+                  <div className="p-3 bg-studio-raised border border-studio-border rounded-xl">
                     <div className="text-xs font-semibold text-studio-muted uppercase tracking-wider mb-2">
                       Or do something else:
                     </div>
-                    <form onSubmit={handleCustomActionSubmit} className="flex gap-2">
+                    <form onSubmit={handleCustomActionSubmit} className="flex flex-col sm:flex-row gap-2">
                       <input
                         type="text"
                         disabled={loadingNext}
                         value={customActionText}
                         onChange={(e) => setCustomActionText(e.target.value)}
                         placeholder="Type an unscripted action or creative maneuver..."
-                        className="flex-1 bg-studio-bg border border-studio-border rounded px-3 py-2 text-sm text-studio-text focus:border-studio-accent focus:ring-1 focus:ring-studio-accent min-h-[44px]"
+                        className="flex-1 bg-studio-bg border border-studio-border rounded-xl px-3 py-2 text-sm text-studio-text focus:border-studio-accent focus:ring-1 focus:ring-studio-accent min-h-[44px]"
                       />
                       <button
                         type="submit"
                         disabled={loadingNext || !customActionText.trim()}
-                        className="px-4 py-2 bg-studio-accent hover:bg-studio-accent/90 disabled:opacity-50 text-studio-bg font-bold text-xs rounded transition-colors min-h-[44px]"
+                        className="px-5 py-2 bg-studio-accent hover:bg-studio-accent/90 disabled:opacity-50 text-studio-bg font-bold text-xs rounded-xl transition-colors min-h-[44px] w-full sm:w-auto shrink-0"
                       >
                         Execute
                       </button>
