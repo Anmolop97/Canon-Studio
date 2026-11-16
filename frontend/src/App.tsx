@@ -24,6 +24,14 @@ export function App() {
   const [isArchitectureOpen, setIsArchitectureOpen] = useState(false);
   const [showError404, setShowError404] = useState(false);
   const [apiLimitNotice, setApiLimitNotice] = useState<{ retryAfterSeconds: number | null } | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleOpenAuth = (mode: 'login' | 'register' = 'login') => {
     setAuthModalMode(mode);
@@ -140,15 +148,15 @@ export function App() {
 
       {/* Full-resolution Canva storybook landscape background */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-        {/* Layer 1: Smooth Panoramic Ken Burns Landscape Motion with Cinematic Entrance */}
+        {/* Layer 1: Smooth Panoramic Ken Burns Landscape Motion with Cinematic Entrance (Disabled on mobile to conserve GPU/battery) */}
         <motion.div
           initial={{ opacity: 0, scale: 1.045 }}
-          animate={{
+          animate={isMobile ? { opacity: 1, scale: 1, x: 0 } : {
             opacity: 1,
             scale: [1.02, 1.038, 1.02],
             x: ['0%', '0.35%', '0%'],
           }}
-          transition={{
+          transition={isMobile ? { opacity: { duration: 0.6 } } : {
             opacity: { duration: 1.2, ease: [0.16, 1, 0.3, 1] },
             scale: { duration: 36, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' },
             x: { duration: 36, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' },

@@ -148,7 +148,7 @@ export function Header({
                   role="tab"
                   aria-selected={isActive}
                   onClick={() => onTabChange(item.id)}
-                  className={`flex-1 flex items-center justify-center gap-1 py-1.5 px-1 sm:px-2 text-[11px] font-semibold rounded-full transition-all min-h-[36px] cursor-pointer ${
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-1.5 sm:px-2 text-[11px] sm:text-xs font-semibold rounded-full transition-all min-h-[42px] cursor-pointer touch-manipulation ${
                     isActive
                       ? 'text-[#E9E2CE] bg-[#101C19] shadow-sm font-bold dark:bg-[#3B4A38] dark:text-[#F5EEDC]'
                       : 'text-[#263F35] hover:text-[#101C19] dark:text-slate-300'
