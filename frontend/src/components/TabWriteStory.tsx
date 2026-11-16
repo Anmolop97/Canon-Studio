@@ -106,15 +106,6 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
   // Abort controller / stop ref
   const abortRef = useRef<boolean>(false);
 
-  // Fetch AI Question when navigating to step 4, 5, 6
-  useEffect(() => {
-    if (currentStep >= 4 && currentStep <= 6) {
-      loadAiQuestion(currentStep);
-    }
-    setShowCustomInput(false);
-    setCustomInputText('');
-  }, [currentStep]);
-
   const loadAiQuestion = async (step: number) => {
     setLoadingQuestion(true);
     setQuestionError(null);
@@ -136,6 +127,15 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
       setLoadingQuestion(false);
     }
   };
+
+  // Fetch AI Question when navigating to step 4, 5, 6
+  useEffect(() => {
+    if (currentStep >= 4 && currentStep <= 6) {
+      loadAiQuestion(currentStep);
+    }
+    setShowCustomInput(false);
+    setCustomInputText('');
+  }, [currentStep]);
 
   // Step 0 handlers
   const handleKeywordSelect = (kw: string) => {

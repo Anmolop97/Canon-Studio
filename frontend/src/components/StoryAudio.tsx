@@ -33,6 +33,13 @@ export function StoryAudio({ storyText }: StoryAudioProps) {
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const queueRef = useRef<string[]>([]);
 
+  const cancelSpeech = () => {
+    window.speechSynthesis.cancel();
+    setPlaying(false);
+    setPaused(false);
+    utteranceRef.current = null;
+  };
+
   // Load voices (asynchronously)
   useEffect(() => {
     if (!('speechSynthesis' in window)) {
@@ -64,13 +71,6 @@ export function StoryAudio({ storyText }: StoryAudioProps) {
       queueRef.current = [];
     }
   }, [storyText]);
-
-  const cancelSpeech = () => {
-    window.speechSynthesis.cancel();
-    setPlaying(false);
-    setPaused(false);
-    utteranceRef.current = null;
-  };
 
   const speakNext = () => {
     if (!queueRef.current.length) {

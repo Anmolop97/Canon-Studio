@@ -76,35 +76,6 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
   const [confirmDeleteDraft, setConfirmDeleteDraft] = useState(false);
   const [confirmDeleteEpisode, setConfirmDeleteEpisode] = useState(false);
 
-  // Load user drafts on auth
-  useEffect(() => {
-    if (currentUser) {
-      loadDrafts();
-    }
-  }, [currentUser]);
-
-  // Handle preloaded draft from Tab 1
-  useEffect(() => {
-    if (currentUser && preloadedDraft && preloadedDraft.title) {
-      handleCreatePreloadedDraft(preloadedDraft);
-    }
-  }, [preloadedDraft, currentUser]);
-
-  const loadDrafts = async () => {
-    setLoadingDrafts(true);
-    try {
-      const data = await api.getDrafts();
-      setDrafts(data);
-      if (data.length > 0 && !selectedDraftId) {
-        selectDraft(data[0]);
-      }
-    } catch (err) {
-      console.error('Failed to load drafts:', err);
-    } finally {
-      setLoadingDrafts(false);
-    }
-  };
-
   const selectDraft = (d: Draft) => {
     setSelectedDraftId(d.id);
     setActiveTitle(d.title);
@@ -120,6 +91,21 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
     setSaveNotice(null);
     setConfirmDeleteDraft(false);
     setConfirmDeleteEpisode(false);
+  };
+
+  const loadDrafts = async () => {
+    setLoadingDrafts(true);
+    try {
+      const data = await api.getDrafts();
+      setDrafts(data);
+      if (data.length > 0 && !selectedDraftId) {
+        selectDraft(data[0]);
+      }
+    } catch (err) {
+      console.error('Failed to load drafts:', err);
+    } finally {
+      setLoadingDrafts(false);
+    }
   };
 
   const handleCreatePreloadedDraft = async (preload: { title: string; genre: string; content: string; imageUrl?: string; imagePrompt?: string }) => {
@@ -149,6 +135,20 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
       console.error('Failed to create preloaded draft:', err);
     }
   };
+
+  // Load user drafts on auth
+  useEffect(() => {
+    if (currentUser) {
+      loadDrafts();
+    }
+  }, [currentUser]);
+
+  // Handle preloaded draft from Tab 1
+  useEffect(() => {
+    if (currentUser && preloadedDraft && preloadedDraft.title) {
+      handleCreatePreloadedDraft(preloadedDraft);
+    }
+  }, [preloadedDraft, currentUser]);
 
   const handleNewDraft = async () => {
     try {

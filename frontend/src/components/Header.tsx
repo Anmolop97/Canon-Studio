@@ -44,7 +44,7 @@ export function Header({
         <div className="flex items-center justify-between h-14 sm:h-18 gap-1.5 sm:gap-2">
           
           {/* Logo & Studio Working Title */}
-          <div className="brand-area flex items-center gap-2 sm:gap-3 shrink-0 max-w-[120px]">
+          <div className="brand-area flex items-center gap-2 sm:gap-3 shrink-0">
             <img
               src={canonLogo}
               alt="Canon Studio Emblem"
