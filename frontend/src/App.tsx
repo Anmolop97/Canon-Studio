@@ -20,9 +20,15 @@ export function App() {
   const [_wizardStep, setWizardStep] = useState<number>(0);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
   const [isArchitectureOpen, setIsArchitectureOpen] = useState(false);
   const [showError404, setShowError404] = useState(false);
   const [apiLimitNotice, setApiLimitNotice] = useState<{ retryAfterSeconds: number | null } | null>(null);
+
+  const handleOpenAuth = (mode: 'login' | 'register' = 'login') => {
+    setAuthModalMode(mode);
+    setIsAuthModalOpen(true);
+  };
 
   // Cross-tab transfer states
   const [preloadedBranchingPremise, setPreloadedBranchingPremise] = useState<{
@@ -111,7 +117,7 @@ export function App() {
   const handleSaveToWriter = (story: { title: string; genre: string; content: string; imageUrl?: string; imagePrompt?: string }) => {
     setPreloadedDraft(story);
     if (!currentUser) {
-      setIsAuthModalOpen(true);
+      handleOpenAuth('register');
     } else {
       setActiveTab('writer');
     }
@@ -180,7 +186,7 @@ export function App() {
           activeTab={activeTab}
           onTabChange={setActiveTab}
           currentUser={currentUser}
-          onOpenAuth={() => setIsAuthModalOpen(true)}
+          onOpenAuth={() => handleOpenAuth('login')}
           onLogout={handleLogout}
           isDarkMode={isDarkMode}
           onToggleTheme={handleToggleTheme}
@@ -210,7 +216,7 @@ export function App() {
                 onSaveToWriter={handleSaveToWriter}
                 onStepChange={setWizardStep}
                 onNavigateTab={setActiveTab}
-                onOpenAuth={() => setIsAuthModalOpen(true)}
+                onOpenAuth={() => handleOpenAuth('login')}
                 currentUser={currentUser}
               />
             )}
@@ -219,7 +225,7 @@ export function App() {
               <TabChoosePath
                 initialPremise={preloadedBranchingPremise}
                 onNavigateTab={setActiveTab}
-                onOpenAuth={() => setIsAuthModalOpen(true)}
+                onOpenAuth={() => handleOpenAuth('login')}
                 currentUser={currentUser}
               />
             )}
@@ -227,7 +233,7 @@ export function App() {
             {activeTab === 'writer' && (
               <TabWriterMode
                 currentUser={currentUser}
-                onOpenAuth={() => setIsAuthModalOpen(true)}
+                onOpenAuth={() => handleOpenAuth('login')}
                 onAuthSuccess={handleAuthSuccess}
                 preloadedDraft={preloadedDraft}
                 onNavigateTab={setActiveTab}
@@ -237,7 +243,7 @@ export function App() {
             {activeTab === 'books' && (
               <TabBooks
                 currentUser={currentUser}
-                onOpenAuth={() => setIsAuthModalOpen(true)}
+                onOpenAuth={() => handleOpenAuth('login')}
                 onNavigateTab={setActiveTab}
               />
             )}
@@ -262,6 +268,7 @@ export function App() {
       {/* Authentication Modal */}
       <AuthModal
         isOpen={isAuthModalOpen}
+        initialMode={authModalMode}
         onClose={() => setIsAuthModalOpen(false)}
         onSuccess={handleAuthSuccess}
       />

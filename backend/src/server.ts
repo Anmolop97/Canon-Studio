@@ -58,6 +58,8 @@ const HOST = process.env.HOST || '0.0.0.0';
 const trustedProxyHops = Number.parseInt(process.env.TRUST_PROXY_HOPS || '0', 10);
 if (Number.isInteger(trustedProxyHops) && trustedProxyHops > 0 && trustedProxyHops <= 10) {
   app.set('trust proxy', trustedProxyHops);
+} else if (process.env.NODE_ENV === 'production' || process.env.RENDER || process.env.RAILWAY_ENVIRONMENT) {
+  app.set('trust proxy', 1);
 }
 
 // CORS Allowlist Configuration (R5)

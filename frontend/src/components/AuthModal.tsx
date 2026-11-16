@@ -10,15 +10,25 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (user: User) => void;
+  initialMode?: 'login' | 'register';
 }
 
-export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
-  const [isRegister, setIsRegister] = useState(false);
+export function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'login' }: AuthModalProps) {
+  const [isRegister, setIsRegister] = useState(initialMode === 'register');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsRegister(initialMode === 'register');
+      setPassword('');
+      setError(null);
+      setLoading(false);
+    }
+  }, [isOpen, initialMode]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -42,10 +52,16 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
           throw new Error('Please enter your display name.');
         }
         const res = await api.register(email, password, displayName);
+        setEmail('');
+        setPassword('');
+        setDisplayName('');
+        setIsRegister(false);
         onSuccess(res.user);
         onClose();
       } else {
         const res = await api.login(email, password);
+        setPassword('');
+        setError(null);
         onSuccess(res.user);
         onClose();
       }
@@ -150,13 +166,41 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                 className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold py-2.5 px-4 rounded-xl transition-all text-xs flex items-center justify-center gap-2 shadow-md border border-amber-400/30 cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-200" />
-                <span>⚡ Instant Judge / Evaluator Demo Access</span>
+                <span>Instant Judge / Evaluator Demo Access</span>
               </button>
               <div className="relative my-3 text-center">
                 <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#D7C397]/60 dark:border-slate-700"></div></div>
                 <span className="relative bg-[#FAF9F3] dark:bg-slate-900 px-2 text-[11px] text-[#87977A]">or continue with credentials</span>
               </div>
             </div>
+
+            {/* Mode Switcher Tabs */}
+            <motion.div variants={itemVariants} className="mb-3.5 flex rounded-xl bg-[#EBE5D5] dark:bg-slate-800 p-1 border border-[#D7C397]/60 dark:border-slate-700">
+              <button
+                type="button"
+                onClick={() => { setIsRegister(false); setError(null); }}
+                className={`flex-1 py-1.5 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  !isRegister
+                    ? 'bg-[#101C19] text-[#FAF9F3] shadow-sm dark:bg-sky-500 dark:text-slate-950'
+                    : 'text-[#263F35] hover:text-[#101C19] dark:text-slate-300 dark:hover:text-white'
+                }`}
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Sign In</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => { setIsRegister(true); setError(null); }}
+                className={`flex-1 py-1.5 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  isRegister
+                    ? 'bg-[#101C19] text-[#FAF9F3] shadow-sm dark:bg-sky-500 dark:text-slate-950'
+                    : 'text-[#263F35] hover:text-[#101C19] dark:text-slate-300 dark:hover:text-white'
+                }`}
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Create Account</span>
+              </button>
+            </motion.div>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
               {isRegister && (
