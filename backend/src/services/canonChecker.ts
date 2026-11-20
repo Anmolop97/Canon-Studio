@@ -181,17 +181,31 @@ Execute continuity audit and voice analysis now. Return ONLY valid JSON.`;
     const facts: CanonFact[] = [];
     const voiceNotes: VoiceNote[] = [];
 
-    // Check Jack Vance prosthetic arm rule
-    const jackArmFact = existingCanonFacts.find(f => f.text.toLowerCase().includes('prosthetic') || f.text.toLowerCase().includes('two-handed'));
-    if (jackArmFact) {
-      if (lower.includes('jack') && (lower.includes('both hands') || lower.includes('two-handed') || lower.includes('heavy rifle with two hands') || lower.includes('two hands'))) {
+    // Check arm/hand physical disability for any character (e.g. Kai, Jack Vance, Kaelen Voss)
+    const armRestrictionFacts = existingCanonFacts.filter(f => {
+      const txt = (f.text + ' ' + (f.quote || '')).toLowerCase();
+      return txt.includes('prosthetic') || txt.includes('without arms') || txt.includes('no arms') || txt.includes('lost his arm') || txt.includes('lost her arm') || txt.includes('lost both arms') || txt.includes('two-handed');
+    });
+
+    for (const armFact of armRestrictionFacts) {
+      const charSubject = armFact.subject.toLowerCase();
+      const hasChar = charSubject === 'world' || charSubject.length === 0 || lower.includes(charSubject);
+      const violatesArm = lower.includes('both hands') || lower.includes('two-handed') || lower.includes('clenched his fists') || lower.includes('clenched her fists') || lower.includes('clenched their fists') || lower.includes('punched the wall') || lower.includes('punched') || lower.includes('fists') || lower.includes('heavy rifle with two hands') || lower.includes('grabbed with both hands');
+
+      if (hasChar && violatesArm) {
+        let violatedQuote = 'clenched his fists';
+        if (lower.includes('punched the wall')) violatedQuote = 'punched the wall';
+        else if (lower.includes('clenched his fists')) violatedQuote = 'clenched his fists';
+        else if (lower.includes('both hands')) violatedQuote = 'with both hands';
+        else if (lower.includes('two-handed')) violatedQuote = 'two-handed weapon';
+
         conflicts.push({
-            id: `conf-${crypto.randomUUID()}`,
-          earlierEpisode: jackArmFact.episodeNumber,
-          earlierQuote: jackArmFact.quote || 'uncalibrated industrial prosthetic',
-          currentQuote: 'aims with both hands',
-          explanation: 'Jack Vance has an uncalibrated industrial prosthetic left arm and cannot wield two-handed weapons.',
-          fixSuggestion: 'Have Jack fire his single-handed 9mm Flechette pistol or brace the weapon barrel on a rail.'
+          id: `conf-${crypto.randomUUID()}`,
+          earlierEpisode: armFact.episodeNumber,
+          earlierQuote: armFact.quote || armFact.text,
+          currentQuote: violatedQuote,
+          explanation: `${armFact.subject} has established physical canon: "${armFact.text}". This action directly violates their physical constraints.`,
+          fixSuggestion: `Adjust ${armFact.subject}'s actions to respect their condition (e.g. slam shoulder or use mechanical prosthetic).`
         });
       }
     }

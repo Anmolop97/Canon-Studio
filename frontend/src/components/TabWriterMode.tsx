@@ -72,6 +72,12 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
   const [aiDraftPrompt, setAiDraftPrompt] = useState('');
   const [isAiDrafting, setIsAiDrafting] = useState(false);
 
+  // Manual Add Fact State
+  const [showAddFactModal, setShowAddFactModal] = useState(false);
+  const [newFactSubject, setNewFactSubject] = useState('');
+  const [newFactText, setNewFactText] = useState('');
+  const [newFactQuote, setNewFactQuote] = useState('');
+
   // Confirm delete states (requires second click)
   const [confirmDeleteDraft, setConfirmDeleteDraft] = useState(false);
   const [confirmDeleteEpisode, setConfirmDeleteEpisode] = useState(false);
@@ -285,6 +291,36 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
       );
       setAuditResult(result);
       setHasFreshCheck(true);
+
+      // Auto-update canon memory immediately in UI and persist to draft!
+      if (result && Array.isArray(result.facts) && result.facts.length > 0) {
+        const currentEpNum = selectedEpisodeIndex + 1;
+        const remainingFacts = canonFacts.filter(f => f.episodeNumber !== currentEpNum);
+        const updatedFacts = [...remainingFacts, ...result.facts];
+        setCanonFacts(updatedFacts);
+
+        let updatedVoiceNotes = [...voiceNotes];
+        if (result.voiceNotes) {
+          result.voiceNotes.forEach(vn => {
+            const idx = updatedVoiceNotes.findIndex(v => v.character.toLowerCase() === vn.character.toLowerCase());
+            if (idx >= 0) {
+              updatedVoiceNotes[idx] = vn;
+            } else {
+              updatedVoiceNotes.push(vn);
+            }
+          });
+          setVoiceNotes(updatedVoiceNotes);
+        }
+
+        // Auto-sync in background so other episodes have these facts immediately
+        api.updateDraft(selectedDraftId, {
+          canonFacts: updatedFacts,
+          voiceNotes: updatedVoiceNotes
+        }).then(() => {
+          setDrafts(prev => prev.map(d => d.id === selectedDraftId ? { ...d, canonFacts: updatedFacts, voiceNotes: updatedVoiceNotes } : d));
+        }).catch(err => console.warn('Auto-save facts warning:', err));
+      }
+
       if (result && result.conflicts && result.conflicts.length > 0) {
         toast.error(`Canon Drift: ${result.conflicts.length} consistency warning(s) detected.`);
       } else {
@@ -308,17 +344,31 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
       let updatedFacts = [...canonFacts];
       let updatedVoiceNotes = [...voiceNotes];
 
-      if (hasFreshCheck && auditResult) {
-        // Add new facts from fresh check
-        const newFacts = auditResult.facts;
-        // Replace facts for current episode number
+      // Auto-extract facts if not already audited
+      let freshAudit = auditResult;
+      if (!hasFreshCheck && currentEpisode.content.trim()) {
+        try {
+          freshAudit = await api.checkCanon(
+            selectedDraftId,
+            selectedEpisodeIndex,
+            currentEpisode.title,
+            currentEpisode.content
+          );
+          setAuditResult(freshAudit);
+          setHasFreshCheck(true);
+        } catch (e) {
+          console.warn('Auto-audit on save skipped:', e);
+        }
+      }
+
+      if (freshAudit && freshAudit.facts && freshAudit.facts.length > 0) {
+        const newFacts = freshAudit.facts;
         const currentEpNum = selectedEpisodeIndex + 1;
         const remainingFacts = updatedFacts.filter(f => f.episodeNumber !== currentEpNum);
         updatedFacts = [...remainingFacts, ...newFacts];
 
-        // Merge voice notes
-        if (auditResult.voiceNotes) {
-          auditResult.voiceNotes.forEach(vn => {
+        if (freshAudit.voiceNotes) {
+          freshAudit.voiceNotes.forEach(vn => {
             const idx = updatedVoiceNotes.findIndex(v => v.character.toLowerCase() === vn.character.toLowerCase());
             if (idx >= 0) {
               updatedVoiceNotes[idx] = vn;
@@ -331,7 +381,7 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
         setVoiceNotes(updatedVoiceNotes);
         setSaveNotice('Episode saved! New canon facts added to story memory.');
       } else {
-        setSaveNotice('Episode saved without fresh canon check. Story canon remains unchanged.');
+        setSaveNotice('Episode saved successfully.');
       }
 
       await api.updateDraft(selectedDraftId, {
@@ -366,6 +416,32 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
       toast.error('Failed to save episode.');
     } finally {
       setSavingDraft(false);
+    }
+  };
+
+  // Add Manual Canon Fact
+  const handleAddManualFact = async () => {
+    if (!newFactSubject.trim() || !newFactText.trim() || !selectedDraftId) return;
+    const newFact: CanonFact = {
+      id: `fact-${Date.now()}`,
+      subject: newFactSubject.trim(),
+      text: newFactText.trim(),
+      quote: newFactQuote.trim() || newFactText.trim(),
+      episodeNumber: selectedEpisodeIndex + 1,
+      removable: true
+    };
+    const updated = [newFact, ...canonFacts];
+    setCanonFacts(updated);
+    setNewFactSubject('');
+    setNewFactText('');
+    setNewFactQuote('');
+    setShowAddFactModal(false);
+    toast.success(`Canon fact added for ${newFact.subject}!`);
+    try {
+      await api.updateDraft(selectedDraftId, { canonFacts: updated });
+      setDrafts(prev => prev.map(d => d.id === selectedDraftId ? { ...d, canonFacts: updated } : d));
+    } catch (e) {
+      console.error('Failed to save manual fact:', e);
     }
   };
 
@@ -1004,9 +1080,20 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
                 <BookOpen className="w-4 h-4 text-studio-accent" />
                 <span>Story Canon Memory</span>
               </div>
-              <span className="text-xs text-studio-muted">
-                {canonFacts.length} facts registered
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-studio-muted">
+                  {canonFacts.length} facts
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowAddFactModal(true)}
+                  className="px-2.5 py-1 bg-studio-accent/15 hover:bg-studio-accent/25 text-studio-accent border border-studio-accent/40 rounded text-[11px] font-bold flex items-center gap-1 cursor-pointer"
+                  title="Add custom canon fact"
+                >
+                  <Plus className="w-3 h-3" />
+                  <span>Add Fact</span>
+                </button>
+              </div>
             </div>
 
             <p className="text-xs text-studio-muted">
@@ -1074,6 +1161,86 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
           </div>
         </div>
       </div>
+
+      {/* MODAL: ADD MANUAL CANON FACT */}
+      {showAddFactModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-studio-card border border-studio-border rounded-lg p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-studio-border pb-3">
+              <h3 className="font-serif font-bold text-base text-studio-text flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-studio-accent" />
+                <span>Add Story Canon Rule</span>
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowAddFactModal(false)}
+                className="text-studio-muted hover:text-studio-text text-sm p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-[11px] font-bold text-studio-muted uppercase tracking-wider block mb-1">
+                  Character / Subject
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Kai, Jack Vance, Dr. Aria, Ion Storm"
+                  value={newFactSubject}
+                  onChange={(e) => setNewFactSubject(e.target.value)}
+                  className="w-full bg-studio-bg border border-studio-border rounded px-3 py-2 text-xs text-studio-text focus:border-studio-accent"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-studio-muted uppercase tracking-wider block mb-1">
+                  Lasting Canon Rule (Physical state, secret, status)
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="e.g. Kai was born without arms and cannot wield two-handed weapons or form fists."
+                  value={newFactText}
+                  onChange={(e) => setNewFactText(e.target.value)}
+                  className="w-full bg-studio-bg border border-studio-border rounded p-3 text-xs text-studio-text focus:border-studio-accent leading-relaxed"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-studio-muted uppercase tracking-wider block mb-1">
+                  Source Quote (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. born without biological arms"
+                  value={newFactQuote}
+                  onChange={(e) => setNewFactQuote(e.target.value)}
+                  className="w-full bg-studio-bg border border-studio-border rounded px-3 py-2 text-xs text-studio-text focus:border-studio-accent"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-studio-border">
+              <button
+                type="button"
+                onClick={() => setShowAddFactModal(false)}
+                className="px-4 py-2 bg-studio-raised border border-studio-border text-xs text-studio-muted hover:text-studio-text rounded"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={!newFactSubject.trim() || !newFactText.trim()}
+                onClick={handleAddManualFact}
+                className="px-5 py-2 bg-studio-accent hover:bg-studio-accent/90 disabled:opacity-50 text-studio-bg font-bold text-xs rounded"
+              >
+                Save to Canon
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* MODAL: DRAFT WITH AI */}
       {showAiDraftModal && (
