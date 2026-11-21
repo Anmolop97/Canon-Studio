@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Play, Pause, RotateCcw, X, Volume2, Sparkles, 
   Radio, Sliders, BookOpen
@@ -40,8 +41,13 @@ export function VoiceNarratorModal({
       } else {
         setSourceType('demo');
       }
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prevOverflow;
+      };
     }
-  }, [isOpen]);
+  }, [isOpen, currentDraftText]);
 
   // Initialize or re-parse segments when source or draft changes (only when modal is open)
   useEffect(() => {
@@ -136,9 +142,9 @@ export function VoiceNarratorModal({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md">
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -398,7 +404,8 @@ export function VoiceNarratorModal({
           </div>
         </motion.div>
       </div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
 

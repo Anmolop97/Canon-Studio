@@ -265,15 +265,28 @@ export function parseProseToSegments(rawText: string): NarrativeSegment[] {
   const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
   const segments: NarrativeSegment[] = [];
   let fallbackCharIndex = 1;
+  let activeSceneSpeaker = 'Kaelen';
 
   for (const line of lines) {
+    // Track prominent named characters introduced in narrative
+    const nameScan = line.match(/\b(Kaelen(?:\s+Voss)?|Jack(?:\s+Vance)?|Elena|Dr\.\s*Lyra|Lyra|Commander\s+(?:Drake|Vance)|Kai|Marcus|Aria|Zara)\b/i);
+    if (nameScan && nameScan[1]) {
+      const found = nameScan[1].trim();
+      if (/kaelen/i.test(found)) activeSceneSpeaker = 'Kaelen';
+      else if (/jack|vance/i.test(found)) activeSceneSpeaker = 'Jack Vance';
+      else if (/elena|aria/i.test(found)) activeSceneSpeaker = 'Elena';
+      else if (/lyra/i.test(found)) activeSceneSpeaker = 'Dr. Lyra';
+      else if (/drake/i.test(found)) activeSceneSpeaker = 'Commander Drake';
+      else if (/kai/i.test(found)) activeSceneSpeaker = 'Kai';
+    }
+
     // 1. Script format: [Kai]: "We have to leave!" OR Kai: "We have to leave!"
     const scriptMatch = line.match(/^\[?([A-Za-z0-9_\s.]{2,25})\]?\s*:\s*(.+)$/);
     if (scriptMatch) {
       const rawSpeaker = scriptMatch[1].trim();
       const content = scriptMatch[2].replace(/^["']|["']$/g, '').trim();
       
-      const cleanSpeaker = PRONOUN_STOPWORDS.has(rawSpeaker.toLowerCase()) ? 'Hero' : rawSpeaker;
+      const cleanSpeaker = PRONOUN_STOPWORDS.has(rawSpeaker.toLowerCase()) ? activeSceneSpeaker : rawSpeaker;
       const profile = computeCharacterVoiceProfile(cleanSpeaker);
       const isDialogue = cleanSpeaker.toLowerCase() !== 'narrator';
       const emo = detectSentenceEmotion(content, cleanSpeaker, isDialogue);
@@ -315,9 +328,9 @@ export function parseProseToSegments(rawText: string): NarrativeSegment[] {
         if (!PRONOUN_STOPWORDS.has(candidate.toLowerCase())) {
           detectedSpeaker = candidate;
         } else if (candidate.toLowerCase() === 'she') {
-          detectedSpeaker = 'Elena';
+          detectedSpeaker = /elena|lyra|aria/i.test(activeSceneSpeaker) ? activeSceneSpeaker : 'Elena';
         } else if (candidate.toLowerCase() === 'he') {
-          detectedSpeaker = 'Hero';
+          detectedSpeaker = activeSceneSpeaker || 'Hero';
         }
       }
 
@@ -329,14 +342,14 @@ export function parseProseToSegments(rawText: string): NarrativeSegment[] {
         else if (surrounding.toLowerCase().includes('kai') || surrounding.toLowerCase().includes('kaelen')) detectedSpeaker = 'Kaelen';
         else if (surrounding.toLowerCase().includes('scavenger')) detectedSpeaker = 'Scavenger';
         else {
-          detectedSpeaker = fallbackCharIndex === 1 ? 'Hero' : 'Companion';
+          detectedSpeaker = activeSceneSpeaker || (fallbackCharIndex === 1 ? 'Hero' : 'Companion');
           fallbackCharIndex = fallbackCharIndex === 1 ? 2 : 1;
         }
       }
 
       // Add narrative text preceding the quote if substantial
       if (beforeText && beforeText.length > 3) {
-        const cleanBefore = beforeText.replace(/^(?:,\s*)?(?:said|asked|whispered|murmured)\s+[A-Za-z0-9_]+[.,]?/i, '').trim();
+        const cleanBefore = beforeText.replace(/^(?:,\s*)?(?:said|asked|whispered|murmured|muttered)\s+[A-Za-z0-9_]+[.,]?/i, '').trim();
         if (cleanBefore.length > 3) {
           const narrProfile = computeCharacterVoiceProfile('Narrator');
           const emo = detectSentenceEmotion(cleanBefore, 'Narrator', false);
@@ -365,8 +378,12 @@ export function parseProseToSegments(rawText: string): NarrativeSegment[] {
 
     // Trailing narration after last quote in line
     if (foundQuotes && lastIndex < line.length) {
-      const trailing = line.slice(lastIndex).replace(/^(?:,\s*)?(?:said|yelled|whispered|asked|replied|shouted|murmured)\s+[A-Za-z0-9_]+[.,]?/i, '').trim();
+      let trailing = line.slice(lastIndex)
+        .replace(/^(?:,\s*)?(?:(?:he|she|[A-Za-z0-9_]+)\s+)?(?:said|yelled|whispered|asked|replied|shouted|murmured|muttered|gasped|growled|commanded|warned|called)(?:\s+(?:he|she|[A-Za-z0-9_]+))?[.,]?\s*/i, '')
+        .trim();
+      
       if (trailing.length > 4) {
+        trailing = trailing.charAt(0).toUpperCase() + trailing.slice(1);
         const narrProfile = computeCharacterVoiceProfile('Narrator');
         const emo = detectSentenceEmotion(trailing, 'Narrator', false);
         segments.push({
