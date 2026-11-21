@@ -389,6 +389,43 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
     toast.success('🎭 Registered as Foreshadowing Twist! Added to Story Canon Memory.');
   };
 
+  // 1-Click Narrative Debt Payoff Injection
+  const handleInjectPayoff = (seed: CanonFact, type: 'clone' | 'nanotech' | 'deception') => {
+    if (!currentEpisode) return;
+
+    let payoffText = '';
+    if (type === 'clone') {
+      payoffText = 'Kaelen glanced down at his uninjured hands in horror. There were no battle scars, no cybernetic joints—he was not the original Kaelen Voss, but a synthetic duplicate engineered by the Syndicate.';
+    } else if (type === 'nanotech') {
+      payoffText = 'A burning heat surged beneath his palms as subdermal Chronos nanites hummed to life, rapidly regenerating his shattered muscle tissue at the cost of his neural lifespan.';
+    } else {
+      payoffText = 'He remembered Dr. Lyra\'s encrypted whisper: the carbon brace was never a cast, but a biometric dampener designed to conceal his latent abilities from the orbital scanner.';
+    }
+
+    const updatedContent = currentEpisode.content.trim() 
+      ? currentEpisode.content.trim() + '\n\n' + payoffText.trim()
+      : payoffText.trim();
+    handleEpisodeContentChange(updatedContent);
+
+    // Mark the seed as resolved in canonFacts
+    const updatedFacts = canonFacts.map(f => {
+      if (f.id === seed.id || (f.quote === seed.quote && f.subject?.includes('Foreshadowing'))) {
+        return {
+          ...f,
+          text: `[✅ Payoff Resolved in Ep ${selectedEpisodeIndex + 1} (${type.toUpperCase()})]: ${f.text}`
+        };
+      }
+      return f;
+    });
+
+    setCanonFacts(updatedFacts);
+    if (selectedDraftId) {
+      api.updateDraft(selectedDraftId, { canonFacts: updatedFacts }).catch(console.warn);
+    }
+
+    toast.success('🎉 Narrative Debt Paid Off! Foreshadowing twist seamlessly resolved into story canon.');
+  };
+
   // Live Debounced Lore Audit (Grammarly-style background check after 2s typing pause)
   useEffect(() => {
     if (!selectedDraftId || !currentEpisode || !currentEpisode.content || currentEpisode.content.trim().length < 80) {
@@ -583,12 +620,25 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
   // Publish / Unpublish
   const handlePublish = async () => {
     if (!selectedDraftId) return;
+
+    // Check for unresolved Narrative Debts (open foreshadowing twists never paid off)
+    const unresolvedDebts = canonFacts.filter(f => 
+      (f.subject?.includes('Foreshadowing') || f.text?.includes('[Deliberate Foreshadowing')) &&
+      !f.text?.includes('[✅ Payoff Resolved')
+    );
+    if (unresolvedDebts.length > 0) {
+      toast.error(`🚨 Unresolved Plot Debt: The Ep ${unresolvedDebts[0].episodeNumber} foreshadowing twist has not been paid off! Resolve it before publishing to readers.`);
+      return;
+    }
+
     try {
       const res = await api.publishDraft(selectedDraftId);
       setPublishedBookId(res.book.id);
       setSaveNotice('Published to Books successfully! Readers can now discover your serialized saga.');
+      toast.success('Published to Canon Library!');
     } catch (err: any) {
       setSaveNotice(err.message || 'Failed to publish');
+      toast.error(err.message || 'Failed to publish');
     }
   };
 
@@ -1101,6 +1151,96 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
                 </div>
               </div>
             )}
+
+            {/* 🎭 Narrative Debt / Foreshadowing Payoff Assistant */}
+            {(() => {
+              const openSeeds = canonFacts.filter(f => 
+                (f.subject?.includes('Foreshadowing') || f.text?.includes('[Deliberate Foreshadowing')) &&
+                !f.text?.includes('[✅ Payoff Resolved')
+              );
+              if (openSeeds.length === 0) return null;
+
+              return (
+                <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-amber-500/10 dark:from-purple-950/30 dark:via-indigo-950/30 dark:to-amber-950/20 border-2 border-purple-500/40 shadow-sm">
+                  <div className="flex items-center justify-between gap-2 mb-2.5 pb-2 border-b border-purple-500/20">
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">🎭</span>
+                      <div>
+                        <span className="text-xs font-bold text-purple-900 dark:text-purple-300 tracking-tight">
+                          Active Narrative Debt: {openSeeds.length} Open Foreshadowing Seed{openSeeds.length > 1 ? 's' : ''}
+                        </span>
+                        <p className="text-[10px] text-purple-700/80 dark:text-purple-400/80 font-mono">
+                          Deliberately planted mystery. To prevent a permanent plot hole, select a Payoff below!
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-800 dark:text-purple-300 border border-purple-500/35">
+                      Chekhov's Gun
+                    </span>
+                  </div>
+
+                  {openSeeds.map((seed, sIdx) => (
+                    <div key={seed.id || sIdx} className="p-3.5 rounded-xl bg-white/95 dark:bg-slate-900/90 border border-purple-400/35 shadow-xs space-y-2.5">
+                      <div className="text-xs font-serif italic text-purple-950 dark:text-purple-200">
+                        <span className="font-sans font-bold text-[11px] text-purple-700 dark:text-purple-400 mr-1.5 not-italic uppercase">
+                          Planted Mystery (Ep {seed.episodeNumber}):
+                        </span>
+                        &ldquo;{seed.quote || seed.text}&rdquo;
+                      </div>
+
+                      <div className="pt-1">
+                        <span className="text-[11px] font-bold text-[#101C19] dark:text-slate-300 block mb-1.5 font-sans">
+                          ⚡ 1-Click Payoff Injections (Select how to resolve this mystery):
+                        </span>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleInjectPayoff(seed, 'clone')}
+                            className="text-left p-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-900/50 border border-purple-200 dark:border-purple-800/60 transition-all group cursor-pointer"
+                            title="Insert Clone reveal payoff into editor"
+                          >
+                            <span className="text-[11px] font-bold text-purple-900 dark:text-purple-300 block mb-0.5 group-hover:text-purple-700">
+                              🧬 Option A: The Clone Reveal
+                            </span>
+                            <span className="text-[10px] text-purple-800/80 dark:text-slate-400 font-mono block leading-tight">
+                              "Kaelen realised his flesh bore no scars—he was a synthetic duplicate deployed by the Syndicate."
+                            </span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleInjectPayoff(seed, 'nanotech')}
+                            className="text-left p-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/50 border border-amber-200 dark:border-amber-800/60 transition-all group cursor-pointer"
+                            title="Insert Nanotech surge payoff into editor"
+                          >
+                            <span className="text-[11px] font-bold text-amber-900 dark:text-amber-300 block mb-0.5 group-hover:text-amber-700">
+                              ⚡ Option B: Nanotech Surge
+                            </span>
+                            <span className="text-[10px] text-amber-800/80 dark:text-slate-400 font-mono block leading-tight">
+                              "Subdermal Chronos nanites pulsed violently, regenerating his flesh at the cost of his lifespan."
+                            </span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleInjectPayoff(seed, 'deception')}
+                            className="text-left p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-800/60 transition-all group cursor-pointer"
+                            title="Insert Lyra's deception payoff into editor"
+                          >
+                            <span className="text-[11px] font-bold text-emerald-900 dark:text-emerald-300 block mb-0.5 group-hover:text-emerald-700">
+                              💊 Option C: Lyra's Deception
+                            </span>
+                            <span className="text-[10px] text-emerald-800/80 dark:text-slate-400 font-mono block leading-tight">
+                              "Lyra's brace was a biometric dampener designed to conceal his latent abilities from the scanner."
+                            </span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
 
             <textarea
               rows={16}
