@@ -431,7 +431,7 @@ export function TabBooks({ currentUser, onOpenAuth }: TabBooksProps) {
               </button>
 
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-start sm:justify-end">
-                <VoiceNarratorButton />
+                <VoiceNarratorButton text={readingBook.episodes[activeEpisodeIndex]?.content} />
                 {/* Export Options for Reader */}
                 <div className="flex items-center gap-1 bg-studio-bg border border-studio-border rounded-lg p-1">
                   <span className="text-[11px] text-studio-muted font-medium px-1 flex items-center gap-1">

@@ -683,7 +683,7 @@ export function TabWriteStory({ onPlayBranching, onSaveToWriter }: TabWriteStory
                 </button>
               ) : (
                 <>
-                  <VoiceNarratorButton />
+                  <VoiceNarratorButton text={generatedStory?.content || streamedContent} />
                   <button
                     onClick={() => handleIllustrateStory()}
                     disabled={isIllustrating}

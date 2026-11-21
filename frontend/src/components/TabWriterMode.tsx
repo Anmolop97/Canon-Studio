@@ -669,7 +669,7 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
 
         {/* Publishing & Delete Draft Buttons */}
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
-          <VoiceNarratorButton />
+          <VoiceNarratorButton text={currentEpisode?.content} />
           {/* Screenplay & Bible Export Group */}
           <div className="flex items-center gap-1 bg-studio-raised border border-studio-border rounded-xl p-1">
             <span className="text-[11px] text-studio-muted font-medium px-1.5 flex items-center gap-1">
