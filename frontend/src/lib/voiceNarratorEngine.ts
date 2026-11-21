@@ -32,20 +32,20 @@ export interface VoicePlaybackCallbacks {
   onError?: (err: string) => void;
 }
 
-// Preset color palettes for characters
+// Preset color palettes for characters with high-legibility contrast
 const SPEAKER_COLORS = [
-  { bg: 'bg-amber-500/10 dark:bg-amber-500/15', text: 'text-amber-700 dark:text-amber-400', border: 'border-amber-400/30', avatar: '⚡' },
-  { bg: 'bg-emerald-500/10 dark:bg-emerald-500/15', text: 'text-emerald-700 dark:text-emerald-400', border: 'border-emerald-400/30', avatar: '🌸' },
-  { bg: 'bg-sky-500/10 dark:bg-sky-500/15', text: 'text-sky-700 dark:text-sky-400', border: 'border-sky-400/30', avatar: '🛡️' },
-  { bg: 'bg-purple-500/10 dark:bg-purple-500/15', text: 'text-purple-700 dark:text-purple-400', border: 'border-purple-400/30', avatar: '🔮' },
-  { bg: 'bg-rose-500/10 dark:bg-rose-500/15', text: 'text-rose-700 dark:text-rose-400', border: 'border-rose-400/30', avatar: '🔥' },
-  { bg: 'bg-cyan-500/10 dark:bg-cyan-500/15', text: 'text-cyan-700 dark:text-cyan-400', border: 'border-cyan-400/30', avatar: '💎' },
+  { bg: 'bg-amber-500/15 dark:bg-amber-500/20', text: 'text-amber-900 dark:text-amber-300', border: 'border-amber-500/40 dark:border-amber-500/30', avatar: '⚡' },
+  { bg: 'bg-emerald-500/15 dark:bg-emerald-500/20', text: 'text-emerald-900 dark:text-emerald-300', border: 'border-emerald-500/40 dark:border-emerald-500/30', avatar: '🌸' },
+  { bg: 'bg-sky-500/15 dark:bg-sky-500/20', text: 'text-sky-900 dark:text-sky-300', border: 'border-sky-500/40 dark:border-sky-500/30', avatar: '🛡️' },
+  { bg: 'bg-purple-500/15 dark:bg-purple-500/20', text: 'text-purple-900 dark:text-purple-300', border: 'border-purple-500/40 dark:border-purple-500/30', avatar: '🔮' },
+  { bg: 'bg-rose-500/15 dark:bg-rose-500/20', text: 'text-rose-900 dark:text-rose-300', border: 'border-rose-500/40 dark:border-rose-500/30', avatar: '🔥' },
+  { bg: 'bg-cyan-500/15 dark:bg-cyan-500/20', text: 'text-cyan-900 dark:text-cyan-300', border: 'border-cyan-500/40 dark:border-cyan-500/30', avatar: '💎' },
 ];
 
 const NARRATOR_COLOR = {
-  bg: 'bg-indigo-500/10 dark:bg-indigo-500/15',
-  text: 'text-indigo-700 dark:text-indigo-300',
-  border: 'border-indigo-400/30',
+  bg: 'bg-indigo-500/15 dark:bg-indigo-500/20',
+  text: 'text-indigo-900 dark:text-indigo-300',
+  border: 'border-indigo-500/40 dark:border-indigo-500/30',
   avatar: '🎙️'
 };
 
