@@ -361,7 +361,7 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
     toast.success('⚡ Plot hole healed! Text updated to restore canon continuity.');
   };
 
-  const handleDismissConflict = (quote: string) => {
+  const handleDismissConflict = (quote: string, conflict?: { explanation?: string; earlierEpisode?: number }) => {
     if (!auditResult) return;
     const remainingConflicts = (auditResult.conflicts || []).filter(c => c.currentQuote !== quote);
     const newScore = remainingConflicts.length === 0 ? 98 : Math.max(70, (auditResult.canonScore || 50) + 20);
@@ -371,7 +371,22 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
       canonScore: newScore,
       status: remainingConflicts.length === 0 ? 'consistent' : 'warning'
     });
-    toast.info('Marked as Intentional Plot Twist / Foreshadowing.');
+
+    // Register as a Foreshadowing Canon Fact in Story Canon Memory!
+    const twistFact: CanonFact = {
+      id: `twist-${Date.now()}`,
+      subject: '🎭 Plot Twist / Foreshadowing',
+      quote: quote,
+      text: `[Deliberate Foreshadowing in Ep ${selectedEpisodeIndex + 1}]: "${quote}". Author planted this mystery seed to deviate from Ep ${conflict?.earlierEpisode || 1}.`,
+      episodeNumber: selectedEpisodeIndex + 1,
+      removable: true
+    };
+    const updatedFacts = [...canonFacts, twistFact];
+    setCanonFacts(updatedFacts);
+    if (selectedDraftId) {
+      api.updateDraft(selectedDraftId, { canonFacts: updatedFacts }).catch(console.warn);
+    }
+    toast.success('🎭 Registered as Foreshadowing Twist! Added to Story Canon Memory.');
   };
 
   // Live Debounced Lore Audit (Grammarly-style background check after 2s typing pause)
@@ -1074,11 +1089,11 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
 
                         <button
                           type="button"
-                          onClick={() => handleDismissConflict(conflict.currentQuote)}
-                          className="text-[10px] font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 underline"
-                          title="Keep this line as a deliberate plot twist or character deception"
+                          onClick={() => handleDismissConflict(conflict.currentQuote, conflict)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/40 text-purple-900 dark:text-purple-300 font-bold text-xs transition-all active:scale-95 shadow-xs"
+                          title="Register this contradiction as a deliberate plot twist / foreshadowing mystery seed in Story Canon Memory"
                         >
-                          🎭 Keep as Intentional Twist
+                          <span>🎭 Keep as Foreshadowing Twist</span>
                         </button>
                       </div>
                     </div>
