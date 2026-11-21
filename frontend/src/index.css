@@ -157,21 +157,40 @@ button, a, input, textarea, select { transition: color .18s ease, background-col
   z-index: 50;
 }
 .studio-glass-capsule {
-  background: rgba(255, 255, 255, 0.025) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
   border-radius: 999px;
-  box-shadow: none;
+  box-shadow: none !important;
 }
 .studio-glass-active {
-  background: rgba(38, 63, 53, 0.88);
-  border: 1px solid rgba(193, 166, 107, 0.4);
-  color: #E9E2CE;
-  box-shadow: inset 0 1px 2px rgba(255,255,255,.12), 0 3px 10px rgba(20,35,27,.12);
+  background: rgba(27, 51, 40, 0.92) !important;
+  border: 1px solid rgba(193, 166, 107, 0.6) !important;
+  color: #FAF9F3 !important;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,.2), 0 3px 12px rgba(20,35,27,.25) !important;
 }
 .dark .studio-glass-header { background: transparent !important; }
-.dark .studio-glass-capsule { background: rgba(255, 255, 255, 0.025) !important; }
+.dark .studio-glass-capsule {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow: none !important;
+}
+.dark .studio-glass-active {
+  background: rgba(46, 70, 56, 0.92) !important;
+  border: 1px solid rgba(215, 195, 151, 0.5) !important;
+  color: #FAF9F3 !important;
+}
+.studio-nav-inactive-text {
+  color: #0E1F18 !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 1.5px rgba(255, 255, 255, 0.95) !important;
+}
+.dark .studio-nav-inactive-text {
+  color: #F8FAFC !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.90) !important;
+}
 .brand-area {
   position: relative;
   isolation: isolate;

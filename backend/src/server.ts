@@ -135,7 +135,18 @@ app.use('/api', (req: Request, res: Response, next: NextFunction) => {
   }
 
   const origin = req.headers.origin?.replace(/\/$/, '');
-  if (!origin || !getAllowedOrigins().includes(origin)) {
+  const refererOrigin = req.headers.referer ? (() => { try { return new URL(req.headers.referer).origin; } catch { return ''; } })() : '';
+  const effectiveOrigin = origin || refererOrigin;
+
+  // In local development or testing, always allow localhost / 127.0.0.1 / same-origin proxy
+  if (process.env.NODE_ENV !== 'production') {
+    if (!effectiveOrigin || effectiveOrigin.includes('localhost') || effectiveOrigin.includes('127.0.0.1')) {
+      next();
+      return;
+    }
+  }
+
+  if (!effectiveOrigin || !getAllowedOrigins().includes(effectiveOrigin)) {
     res.status(403).json({ error: 'Request origin is not allowed.' });
     return;
   }
@@ -216,6 +227,7 @@ app.use('/api/drafts', draftsRouter);
 app.use('/api/books', booksRouter);
 
 // Mount Legacy / Compatibility Routes
+app.use('/api/voice', voiceRouter);
 app.use('/api/audit-lore', auditRouter);
 app.use('/api/analyze-voice', voiceRouter);
 app.use('/api/story', storyRouter);

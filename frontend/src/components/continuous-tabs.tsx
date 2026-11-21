@@ -62,7 +62,7 @@ export const ContinuousTabs: FC<ContinuousTabsProps> = ({
                         <button
                             key={tab.id}
                             onClick={() => handleChange(tab.id)}
-                            className="relative px-3.5 py-1.5 sm:px-5 sm:py-2 rounded-full outline-none cursor-pointer"
+                            className="relative px-3 sm:px-4 py-1.5 sm:py-2 rounded-full outline-none cursor-pointer whitespace-nowrap shrink-0"
                         >
                             {/* Active pill */}
                             {isActive && (
@@ -83,10 +83,10 @@ export const ContinuousTabs: FC<ContinuousTabsProps> = ({
                             {/* Text */}
                             <motion.span
                                 layout="position"
-                                className={`relative z-10 text-xs sm:text-sm font-semibold transition-colors duration-200
+                                className={`relative z-10 text-xs sm:text-sm font-semibold whitespace-nowrap transition-colors duration-200
                     ${isActive
                                         ? "text-[#FAF9F3] dark:text-[#F5EEDC] font-bold"
-                                        : "text-[#263F35] hover:text-[#101C19] dark:text-slate-300 dark:hover:text-white"
+                                        : "studio-nav-inactive-text hover:opacity-90"
                                     }
                   `}
                             >
