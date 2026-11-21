@@ -7,7 +7,7 @@ import type {
   CanonCheckResult
 } from './types';
 
-export const API_BASE = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? 'https://canon-studio.onrender.com/api' : '/api');
+export const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
 export interface ExportResponse {
   content: string;
@@ -27,16 +27,33 @@ export function triggerDownload(content: string, filename: string, mimeType: str
   URL.revokeObjectURL(url);
 }
 
+export interface ApiError extends Error {
+  status?: number;
+}
+
 class ApiClient {
-  constructor() {
+  private getAuthToken(): string | null {
     if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem('canon_auth_token');
+      return localStorage.getItem('canon_auth_token');
+    }
+    return null;
+  }
+
+  private setAuthToken(token?: string): void {
+    if (typeof localStorage !== 'undefined') {
+      if (token) {
+        localStorage.setItem('canon_auth_token', token);
+      } else {
+        localStorage.removeItem('canon_auth_token');
+      }
     }
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const token = this.getAuthToken();
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       ...((options.headers as Record<string, string>) || {})
     };
 
@@ -54,7 +71,9 @@ class ApiClient {
           detail: { retryAfterSeconds: Number(errorData.retryAfter) || null }
         }));
       }
-      throw new Error(message);
+      const error: ApiError = new Error(message);
+      error.status = res.status;
+      throw error;
     }
 
     if (res.status === 204) return undefined as T;
@@ -62,31 +81,44 @@ class ApiClient {
   }
 
   // Auth
-  public async login(email: string, password: string): Promise<{ user: User }> {
-    return this.request<{ user: User }>('/auth/login', {
+  public async login(email: string, password: string): Promise<{ user: User; token?: string }> {
+    const data = await this.request<{ user: User; token?: string }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password })
     });
+    if (data.token) {
+      this.setAuthToken(data.token);
+    }
+    return data;
   }
 
-  public async register(email: string, password: string, displayName: string): Promise<{ user: User }> {
-    return this.request<{ user: User }>('/auth/register', {
+  public async register(email: string, password: string, displayName: string): Promise<{ user: User; token?: string }> {
+    const data = await this.request<{ user: User; token?: string }>('/auth/register', {
       method: 'POST',
       body: JSON.stringify({ email, password, displayName })
     });
+    if (data.token) {
+      this.setAuthToken(data.token);
+    }
+    return data;
   }
 
   public async getMe(): Promise<{ user: User }> {
     return this.request<{ user: User }>('/auth/me');
   }
 
-  public async judgeDemoLogin(): Promise<{ user: User }> {
-    return this.request<{ user: User }>('/auth/judge-access', {
+  public async judgeDemoLogin(): Promise<{ user: User; token?: string }> {
+    const data = await this.request<{ user: User; token?: string }>('/auth/judge-access', {
       method: 'POST'
     });
+    if (data.token) {
+      this.setAuthToken(data.token);
+    }
+    return data;
   }
 
   public logout(): void {
+    this.setAuthToken(undefined);
     void this.request('/auth/logout', { method: 'POST' }).catch(() => undefined);
   }
 

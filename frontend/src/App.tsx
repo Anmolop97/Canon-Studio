@@ -88,9 +88,15 @@ export function App() {
       try {
         const res = await api.getMe();
         setCurrentUser(res.user);
-      } catch (_err) {
-        api.logout();
-        setCurrentUser(null);
+      } catch (err: any) {
+        // Only clear user state if explicitly unauthorized (401).
+        // On network errors, 502/504 cold-starts, or temporary connection errors,
+        // do NOT call api.logout() to avoid destroying valid session cookies.
+        if (err?.status === 401 || err?.message?.includes('401') || err?.message?.toLowerCase().includes('unauthorized')) {
+          setCurrentUser(null);
+        } else {
+          console.warn('[Session] Session check encountered temporary error (possible server cold start):', err?.message || err);
+        }
       }
     };
     checkUser();

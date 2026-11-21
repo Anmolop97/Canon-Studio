@@ -127,8 +127,10 @@ app.use(securityHeaders);
 app.use('/api', apiRateLimiter);
 app.use('/api', (req: Request, res: Response, next: NextFunction) => {
   const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method);
-  const cookieName = process.env.NODE_ENV === 'production' ? '__Host-canon_session=' : 'canon_session=';
-  const hasSessionCookie = req.headers.cookie?.split(';').some(part => part.trim().startsWith(cookieName));
+  const hasSessionCookie = req.headers.cookie?.split(';').some(part => {
+    const trimmed = part.trim();
+    return trimmed.startsWith('__Host-canon_session=') || trimmed.startsWith('canon_session=');
+  });
   if (!isMutation || !hasSessionCookie) {
     next();
     return;

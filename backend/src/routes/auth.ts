@@ -110,25 +110,45 @@ export function validateAuthConfiguration(): void {
 }
 
 function readSessionCookie(req: Request): string | null {
-  const prefix = `${authCookieName()}=`;
-  const cookie = req.headers.cookie?.split(';').map(part => part.trim()).find(part => part.startsWith(prefix));
-  return cookie ? cookie.slice(prefix.length) : null;
+  const cookies = req.headers.cookie?.split(';').map(part => part.trim()) || [];
+  for (const name of ['__Host-canon_session', 'canon_session']) {
+    const prefix = `${name}=`;
+    const found = cookies.find(part => part.startsWith(prefix));
+    if (found) {
+      const val = found.slice(prefix.length).trim();
+      if (val) return val;
+    }
+  }
+  return null;
+}
+
+export function extractAuthToken(req: Request): string | null {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.slice(7).trim();
+    if (token) return token;
+  }
+  return readSessionCookie(req);
 }
 
 function setSessionCookie(res: Response, token: string): void {
   const production = process.env.NODE_ENV === 'production';
-  const secure = production ? '; Secure' : '';
   const path = '/';
-  const sameSite = process.env.COOKIE_SAMESITE || (production ? 'None' : 'Lax');
-  res.setHeader('Set-Cookie', `${authCookieName()}=${token}; HttpOnly; SameSite=${sameSite}; Path=${path}; Max-Age=${AUTH_TOKEN_TTL_SECONDS}${secure}`);
+  if (production) {
+    const sameSite = process.env.COOKIE_SAMESITE || 'None';
+    res.setHeader('Set-Cookie', `__Host-canon_session=${token}; HttpOnly; SameSite=${sameSite}; Path=${path}; Max-Age=${AUTH_TOKEN_TTL_SECONDS}; Secure`);
+  } else {
+    const sameSite = process.env.COOKIE_SAMESITE || 'Lax';
+    const secureFlag = process.env.COOKIE_SECURE === 'true' ? '; Secure' : '';
+    res.setHeader('Set-Cookie', `canon_session=${token}; HttpOnly; SameSite=${sameSite}; Path=${path}; Max-Age=${AUTH_TOKEN_TTL_SECONDS}${secureFlag}`);
+  }
 }
 
 function clearSessionCookie(res: Response): void {
-  const production = process.env.NODE_ENV === 'production';
-  const secure = production ? '; Secure' : '';
-  const path = '/';
-  const sameSite = process.env.COOKIE_SAMESITE || (production ? 'None' : 'Lax');
-  res.setHeader('Set-Cookie', `${authCookieName()}=; HttpOnly; SameSite=${sameSite}; Path=${path}; Max-Age=0${secure}`);
+  res.setHeader('Set-Cookie', [
+    `__Host-canon_session=; HttpOnly; SameSite=None; Path=/; Max-Age=0; Secure`,
+    `canon_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`
+  ]);
 }
 
 /**
@@ -243,7 +263,7 @@ export function verifyToken(token: string): AuthTokenPayload | null {
 
 // Simple authentication middleware with auto-healing in development
 export function requireAuth(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
-  const token = readSessionCookie(req);
+  const token = extractAuthToken(req);
   if (!token) {
     res.status(401).json({ error: 'Unauthorized: Invalid or expired session' });
     return;
@@ -288,7 +308,7 @@ export function requireAuth(req: AuthenticatedRequest, res: Response, next: Next
 
 // Optional auth helper (for likes/read status if user is logged in)
 export function optionalAuth(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
-  const token = readSessionCookie(req);
+  const token = extractAuthToken(req);
   if (token) {
     let payload = verifyToken(token);
     if (!payload && process.env.NODE_ENV !== 'production') {
@@ -325,7 +345,7 @@ export function optionalAuth(req: AuthenticatedRequest, res: Response, next: Nex
 /**
  * POST /api/auth/register
  */
-authRouter.post('/register', registerRateLimiter, (req: Request, res: Response) => {
+authRouter.post('/register', registerRateLimiter, async (req: Request, res: Response) => {
   try {
     const { email, password, displayName } = req.body;
     if (typeof email !== 'string' || typeof password !== 'string' || typeof displayName !== 'string') {
@@ -362,11 +382,12 @@ authRouter.post('/register', registerRateLimiter, (req: Request, res: Response) 
       return;
     }
 
-    const user = storageService.createUser(normalizedEmail, password, normalizedName);
+    const user = await storageService.createUserAsync(normalizedEmail, password, normalizedName);
     const token = createAuthToken(user.id);
     setSessionCookie(res, token);
     res.status(201).json({
-      user: safeUser(user)
+      user: safeUser(user),
+      token
     });
   } catch (error: any) {
     res.status(500).json({ error: publicErrorMessage(error, 'Registration failed') });
@@ -376,7 +397,7 @@ authRouter.post('/register', registerRateLimiter, (req: Request, res: Response) 
 /**
  * POST /api/auth/login
  */
-authRouter.post('/login', loginRateLimiter, (req: Request, res: Response) => {
+authRouter.post('/login', loginRateLimiter, async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     if (typeof email !== 'string' || typeof password !== 'string' || !email.trim() || !password || Buffer.byteLength(password, 'utf8') > 1024) {
@@ -395,7 +416,7 @@ authRouter.post('/login', loginRateLimiter, (req: Request, res: Response) => {
     }
 
     const user = storageService.findUserByEmail(email.trim().toLowerCase());
-    if (!user || !storageService.verifyPassword(user.id, password)) {
+    if (!user || !(await storageService.verifyPasswordAsync(user.id, password))) {
       recordFailedLogin(email);
       res.status(401).json({ error: 'Invalid email or password.' });
       return;
@@ -405,7 +426,8 @@ authRouter.post('/login', loginRateLimiter, (req: Request, res: Response) => {
     const token = createAuthToken(user.id);
     setSessionCookie(res, token);
     res.json({
-      user: safeUser(user)
+      user: safeUser(user),
+      token
     });
   } catch (error: any) {
     res.status(500).json({ error: publicErrorMessage(error, 'Login failed') });
@@ -417,12 +439,12 @@ authRouter.post('/login', loginRateLimiter, (req: Request, res: Response) => {
  * Instant 1-click evaluation access for hackathon judges & reviewers.
  * Generates an authenticated reviewer session with pre-seeded showcase saga drafts.
  */
-authRouter.post('/judge-access', (req: Request, res: Response) => {
+authRouter.post('/judge-access', async (req: Request, res: Response) => {
   try {
     const judgeEmail = 'evaluator.judge@canon-studio.dev';
     let user = storageService.findUserByEmail(judgeEmail);
     if (!user) {
-      user = storageService.createUser(judgeEmail, 'HackathonJudgePass2026!', 'Evaluator / Hackathon Judge');
+      user = await storageService.createUserAsync(judgeEmail, 'HackathonJudgePass2026!', 'Evaluator / Hackathon Judge');
     }
 
     // Ensure judge has a showcase draft ready for immediate testing
@@ -470,7 +492,8 @@ authRouter.post('/judge-access', (req: Request, res: Response) => {
     const token = createAuthToken(user.id);
     setSessionCookie(res, token);
     res.json({
-      user: safeUser(user)
+      user: safeUser(user),
+      token
     });
   } catch (error: any) {
     res.status(500).json({ error: publicErrorMessage(error, 'Failed to initialize judge access session') });

@@ -20,6 +20,21 @@ export function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'login' }:
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [coldStartNotice, setColdStartNotice] = useState(false);
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    if (loading) {
+      timer = setTimeout(() => {
+        setColdStartNotice(true);
+      }, 3500);
+    } else {
+      setColdStartNotice(false);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [loading]);
 
   useEffect(() => {
     if (isOpen) {
@@ -27,6 +42,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'login' }:
       setPassword('');
       setError(null);
       setLoading(false);
+      setColdStartNotice(false);
     }
   }, [isOpen, initialMode]);
 
@@ -155,6 +171,17 @@ export function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'login' }:
               <motion.div variants={itemVariants} className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-2 text-xs sm:text-sm text-red-600 dark:text-red-400">
                 <AlertTriangle className="w-4 h-4 flex-shrink-0" />
                 <span>{error}</span>
+              </motion.div>
+            )}
+
+            {coldStartNotice && (
+              <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 p-3 bg-amber-500/15 border border-amber-500/30 rounded-xl flex items-center gap-2.5 text-xs text-amber-800 dark:text-amber-200"
+              >
+                <Sparkles className="w-4 h-4 flex-shrink-0 text-amber-600 dark:text-amber-400 animate-spin" />
+                <span>Waking up cloud server (Render cold-start)... Please hold on, this only takes a moment!</span>
               </motion.div>
             )}
 

@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import util from 'node:util';
 import { Buffer } from 'node:buffer';
 import { fileURLToPath } from 'url';
 import {
@@ -27,6 +28,7 @@ interface DatabaseSchema {
 const DATA_DIR = process.env.DATA_DIR || path.resolve(__dirname, '../../data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
 const PBKDF2_ITERATIONS = 220_000;
+const pbkdf2Async = util.promisify(crypto.pbkdf2);
 const MAX_USERS = 10_000;
 const MAX_DRAFTS_PER_USER = 50;
 const MAX_DRAFT_BYTES = 1_000_000;
@@ -237,7 +239,7 @@ class StorageService {
    * Only real, registered accounts are permitted.
    */
   private purgeAllDemoUsers(): void {
-    const demoIds = new Set(['user-anya', 'user-dev', 'user-guest', 'user-anand', 'user-anmol']);
+    const demoIds = new Set(['user-anya', 'user-dev', 'user-guest']);
     const initialUserCount = this.db.users.length;
     this.db.users = this.db.users.filter(u => !demoIds.has(u.id));
 
@@ -269,6 +271,13 @@ class StorageService {
     return `pbkdf2-sha512$${PBKDF2_ITERATIONS}$${effectiveSalt}$${hash}`;
   }
 
+  public async hashPasswordAsync(password: string, salt?: string): Promise<string> {
+    const effectiveSalt = salt || crypto.randomBytes(16).toString('hex');
+    const hashBuffer = await pbkdf2Async(password, effectiveSalt, PBKDF2_ITERATIONS, 64, 'sha512');
+    const hash = hashBuffer.toString('hex');
+    return `pbkdf2-sha512$${PBKDF2_ITERATIONS}$${effectiveSalt}$${hash}`;
+  }
+
   private createInitialDatabase(): DatabaseSchema {
     return {
       users: [],
@@ -284,7 +293,9 @@ class StorageService {
     if (fs.existsSync(DB_FILE)) {
       try {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
-        return JSON.parse(raw);
+        if (raw.trim().length > 0) {
+          return JSON.parse(raw);
+        }
       } catch (err) {
         const corruptBackupPath = path.join(DATA_DIR, `db.corrupt.${Date.now()}.json`);
         try {
@@ -292,7 +303,9 @@ class StorageService {
         } catch (copyErr) {
           console.error('[Storage] Failed to backup corrupted db.json:', copyErr);
         }
-        console.warn(`[Storage] Database corrupted! Backed up to ${corruptBackupPath}. Falling back to initial seed data.`, err);
+        console.error(`[Storage] Database read/parse error! Backed up to ${corruptBackupPath}. Preserving db.json to prevent data loss.`, err);
+        // Do NOT overwrite db.json on disk! Return initial seed in-memory only.
+        return this.createInitialDatabase();
       }
     }
 
@@ -382,6 +395,104 @@ class StorageService {
     this.db.userPasswords[id] = this.hashPassword(password);
     this.saveDatabase();
     return user;
+  }
+
+  public async createUserAsync(email: string, password: string, displayName: string): Promise<User> {
+    if (this.db.users.length >= MAX_USERS) throw new Error('Account limit reached.');
+    let id = `user-${crypto.randomUUID()}`;
+    while (this.findUserById(id)) id = `user-${crypto.randomUUID()}`;
+    const user: User = {
+      id,
+      email: email.trim().toLowerCase(),
+      displayName: displayName.trim(),
+      createdAt: new Date().toISOString()
+    };
+    this.db.users.push(user);
+    this.db.userPasswords[id] = await this.hashPasswordAsync(password);
+    this.saveDatabase();
+    return user;
+  }
+
+  private async verifyPasswordHashAsync(password: string, storedHash: string): Promise<boolean> {
+    if (!storedHash || typeof storedHash !== 'string') return false;
+
+    if (storedHash.startsWith('pbkdf2-sha512$')) {
+      const [scheme, iterationText, salt, expectedHash, extra] = storedHash.split('$');
+      const iterations = Number.parseInt(iterationText || '', 10);
+      if (scheme !== 'pbkdf2-sha512' || extra !== undefined || !salt || !expectedHash || !Number.isInteger(iterations) || iterations < 100_000 || iterations > 1_000_000) return false;
+      const candidateBuf = await pbkdf2Async(password, salt, iterations, 64, 'sha512');
+      const candidate = Buffer.from(candidateBuf.toString('hex'), 'hex');
+      const expected = Buffer.from(expectedHash, 'hex');
+      return candidate.length === expected.length && candidate.length > 0 && crypto.timingSafeEqual(candidate, expected);
+    }
+
+    if (storedHash.includes(':')) {
+      const parts = storedHash.split(':');
+      if (parts.length !== 2) return false;
+      const [salt, expectedHash] = parts;
+      if (!salt || !expectedHash) return false;
+
+      const candidateBuf = await pbkdf2Async(password, salt, 100_000, 64, 'sha512');
+      const candBuf = Buffer.from(candidateBuf.toString('hex'), 'hex');
+      const expBuf = Buffer.from(expectedHash, 'hex');
+
+      if (candBuf.length !== expBuf.length || candBuf.length === 0) {
+        return false;
+      }
+      return crypto.timingSafeEqual(candBuf, expBuf);
+    } else {
+      // Legacy unsalted SHA-256
+      const legacyHash = crypto.createHash('sha256').update(password).digest('hex');
+      const candBuf = Buffer.from(legacyHash, 'hex');
+      const expBuf = Buffer.from(storedHash, 'hex');
+
+      if (candBuf.length !== expBuf.length || candBuf.length === 0) {
+        return false;
+      }
+      return crypto.timingSafeEqual(candBuf, expBuf);
+    }
+  }
+
+  public async verifyPasswordAsync(firstArg: string, secondArg: string): Promise<boolean> {
+    // Mode 1: Called with (userId, password)
+    if (this.db.userPasswords && typeof this.db.userPasswords[firstArg] === 'string') {
+      const userId = firstArg;
+      const password = secondArg;
+      const storedHash = this.db.userPasswords[userId];
+      const isValid = await this.verifyPasswordHashAsync(password, storedHash);
+
+      if (isValid && !storedHash.startsWith('pbkdf2-sha512$')) {
+        // Upgrade legacy PBKDF2 and unsalted SHA-256 hashes after successful login.
+        this.db.userPasswords[userId] = await this.hashPasswordAsync(password);
+        this.saveDatabase();
+      }
+      return isValid;
+    }
+
+    // If firstArg is a known user ID without a password, return false
+    if (this.db.users && this.db.users.some(u => u.id === firstArg)) {
+      return false;
+    }
+
+    // Mode 2: Called with (password, storedHash)
+    const password = firstArg;
+    const storedHash = secondArg;
+    const isValid = await this.verifyPasswordHashAsync(password, storedHash);
+
+    if (isValid && !storedHash.startsWith('pbkdf2-sha512$') && this.db.userPasswords) {
+      let upgraded = false;
+      for (const [uid, hash] of Object.entries(this.db.userPasswords)) {
+        if (hash === storedHash) {
+          this.db.userPasswords[uid] = await this.hashPasswordAsync(password);
+          upgraded = true;
+        }
+      }
+      if (upgraded) {
+        this.saveDatabase();
+      }
+    }
+
+    return isValid;
   }
 
   private verifyPasswordHash(password: string, storedHash: string): boolean {

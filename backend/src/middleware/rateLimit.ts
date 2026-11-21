@@ -24,6 +24,20 @@ export function ipKeyGenerator(req: Request): string {
   return `ip:${req.ip || req.socket?.remoteAddress || 'unknown'}`;
 }
 
+export function loginKeyGenerator(req: Request): string {
+  const ip = req.ip || req.socket?.remoteAddress || 'unknown';
+  const email = (req.body?.email && typeof req.body.email === 'string')
+    ? req.body.email.trim().toLowerCase()
+    : '';
+
+  const isLocal = ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1' || ip === 'localhost';
+  if (isLocal) {
+    // For localhost, key by email so local dev/testing is never locked out by IP
+    return email ? `login:local:${email}` : `login:local:${Date.now()}_${Math.random()}`;
+  }
+  return email ? `login:${ip}:${email}` : `login:${ip}`;
+}
+
 /**
  * Resolves the configured rate limit maximum, defaulting to 10 unless
  * specified in environment variables or configuration options.
@@ -184,9 +198,9 @@ export const apiRateLimiterInstance = new SlidingWindowRateLimiter({
 });
 export const apiRateLimiter = apiRateLimiterInstance.middleware;
 export const loginRateLimiterInstance = new SlidingWindowRateLimiter({
-  max: 10,
+  max: 30,
   windowMs: 15 * 60_000,
-  keyGenerator: ipKeyGenerator,
+  keyGenerator: loginKeyGenerator,
 });
 export const loginRateLimiter = loginRateLimiterInstance.middleware;
 export const registerRateLimiterInstance = new SlidingWindowRateLimiter({
