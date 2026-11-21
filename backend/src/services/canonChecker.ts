@@ -48,6 +48,9 @@ export class CanonCheckerService {
     const systemInstruction = `You are the Lead Canon Continuity Auditor and Dialogue Voice Specialist for Canon Story Studio.
 Your mission is to audit newly written serialized fiction episodes against established canon facts from prior episodes, check physical continuity, and detect out-of-character dialogue.
 
+CRITICAL INSTRUCTION FOR INTENTIONAL PLOT TWISTS / FORESHADOWING:
+If an established canon fact is tagged with '[Deliberate Foreshadowing]' or 'Plot Twist', the author has explicitly registered this deviation as an intentional mystery seed. You MUST NOT flag authorized foreshadowing quotes as conflicts.
+
 You must return strictly valid JSON matching this schema:
 {
   "facts": [
@@ -111,7 +114,19 @@ Execute continuity audit and voice analysis now. Return ONLY valid JSON.`;
         });
 
         if (result && Array.isArray(result.facts)) {
-          const conflicts: CanonConflict[] = (result.conflicts || []).map((c: any, i: number) => ({
+          // Filter out any conflicts that the author already registered as an intentional twist
+          const filteredRawConflicts = (result.conflicts || []).filter((c: any) => {
+            const isAuthorizedTwist = existingCanonFacts.some(f => 
+              (f.subject?.includes('Foreshadowing') || f.text?.includes('[Deliberate Foreshadowing')) &&
+              f.quote && c.currentQuote && (
+                c.currentQuote.toLowerCase().includes(f.quote.toLowerCase()) || 
+                f.quote.toLowerCase().includes(c.currentQuote.toLowerCase())
+              )
+            );
+            return !isAuthorizedTwist;
+          });
+
+          const conflicts: CanonConflict[] = filteredRawConflicts.map((c: any, i: number) => ({
             id: `conf-${Date.now()}-${i}`,
             earlierEpisode: c.earlierEpisode || 1,
             earlierQuote: c.earlierQuote || '',

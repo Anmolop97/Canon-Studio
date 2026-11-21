@@ -440,8 +440,25 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
           currentEpisode.title,
           currentEpisode.content
         ).then(res => {
-          setAuditResult(res);
-          setHasFreshCheck(true);
+          if (res) {
+            // Filter out any conflicts that the author registered as a foreshadowing twist
+            const filteredConflicts = (res.conflicts || []).filter(c => {
+              return !canonFacts.some(f => 
+                (f.subject?.includes('Foreshadowing') || f.text?.includes('[Deliberate Foreshadowing')) &&
+                f.quote && c.currentQuote && (
+                  c.currentQuote.toLowerCase().includes(f.quote.toLowerCase()) || 
+                  f.quote.toLowerCase().includes(c.currentQuote.toLowerCase())
+                )
+              );
+            });
+            setAuditResult({
+              ...res,
+              conflicts: filteredConflicts,
+              canonScore: filteredConflicts.length === 0 ? 98 : res.canonScore,
+              status: filteredConflicts.length === 0 ? 'consistent' : res.status
+            });
+            setHasFreshCheck(true);
+          }
         }).catch(err => {
           console.warn('Background canon check notice:', err);
         });
@@ -471,6 +488,24 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
             currentEpisode.title,
             currentEpisode.content
           );
+          if (freshAudit) {
+            // Filter out any conflicts that the author registered as a foreshadowing twist
+            const filteredConflicts = (freshAudit.conflicts || []).filter(c => {
+              return !updatedFacts.some(f => 
+                (f.subject?.includes('Foreshadowing') || f.text?.includes('[Deliberate Foreshadowing')) &&
+                f.quote && c.currentQuote && (
+                  c.currentQuote.toLowerCase().includes(f.quote.toLowerCase()) || 
+                  f.quote.toLowerCase().includes(c.currentQuote.toLowerCase())
+                )
+              );
+            });
+            freshAudit = {
+              ...freshAudit,
+              conflicts: filteredConflicts,
+              canonScore: filteredConflicts.length === 0 ? 98 : freshAudit.canonScore,
+              status: filteredConflicts.length === 0 ? 'consistent' : freshAudit.status
+            };
+          }
           setAuditResult(freshAudit);
           setHasFreshCheck(true);
         } catch (e) {
@@ -481,7 +516,12 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
       if (freshAudit && freshAudit.facts && freshAudit.facts.length > 0) {
         const newFacts = freshAudit.facts;
         const currentEpNum = selectedEpisodeIndex + 1;
-        const remainingFacts = updatedFacts.filter(f => f.episodeNumber !== currentEpNum);
+        // Keep prior facts AND preserve deliberate foreshadowing twist seeds!
+        const remainingFacts = updatedFacts.filter(f => 
+          f.episodeNumber !== currentEpNum || 
+          f.subject?.includes('Foreshadowing') || 
+          f.text?.includes('[Deliberate Foreshadowing')
+        );
         updatedFacts = [...remainingFacts, ...newFacts];
 
         if (freshAudit.voiceNotes) {
