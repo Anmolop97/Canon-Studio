@@ -16,9 +16,11 @@ import {
   FileText,
   RefreshCw,
   Globe,
-  Download
+  Download,
+  Zap
 } from 'lucide-react';
 import { VoiceNarratorButton } from './VoiceNarratorButton';
+import { CanonIntegrityGauge } from './CanonIntegrityGauge';
 import { toast } from './ui/Toast';
 
 interface TabWriterModeProps {
@@ -333,6 +335,69 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
       setIsAuditing(false);
     }
   };
+
+  // Grammarly for Plot Holes: 1-Click Auto-Heal
+  const handleHealConflict = (conflict: { currentQuote: string; fixSuggestion?: string }) => {
+    if (!currentEpisode || !conflict.fixSuggestion) return;
+    const currentText = currentEpisode.content;
+    if (!currentText.includes(conflict.currentQuote)) {
+      toast.error('Could not find the exact quote in the draft. It may have already been modified.');
+      return;
+    }
+    const updatedContent = currentText.replace(conflict.currentQuote, conflict.fixSuggestion);
+    handleEpisodeContentChange(updatedContent);
+
+    // Update local conflicts and restore gauge
+    if (auditResult) {
+      const remainingConflicts = (auditResult.conflicts || []).filter(c => c.currentQuote !== conflict.currentQuote);
+      const newScore = remainingConflicts.length === 0 ? 98 : Math.max(60, (auditResult.canonScore || 50) + 25);
+      setAuditResult({
+        ...auditResult,
+        conflicts: remainingConflicts,
+        canonScore: newScore,
+        status: remainingConflicts.length === 0 ? 'consistent' : 'warning'
+      });
+    }
+    toast.success('⚡ Plot hole healed! Text updated to restore canon continuity.');
+  };
+
+  const handleDismissConflict = (quote: string) => {
+    if (!auditResult) return;
+    const remainingConflicts = (auditResult.conflicts || []).filter(c => c.currentQuote !== quote);
+    const newScore = remainingConflicts.length === 0 ? 98 : Math.max(70, (auditResult.canonScore || 50) + 20);
+    setAuditResult({
+      ...auditResult,
+      conflicts: remainingConflicts,
+      canonScore: newScore,
+      status: remainingConflicts.length === 0 ? 'consistent' : 'warning'
+    });
+    toast.info('Marked as Intentional Plot Twist / Foreshadowing.');
+  };
+
+  // Live Debounced Lore Audit (Grammarly-style background check after 2s typing pause)
+  useEffect(() => {
+    if (!selectedDraftId || !currentEpisode || !currentEpisode.content || currentEpisode.content.trim().length < 80) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      if (!isAuditing) {
+        api.checkCanon(
+          selectedDraftId,
+          selectedEpisodeIndex,
+          currentEpisode.title,
+          currentEpisode.content
+        ).then(res => {
+          setAuditResult(res);
+          setHasFreshCheck(true);
+        }).catch(err => {
+          console.warn('Background canon check notice:', err);
+        });
+      }
+    }, 2200);
+
+    return () => clearTimeout(timer);
+  }, [currentEpisode?.content, selectedEpisodeIndex, selectedDraftId]);
 
   // Save Episode
   const handleSaveDraft = async () => {
@@ -853,21 +918,34 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
         {/* LEFT: EPISODE EDITOR (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
           <div className="bg-studio-card border border-studio-border rounded-lg p-5">
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 mb-3">
+            {/* Episode Title Row */}
+            <div className="mb-3">
               <input
                 type="text"
                 value={currentEpisode.title}
                 onChange={(e) => handleEpisodeTitleChange(e.target.value)}
                 placeholder="Episode Title (e.g. Episode 1: Acid on Carbon)"
-                className="w-full sm:flex-1 bg-studio-bg border border-studio-border rounded-xl px-3 py-2 text-sm font-serif font-bold text-studio-text focus:border-studio-accent min-h-[44px]"
+                className="w-full bg-studio-bg border border-studio-border rounded-xl px-4 py-2.5 text-base font-serif font-bold text-studio-text focus:border-studio-accent min-h-[44px]"
+              />
+            </div>
+
+            {/* Editor Sub-Toolbar: Live Canon Gauge & Action Triggers */}
+            <div className="flex flex-wrap items-center justify-between gap-2.5 mb-4 pb-3 border-b border-studio-border/60">
+              {/* Left: Live Circular Canon Integrity Gauge */}
+              <CanonIntegrityGauge
+                score={auditResult?.canonScore ?? 100}
+                isAuditing={isAuditing}
+                conflictCount={auditResult?.conflicts?.length ?? 0}
+                onRefresh={handleCheckCanon}
               />
 
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              {/* Right: AI Tools */}
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   disabled={isIllustrating || !currentEpisode.content?.trim()}
                   onClick={handleIllustrateEpisode}
-                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 bg-studio-raised hover:bg-studio-accent/20 border border-studio-border text-xs font-semibold text-studio-accent rounded-xl min-h-[40px] sm:min-h-[44px] disabled:opacity-50 transition-colors"
+                  className="flex items-center justify-center gap-1.5 px-3 py-2 bg-studio-raised hover:bg-studio-accent/20 border border-studio-border text-xs font-semibold text-studio-accent rounded-xl min-h-[38px] disabled:opacity-50 transition-colors"
                   title="Generate 16:9 Concept Art with Gemini Art Director + FLUX"
                 >
                   {isIllustrating ? (
@@ -881,7 +959,7 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
                 <button
                   type="button"
                   onClick={() => setShowAiDraftModal(true)}
-                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 bg-studio-raised hover:bg-studio-accent/20 border border-studio-border text-xs font-semibold text-studio-accent rounded-xl min-h-[40px] sm:min-h-[44px]"
+                  className="flex items-center justify-center gap-1.5 px-3.5 py-2 bg-studio-raised hover:bg-studio-accent/20 border border-studio-border text-xs font-semibold text-studio-accent rounded-xl min-h-[38px] transition-colors"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Draft with AI</span>
@@ -919,6 +997,93 @@ export function TabWriterMode({ currentUser, onOpenAuth, onAuthSuccess, preloade
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
+              </div>
+            )}
+
+            {/* "Grammarly for Plot Holes" — Live Inline Lore Assistant Banner */}
+            {auditResult?.conflicts && auditResult.conflicts.length > 0 && (
+              <div className="mb-4 p-4 rounded-2xl bg-rose-500/10 dark:bg-rose-950/25 border-2 border-rose-500/40 shadow-sm">
+                <div className="flex items-center justify-between gap-2 mb-2.5 pb-2 border-b border-rose-500/20">
+                  <div className="flex items-center gap-2">
+                    <div className="size-6 rounded-lg bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center font-bold text-xs">
+                      ⚠️
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-rose-700 dark:text-rose-300 tracking-tight">
+                        Grammarly for Plot Holes: {auditResult.conflicts.length} Lore Conflict{auditResult.conflicts.length > 1 ? 's' : ''} Detected
+                      </span>
+                      <p className="text-[10px] text-rose-600/80 dark:text-rose-400/80 font-mono">
+                        Line contradicts established canon facts from prior episodes.
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/30">
+                    Health: {auditResult.canonScore}%
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  {auditResult.conflicts.map((conflict, idx) => (
+                    <div 
+                      key={conflict.id || idx}
+                      className="p-3.5 rounded-xl bg-white/95 dark:bg-slate-900/90 border border-rose-400/40 shadow-xs space-y-2"
+                    >
+                      {/* Earlier Fact Context */}
+                      {conflict.earlierQuote && (
+                        <div className="text-[11px] text-[#58745C] dark:text-slate-400 flex items-start gap-1.5 font-mono">
+                          <span className="text-emerald-700 dark:text-emerald-400 font-bold">✓ Established Canon (Ep {conflict.earlierEpisode || 1}):</span>
+                          <span className="italic">&ldquo;{conflict.earlierQuote}&rdquo;</span>
+                        </div>
+                      )}
+
+                      {/* Violating Line with Wavy Underline */}
+                      <div className="text-xs font-serif leading-relaxed text-[#101C19] dark:text-white">
+                        <span className="text-[11px] font-mono font-bold text-rose-600 dark:text-rose-400 mr-1.5 uppercase">
+                          Current Draft Line:
+                        </span>
+                        <span className="underline decoration-wavy decoration-rose-500 decoration-2 font-semibold bg-rose-500/10 px-1 py-0.5 rounded">
+                          &ldquo;{conflict.currentQuote}&rdquo;
+                        </span>
+                      </div>
+
+                      {/* Explanation */}
+                      <p className="text-xs text-[#263F35] dark:text-slate-300 font-sans">
+                        <span className="font-semibold text-rose-700 dark:text-rose-400">Why this is a plot hole:</span> {conflict.explanation}
+                      </p>
+
+                      {/* 1-Click Auto-Heal & Dismiss Controls */}
+                      <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        {conflict.fixSuggestion ? (
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <button
+                              type="button"
+                              onClick={() => handleHealConflict(conflict)}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-xs hover:shadow transition-all active:scale-95"
+                              title="Click to automatically replace the contradictory line in the text"
+                            >
+                              <Zap className="size-3.5 fill-current text-amber-300" />
+                              <span>⚡ Heal Plot Hole (1-Click)</span>
+                            </button>
+                            <span className="text-[11px] text-emerald-800 dark:text-emerald-300 font-mono italic">
+                              Fix: &ldquo;{conflict.fixSuggestion.slice(0, 48)}...&rdquo;
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-rose-500 font-mono">Manual edit recommended</span>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => handleDismissConflict(conflict.currentQuote)}
+                          className="text-[10px] font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 underline"
+                          title="Keep this line as a deliberate plot twist or character deception"
+                        >
+                          🎭 Keep as Intentional Twist
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
